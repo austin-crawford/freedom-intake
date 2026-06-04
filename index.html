@@ -686,7 +686,7 @@ function clearHiddenLicenseQuestions() {
     const sliderName = `${person}_detail_preference_level`;
     const answerName = `${person}_license_interest`;
     const score = Number(formData[sliderName] || 1);
-    if (score <= 7) delete formData[answerName];
+    if (score <= 6) delete formData[answerName];
   });
 }
 

@@ -1058,7 +1058,7 @@ document.addEventListener("input", e => {
     if (display) display.textContent = value;
 
     if (box) {
-      if (Number(value) > 7) {
+      if (Number(value) >= 7) {
         box.classList.add("active");
       } else {
         box.classList.remove("active");

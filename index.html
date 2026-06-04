@@ -35,7 +35,7 @@
 
       <div class="step-actions">
         <button type="button" class="btn secondary" id="prevStep">Back</button>
-        <button type="button" class="btn primary" id="nextStep">Next Step →</button>
+        <button type="button" class="btn primary" id="nextStep">Next Step -></button>
       </div>
     </section>
   </main>
@@ -829,7 +829,7 @@ function renderDynamicTable(label, tableType) {
                     placeholder="${escapeHTML(col.placeholder)}">
                 </td>
               `).join("")}
-              <td class="delete-cell"><button type="button" class="table-delete" onclick="deleteTableRow('${escapeHTML(tableType)}', ${index})">×</button></td>
+              <td class="delete-cell"><button type="button" class="table-delete" onclick="deleteTableRow('${escapeHTML(tableType)}', ${index})">X</button></td>
             </tr>
           `).join("")}
         </tbody>
@@ -884,7 +884,7 @@ function renderStep() {
   document.getElementById("stepContent").innerHTML = step.fields.map(renderField).join("");
 
   document.getElementById("prevStep").style.display = currentStep === 0 ? "none" : "inline-block";
-  document.getElementById("nextStep").textContent = currentStep === steps.length - 1 ? "Finish & Print →" : "Next Step →";
+  document.getElementById("nextStep").textContent = currentStep === steps.length - 1 ? "Finish & Print →" : "Next Step ->";
 
   const progress = Math.round((currentStep / (steps.length - 1)) * 100);
   document.getElementById("progressPercent").textContent = `${progress}%`;

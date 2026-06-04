@@ -754,7 +754,7 @@ function renderField(field) {
     const sliderName = `${personKey}_detail_preference_level`;
     const answerName = `${personKey}_license_interest`;
     const sliderValue = getSavedValue(sliderName) || "1";
-    const showConditional = Number(sliderValue) > 7;
+    const showConditional = Number(sliderValue) >= 7;
 
     return `
       <div class="${fieldClass}">
@@ -941,7 +941,7 @@ function buildPrintView() {
           </div>
         `;
 
-        if (Number(sliderValue) > 7) {
+        if (Number(sliderValue) >= 7) {
           html += `
             <div class="print-row">
               <strong>${escapeHTML(person)}: ${escapeHTML(licenseQuestion)}</strong>

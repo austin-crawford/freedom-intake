@@ -884,7 +884,7 @@ function renderStep() {
   document.getElementById("stepContent").innerHTML = step.fields.map(renderField).join("");
 
   document.getElementById("prevStep").style.display = currentStep === 0 ? "none" : "inline-block";
-  document.getElementById("nextStep").textContent = currentStep === steps.length - 1 ? "Finish & Print" : "Next Step";
+  document.getElementById("nextStep").textContent = currentStep === steps.length - 1 ? "Finish & Print PDF" : "Next Step";
 
   const progress = Math.round((currentStep / (steps.length - 1)) * 100);
   document.getElementById("progressPercent").textContent = `${progress}%`;

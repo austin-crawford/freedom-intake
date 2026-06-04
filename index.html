@@ -551,6 +551,17 @@ const steps = [
       ["Do you have giving or legacy goals?", "textarea"]
     ]
   }
+  {
+  type: "notes",
+  title: "Additional Notes & Miscellaneous",
+  subtitle: "Capture any additional information that doesn't fit elsewhere.",
+  fields: [
+    ["Additional Notes", "textarea"],
+    ["Advisor Notes", "textarea"],
+    ["Follow-Up Items", "textarea"],
+    ["Questions or Concerns", "textarea"]
+  ]
+}
 ];
 
 let currentStep = 0;
@@ -848,8 +859,21 @@ function renderNav() {
     btn.type = "button";
     btn.className = index === currentStep ? "active" : "";
 
-    const badge = step.type === "basic" ? "i" : step.stepNumber;
-    const label = step.type === "basic" ? "Basic Information" : `Step ${step.stepNumber}`;
+    let badge;
+let label;
+
+if (step.type === "basic") {
+  badge = "i";
+  label = "Basic Information";
+}
+else if (step.type === "notes") {
+  badge = "📝";
+  label = "Additional Notes";
+}
+else {
+  badge = step.stepNumber;
+  label = `Step ${step.stepNumber}`;
+}
 
     btn.innerHTML = `
       <span class="step-num">${badge}</span>
@@ -873,12 +897,17 @@ function renderStep() {
   document.getElementById("stepSubtitle").textContent = step.subtitle;
 
   if (step.type === "basic") {
-    document.getElementById("stepBadge").textContent = "i";
-    document.getElementById("stepCount").textContent = "Basic Information";
-  } else {
-    document.getElementById("stepBadge").textContent = step.stepNumber;
-    document.getElementById("stepCount").textContent = `Step ${step.stepNumber} of 9`;
-  }
+  document.getElementById("stepBadge").textContent = "i";
+  document.getElementById("stepCount").textContent = "Basic Information";
+}
+else if (step.type === "notes") {
+  document.getElementById("stepBadge").textContent = "📝";
+  document.getElementById("stepCount").textContent = "Additional Notes";
+}
+else {
+  document.getElementById("stepBadge").textContent = step.stepNumber;
+  document.getElementById("stepCount").textContent = `Step ${step.stepNumber} of 9`;
+}
 
   document.getElementById("stepContent").className = step.type === "basic" ? "step-content basic-info-grid" : "step-content";
   document.getElementById("stepContent").innerHTML = step.fields.map(renderField).join("");

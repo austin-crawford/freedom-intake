@@ -554,7 +554,7 @@ const steps = [
   },
   {
     type: "notes",
-    title: "Commitment & Next Steps",
+    title: "Next Steps",
     subtitle: "Before we build your personalized roadmap, let's understand your commitment to achieving your goals.",
     fields: [
       ["On a scale of 1-10, how important is being on track to be properly protected, debt free and financially independent?", "text"],
@@ -869,7 +869,7 @@ function renderNav() {
       label = "Basic Information";
     } else if (step.type === "notes") {
       badge = "+";
-      label = "Commitment & Next Steps";
+      label = "Next Steps";
     } else {
       badge = step.stepNumber;
       label = `Step ${step.stepNumber}`;
@@ -901,7 +901,7 @@ function renderStep() {
     document.getElementById("stepCount").textContent = "Basic Information";
   } else if (step.type === "notes") {
     document.getElementById("stepBadge").textContent = "+";
-    document.getElementById("stepCount").textContent = "Commitment & Next Steps";
+    document.getElementById("stepCount").textContent = "Next Steps";
   } else {
     document.getElementById("stepBadge").textContent = step.stepNumber;
     document.getElementById("stepCount").textContent = `Step ${step.stepNumber} of 9`;
@@ -938,7 +938,7 @@ function buildPrintView() {
     if (step.type === "basic") {
       heading = "Basic Information";
     } else if (step.type === "notes") {
-      heading = "Commitment & Next Steps";
+      heading = "Next Steps";
     } else {
       heading = `Step ${step.stepNumber}: ${step.title}`;
     }

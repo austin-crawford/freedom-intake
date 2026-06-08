@@ -868,7 +868,7 @@ function renderNav() {
       badge = "i";
       label = "Basic Information";
     } else if (step.type === "notes") {
-      badge = "+";
+      badge = "N";
       label = "Next Steps";
     } else {
       badge = step.stepNumber;
@@ -900,7 +900,7 @@ function renderStep() {
     document.getElementById("stepBadge").textContent = "i";
     document.getElementById("stepCount").textContent = "Basic Information";
   } else if (step.type === "notes") {
-    document.getElementById("stepBadge").textContent = "+";
+    document.getElementById("stepBadge").textContent = "N";
     document.getElementById("stepCount").textContent = "Next Steps";
   } else {
     document.getElementById("stepBadge").textContent = step.stepNumber;

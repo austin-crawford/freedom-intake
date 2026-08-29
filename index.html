@@ -501,7 +501,15 @@ const steps = [
     subtitle: "Create a clear path to reduce and eliminate debt.",
     fields: [
       ["Consumer Debt", "debtTable"],
-      ["How stressful does your debt feel right now?", "select", ["Select one", "Low", "Moderate", "High", "Overwhelming"]]
+      ["How stressful does your debt feel right now?", "select", ["Select one", "Low", "Moderate", "High", "Overwhelming"]],
+      ["Do you currently own a home?", "radio", ["Yes", "No"]],
+      ["Value of Home:", "text"],
+      ["Mortgage Balance:", "text"],
+      ["Mortgage Payment:", "text"],
+      ["Mortgage Interest Rate:", "text"],
+      ["Mortgage Renewal Date:", "text"],
+      ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]],
+      ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]
     ]
   },
   {

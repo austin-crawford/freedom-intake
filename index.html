@@ -56,1108 +56,290 @@
   --danger-bg: #fee2e2;
   --danger-text: #991b1b;
 }
-
-.fs-app {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding: 32px;
-  font-family: Inter, Arial, sans-serif;
-  color: var(--text);
-  background: var(--bg);
-}
-
-.fs-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 32px;
-}
-
-.fs-header h1 {
-  font-size: 42px;
-  margin: 0;
-  color: var(--navy);
-}
-
-.fs-header p {
-  font-size: 18px;
-  max-width: 720px;
-  color: var(--muted);
-}
-
-.fs-actions {
-  display: grid;
-  gap: 10px;
-  min-width: 180px;
-}
-
-.fs-actions label {
-  font-weight: 700;
-  color: var(--navy);
-}
-
-input, select, textarea {
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  padding: 13px 14px;
-  font-size: 15px;
-  background: white;
-}
-
+.fs-app { max-width: 1320px; margin: 0 auto; padding: 32px; font-family: Inter, Arial, sans-serif; color: var(--text); background: var(--bg); }
+.fs-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+.fs-header h1 { font-size: 42px; margin: 0; color: var(--navy); }
+.fs-header p { font-size: 18px; max-width: 720px; color: var(--muted); }
+.fs-actions { display: grid; gap: 10px; min-width: 180px; }
+.fs-actions label { font-weight: 700; color: var(--navy); }
+input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 9px; padding: 13px 14px; font-size: 15px; background: white; }
 textarea { resize: vertical; }
-
-.fs-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 32px;
-}
-
-.fs-sidebar,
-.fs-step-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: 0 8px 25px rgba(15, 35, 75, 0.06);
-}
-
+.fs-layout { display: grid; grid-template-columns: 260px 1fr; gap: 32px; }
+.fs-sidebar, .fs-step-card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 8px 25px rgba(15, 35, 75, 0.06); }
 .fs-sidebar { padding: 22px; }
-
-.progress-track {
-  height: 8px;
-  background: #e8edf5;
-  border-radius: 99px;
-  overflow: hidden;
-  margin: 12px 0 22px;
-}
-
-.progress-fill {
-  height: 100%;
-  width: 0%;
-  background: var(--blue);
-}
-
+.progress-track { height: 8px; background: #e8edf5; border-radius: 99px; overflow: hidden; margin: 12px 0 22px; }
+.progress-fill { height: 100%; width: 0%; background: var(--blue); }
 .step-nav { display: grid; gap: 8px; }
-
-.step-nav button {
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  gap: 10px;
-  align-items: center;
-  text-align: left;
-  border: none;
-  background: transparent;
-  border-radius: 10px;
-  padding: 10px;
-  cursor: pointer;
-  color: var(--text);
-}
-
-.step-nav button.active {
-  background: var(--light-blue);
-  color: var(--blue);
-}
-
+.step-nav button { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; text-align: left; border: none; background: transparent; border-radius: 10px; padding: 10px; cursor: pointer; color: var(--text); }
+.step-nav button.active { background: var(--light-blue); color: var(--blue); }
 .step-nav small { color: var(--muted); }
-
-.step-num {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #e7ecf3;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-}
-
-.step-nav button.active .step-num {
-  background: var(--blue);
-  color: white;
-}
-
+.step-num { width: 26px; height: 26px; border-radius: 50%; background: #e7ecf3; display: grid; place-items: center; font-weight: 700; }
+.step-nav button.active .step-num { background: var(--blue); color: white; }
 .fs-step-card { overflow: hidden; }
-
-.step-card-header {
-  display: grid;
-  grid-template-columns: 48px 1fr auto;
-  gap: 16px;
-  align-items: center;
-  padding: 28px;
-  border-bottom: 1px solid var(--border);
-}
-
+.step-card-header { display: grid; grid-template-columns: 48px 1fr auto; gap: 16px; align-items: center; padding: 28px; border-bottom: 1px solid var(--border); }
 .step-card-header h2 { margin: 0; color: var(--navy); }
 .step-card-header p { margin: 6px 0 0; color: var(--muted); }
-
-.step-badge {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--blue);
-  color: white;
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 20px;
-}
-
+.step-badge { width: 44px; height: 44px; border-radius: 50%; background: var(--blue); color: white; display: grid; place-items: center; font-weight: 800; font-size: 20px; }
 #stepCount { font-weight: 700; color: var(--muted); }
-
-.step-content {
-  padding: 28px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 22px;
-}
-
+.step-content { padding: 28px; display: grid; grid-template-columns: 1fr; gap: 22px; }
 .basic-info-grid { grid-template-columns: 1fr 1fr; }
 .form-group { grid-column: 1 / -1; }
 .basic-info-grid .form-group.two-col { grid-column: auto; }
 .form-group.full { grid-column: 1 / -1; }
-
-.form-group label {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--navy);
-}
-
-.section-heading {
-  grid-column: 1 / -1;
-  margin: 4px 0 -4px;
-  padding-top: 4px;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--navy);
-}
-
-.radio-row {
-  display: flex;
-  gap: 30px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-top: 10px;
-}
-
-.radio-option,
-.checkbox-option {
-  display: flex !important;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500 !important;
-  margin-bottom: 0 !important;
-}
-
-.radio-option input,
-.checkbox-option input { width: auto; }
-
-.checkbox-row {
-  display: grid;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.slider-wrap {
-  display: grid;
-  gap: 10px;
-}
-
-.slider-top-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-}
-
-.slider-value {
-  min-width: 42px;
-  height: 34px;
-  border-radius: 9px;
-  background: var(--light-blue);
-  color: var(--blue);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-}
-
-input[type="range"] {
-  padding: 0;
-  border: none;
-  background: transparent;
-}
-
-.conditional-box {
-  display: none;
-  margin-top: 14px;
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #f8fbff;
-}
-
+.form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--navy); }
+.section-heading { grid-column: 1 / -1; margin: 4px 0 -4px; padding-top: 4px; font-size: 16px; font-weight: 700; color: var(--navy); }
+.radio-row { display: flex; gap: 30px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.radio-option, .checkbox-option { display: flex !important; align-items: center; gap: 8px; font-weight: 500 !important; margin-bottom: 0 !important; }
+.radio-option input, .checkbox-option input { width: auto; }
+.checkbox-row { display: grid; gap: 12px; margin-top: 10px; }
+.slider-wrap { display: grid; gap: 10px; }
+.slider-top-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+.slider-value { min-width: 42px; height: 34px; border-radius: 9px; background: var(--light-blue); color: var(--blue); display: grid; place-items: center; font-weight: 800; }
+input[type="range"] { padding: 0; border: none; background: transparent; }
+.conditional-box { display: none; margin-top: 14px; padding: 16px; border: 1px solid var(--border); border-radius: 12px; background: #f8fbff; }
 .conditional-box.active { display: block; }
-
 .dynamic-table-wrap { overflow-x: auto; }
-
-.dynamic-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-  min-width: 760px;
-}
-
-.dynamic-table th {
-  text-align: left;
-  font-size: 13px;
-  color: var(--navy);
-  padding: 10px;
-  border-bottom: 1px solid var(--border);
-  background: #f8fbff;
-}
-
-.dynamic-table td {
-  padding: 10px;
-  border-bottom: 1px solid #eef2f7;
-  vertical-align: top;
-}
-
+.dynamic-table { width: 100%; border-collapse: collapse; margin-top: 12px; min-width: 760px; }
+.dynamic-table th { text-align: left; font-size: 13px; color: var(--navy); padding: 10px; border-bottom: 1px solid var(--border); background: #f8fbff; }
+.dynamic-table td { padding: 10px; border-bottom: 1px solid #eef2f7; vertical-align: top; }
 .dynamic-table input { padding: 10px; }
 .dynamic-table .delete-cell { width: 52px; text-align: center; }
 .add-row-btn { margin-top: 14px; }
-
-.table-delete {
-  border: none;
-  background: var(--danger-bg);
-  color: var(--danger-text);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.step-actions {
-  padding: 24px 28px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  border-top: 1px solid var(--border);
-}
-
-.btn {
-  border: none;
-  border-radius: 9px;
-  padding: 12px 20px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
+.table-delete { border: none; background: var(--danger-bg); color: var(--danger-text); border-radius: 8px; padding: 8px 12px; font-weight: 800; cursor: pointer; }
+.step-actions { padding: 24px 28px; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border); }
+.btn { border: none; border-radius: 9px; padding: 12px 20px; font-weight: 800; cursor: pointer; }
 .btn.primary { background: var(--blue); color: white; }
 .btn.secondary { background: white; border: 1px solid var(--border); color: var(--navy); }
-
 #printView { display: none; }
-
-.print-card {
-  page-break-inside: avoid;
-  border: 1px solid #dfe6f0;
-  border-radius: 12px;
-  margin-bottom: 24px;
-  padding: 20px;
-}
-
-.print-header {
-  border-bottom: 1px solid #dfe6f0;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-}
-
-.print-header h2,
-.print-header h3 { margin: 0 0 6px; color: #0b1f3a; }
-
-.print-row {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 16px;
-  margin-bottom: 10px;
-}
-
+.print-card { page-break-inside: avoid; border: 1px solid #dfe6f0; border-radius: 12px; margin-bottom: 24px; padding: 20px; }
+.print-header { border-bottom: 1px solid #dfe6f0; margin-bottom: 15px; padding-bottom: 10px; }
+.print-header h2, .print-header h3 { margin: 0 0 6px; color: #0b1f3a; }
+.print-row { display: grid; grid-template-columns: 280px 1fr; gap: 16px; margin-bottom: 10px; }
 .print-row strong { color: #0b1f3a; }
-
-.print-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 10px 0 16px;
-}
-
-.print-table th,
-.print-table td {
-  border: 1px solid #dfe6f0;
-  padding: 8px;
-  text-align: left;
-  font-size: 12px;
-}
-
+.print-table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; }
+.print-table th, .print-table td { border: 1px solid #dfe6f0; padding: 8px; text-align: left; font-size: 12px; }
 .print-table th { color: #0b1f3a; background: #f8fbff; }
-
-.print-disclosure {
-  font-size: 10px;
-  color: #667085;
-  border-top: 1px solid #dfe6f0;
-  padding-top: 14px;
-  margin-top: 20px;
-}
-
-@media (max-width: 900px) {
-  .fs-layout { grid-template-columns: 1fr; }
-  .fs-header { display: block; }
-  .fs-actions { margin-top: 20px; }
-  .basic-info-grid { grid-template-columns: 1fr; }
-  .step-card-header { grid-template-columns: 48px 1fr; }
-  #stepCount { grid-column: 1 / -1; }
-}
-
-@media print {
-  body * { visibility: hidden; }
-  #freedomStepsApp, #freedomStepsApp * { visibility: visible; }
-  #wizardView, .fs-header, .fs-sidebar, .fs-step-card { display: none !important; }
-  #printView {
-    display: block !important;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-    background: white;
-  }
-  .print-card { box-shadow: none; }
-}
+.print-disclosure { font-size: 10px; color: #667085; border-top: 1px solid #dfe6f0; padding-top: 14px; margin-top: 20px; }
+@media (max-width: 900px) { .fs-layout { grid-template-columns: 1fr; } .fs-header { display: block; } .fs-actions { margin-top: 20px; } .basic-info-grid { grid-template-columns: 1fr; } .step-card-header { grid-template-columns: 48px 1fr; } #stepCount { grid-column: 1 / -1; } }
+@media print { body * { visibility: hidden; } #freedomStepsApp, #freedomStepsApp * { visibility: visible; } #wizardView, .fs-header, .fs-sidebar, .fs-step-card { display: none !important; } #printView { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; box-sizing: border-box; background: white; } .print-card { box-shadow: none; } }
 </style>
 
 <script>
 const licenseQuestion = "Would you consider getting licensed to work in financial services - whether part-time to earn extra income or as a potential full-time career change?";
 
 const steps = [
-  {
-    type: "basic",
-    title: "Basic Information",
-    subtitle: "Tell us a little about you and your household.",
-    fields: [
-      ["What are your top financial priorities or concerns? (debt, retirement, investments, budgeting, protection, children's future, etc.)", "textarea"],
-      ["How would you define Financial Freedom for your family?", "textarea"],
-      ["Client detail preference level", "sliderLicense", { person: "Client" }],
-      ["Partner detail preference level", "sliderLicense", { person: "Partner" }],
-      ["Client Name", "text"],
-      ["Partner Name", "text"],
-      ["Client DOB", "date"],
-      ["Partner DOB", "date"],
-      ["Client Email", "email"],
-      ["Partner Email", "email"],
-      ["Client Phone", "tel"],
-      ["Partner Phone", "tel"],
-      ["Province", "select", ["Select Province", "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia", "Nunavut", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Yukon"]],
-      ["How did you hear about us?", "select", ["Select an option", "Referral", "Social Media", "Event", "Existing Client", "Other"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 1,
-    title: "Freedom Number & Wealth Plan",
-    subtitle: "Clarify your long-term financial direction.",
-    fields: [
-      ["My Freedom Number / FIN is:", "currency"],
-      ["Investment Assets", "investmentTable"],
-      ["Can you provide us with statements so that we can identify ways to improve your investment strategy?", "radio", ["Yes", "No", "Not Sure"]],
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 2,
-    title: "Activate Government Benefits",
-    subtitle: "Identify benefits, grants, and credits you may be missing.",
-    fields: [
-      ["Do you have children under age 18?", "radio", ["Yes", "No"]],
-      ["Do you have an RESP set up for ALL your children?", "radio", ["Yes", "No", "Not Sure","N/A"]],
-      ["Does anyone in your home qualify for the Disability Tax Credit (DTC)?", "radio", ["Myself", "My Partner", "My Child", "N/A"]],
-      ["Do you have an RDSP set up for eligible individuals?", "radio", ["Yes", "No", "N/A"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 3,
-    title: "Insurance & Protection Strategy",
-    subtitle: "Review protection for your income, family, and future.",
-    fields: [
-      ["Current Protection Policies", "policyTable"],
-      ["Do you have any insurance that is directly tied to a mortgage, line of credit, or credit card?", "radio", ["Yes", "No"]],
-      ["Do you have a legal will, personal directive & enduring power of attorney?", "radio", ["Yes", "No"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 4,
-    title: "Emergency Fund & Budget",
-    subtitle: "Build stability before acceleration.",
-    fields: [
-      ["How much do you currently have saved for emergencies?", "currency"],
-      ["Do you follow a monthly budget?", "radio", ["Yes", "No", "Somewhat"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 5,
-    title: "Consumer Debt Elimination",
-    subtitle: "Create a clear path to reduce and eliminate debt.",
-    fields: [
-      ["Consumer Debt", "debtTable"],
-      ["How stressful does your debt feel right now?", "select", ["Select one", "Low", "Moderate", "High", "Overwhelming"]],
-      ["Mortgage", "sectionHeading"],
-      ["Do you currently own a home?", "radio", ["Yes", "No"]],
-      ["Value of Home:", "currency"],
-      ["Mortgage Balance:", "currency"],
-      ["Mortgage Payment:", "currency"],
-      ["Mortgage Interest Rate:", "percentage"],
-      ["Mortgage Renewal Date:", "date"],
-      ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]],
-      ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 6,
-    title: "Optimize Wealth Contributions",
-    subtitle: "Improve investing, tax efficiency, and contribution strategy.",
-    fields: [
-      ["Client RRSP Room", "currency"],
-      ["Partner RRSP Room", "currency"],
-      ["Client TFSA Room", "currency"],
-      ["Partner TFSA Room", "currency"],
-      ["Client FHSA Room", "currency"],
-      ["Partner FHSA Room", "currency"],
-      ["Do you own a corporation?", "radio", ["Yes", "No"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 7,
-    title: "Invest in Your Children's Future",
-    subtitle: "Plan for education and long-term opportunity.",
-    fields: [
-      ["If you had extra in your budget, what is your biggest goal for your children's future?", "checkbox", ["Education Funding", "Helping with first home", "Building Generational Wealth", "Financial Literacy", "Not Sure"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 8,
-    title: "Become Mortgage Free",
-    subtitle: "Create a strategy to reduce mortgage debt over time.",
-    fields: [
-      ["Do you currently own a home?", "radio", ["Yes", "No"]],
-      ["Value of Home:", "currency"],
-      ["Mortgage Balance:", "currency"],
-      ["Mortgage Payment:", "currency"],
-      ["Mortgage Interest Rate:", "percentage"],
-      ["Mortgage Renewal Date:", "date"],
-      ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]],
-      ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]
-    ]
-  },
-  {
-    type: "freedom",
-    stepNumber: 9,
-    title: "Live in Freedom & Give Generously",
-    subtitle: "Define the bigger purpose behind your financial goals.",
-    fields: [
-      ["Do you have giving or legacy goals?", "textarea"]
-    ]
-
-  },
-  {
-    type: "notes",
-    title: "Next Steps",
-    subtitle: "Before we build your personalized roadmap, let's understand your commitment to achieving your goals.",
-    fields: [
-      ["On a scale of 1-10, how important is financial freedom to you?", "scale10"],
-      ["How much could you realistically commit each month toward building your financial future?", "radio", ["Less than $100/month", "$100-$250/month", "$250-$500/month", "$500-$1,000/month", "$1,000-$2,500/month", "$2,500+/month"]],
-      ["Assuming we identify an opportunity that improves your situation, is there any reason you would not move forward with implementing it?", "radio", ["No, there is no reason!", "Yes, I have a reason"]],
-      ["If Yes, what is the reason you would NOT implement improvements to your financial strategy?", "textarea"],
-      ["Additional Notes", "textarea"],
-      ["Next Appointment Date", "date"]
-    ]
-  }
+  { type: "basic", title: "Basic Information", subtitle: "Tell us a little about you and your household.", fields: [
+    ["What are your top financial priorities or concerns? (debt, retirement, investments, budgeting, protection, children's future, etc.)", "textarea"],
+    ["How would you define Financial Freedom for your family?", "textarea"],
+    ["Client detail preference level", "sliderLicense", { person: "Client" }], ["Partner detail preference level", "sliderLicense", { person: "Partner" }],
+    ["Client Name", "text"], ["Partner Name", "text"], ["Client DOB", "date"], ["Partner DOB", "date"], ["Client Email", "email"], ["Partner Email", "email"], ["Client Phone", "tel"], ["Partner Phone", "tel"],
+    ["Province", "select", ["Select Province", "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia", "Nunavut", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Yukon"]],
+    ["How did you hear about us?", "select", ["Select an option", "Referral", "Social Media", "Event", "Existing Client", "Other"]]
+  ]},
+  { type: "freedom", stepNumber: 1, title: "Freedom Number & Wealth Plan", subtitle: "Clarify your long-term financial direction.", fields: [["My Freedom Number / FIN is:", "currency"], ["Investment Assets", "investmentTable"], ["Can you provide us with statements so that we can identify ways to improve your investment strategy?", "radio", ["Yes", "No", "Not Sure"]]] },
+  { type: "freedom", stepNumber: 2, title: "Activate Government Benefits", subtitle: "Identify benefits, grants, and credits you may be missing.", fields: [["Do you have children under age 18?", "radio", ["Yes", "No"]], ["Do you have an RESP set up for ALL your children?", "radio", ["Yes", "No", "Not Sure", "N/A"]], ["Does anyone in your home qualify for the Disability Tax Credit (DTC)?", "radio", ["Myself", "My Partner", "My Child", "N/A"]], ["Do you have an RDSP set up for eligible individuals?", "radio", ["Yes", "No", "N/A"]]] },
+  { type: "freedom", stepNumber: 3, title: "Insurance & Protection Strategy", subtitle: "Review protection for your income, family, and future.", fields: [["Current Protection Policies", "policyTable"], ["Do you have any insurance that is directly tied to a mortgage, line of credit, or credit card?", "radio", ["Yes", "No"]], ["Do you have a legal will, personal directive & enduring power of attorney?", "radio", ["Yes", "No"]]] },
+  { type: "freedom", stepNumber: 4, title: "Emergency Fund & Budget", subtitle: "Build stability before acceleration.", fields: [["How much do you currently have saved for emergencies?", "currency"], ["Do you follow a monthly budget?", "radio", ["Yes", "No", "Somewhat"]]] },
+  { type: "freedom", stepNumber: 5, title: "Consumer Debt Elimination", subtitle: "Create a clear path to reduce and eliminate debt.", fields: [["Consumer Debt", "debtTable"], ["How stressful does your debt feel right now?", "select", ["Select one", "Low", "Moderate", "High", "Overwhelming"]], ["Mortgage", "sectionHeading"], ["Do you currently own a home?", "radio", ["Yes", "No"]], ["Value of Home:", "currency"], ["Mortgage Balance:", "currency"], ["Mortgage Payment:", "currency"], ["Mortgage Interest Rate:", "percentage"], ["Mortgage Renewal Date:", "date"], ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]], ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]] },
+  { type: "freedom", stepNumber: 6, title: "Optimize Wealth Contributions", subtitle: "Improve investing, tax efficiency, and contribution strategy.", fields: [["Client RRSP Room", "currency"], ["Partner RRSP Room", "currency"], ["Client TFSA Room", "currency"], ["Partner TFSA Room", "currency"], ["Client FHSA Room", "currency"], ["Partner FHSA Room", "currency"], ["Do you own a corporation?", "radio", ["Yes", "No"]]] },
+  { type: "freedom", stepNumber: 7, title: "Invest in Your Children's Future", subtitle: "Plan for education and long-term opportunity.", fields: [["If you had extra in your budget, what is your biggest goal for your children's future?", "checkbox", ["Education Funding", "Helping with first home", "Building Generational Wealth", "Financial Literacy", "Not Sure"]]] },
+  { type: "freedom", stepNumber: 8, title: "Become Mortgage Free", subtitle: "Create a strategy to reduce mortgage debt over time.", fields: [["Do you currently own a home?", "radio", ["Yes", "No"]], ["Value of Home:", "currency"], ["Mortgage Balance:", "currency"], ["Mortgage Payment:", "currency"], ["Mortgage Interest Rate:", "percentage"], ["Mortgage Renewal Date:", "date"], ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]], ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]] },
+  { type: "freedom", stepNumber: 9, title: "Live in Freedom & Give Generously", subtitle: "Define the bigger purpose behind your financial goals.", fields: [["Do you have giving or legacy goals?", "textarea"]] },
+  { type: "notes", title: "Next Steps", subtitle: "Before we build your personalized roadmap, let's understand your commitment to achieving your goals.", fields: [["On a scale of 1-10, how important is financial freedom to you?", "scale10"], ["How much could you realistically commit each month toward building your financial future?", "radio", ["Less than $100/month", "$100-$250/month", "$250-$500/month", "$500-$1,000/month", "$1,000-$2,500/month", "$2,500+/month"]], ["Assuming we identify an opportunity that improves your situation, is there any reason you would not move forward with implementing it?", "radio", ["No, there is no reason!", "Yes, I have a reason"]], ["If Yes, what is the reason you would NOT implement improvements to your financial strategy?", "textarea"], ["Additional Notes", "textarea"], ["Next Appointment Date", "date"]] }
 ];
 
 let currentStep = 0;
 const formData = {};
 
 const tableConfigs = {
-  policyTable: {
-    key: "policyRows",
-    addLabel: "+ Add Policy",
-    emptyRow: { covered: "", type: "", amount: "", premium: "" },
-    columns: [
-      { key: "covered", label: "Who is covered?", placeholder: "Client / Partner / Child", type: "text" },
-      { key: "type", label: "Type of policy", placeholder: "Life / Disability / CI", type: "text" },
-      { key: "amount", label: "Coverage amount", placeholder: "500000", type: "currency" },
-      { key: "premium", label: "Monthly premium", placeholder: "50", type: "currency" }
-    ]
-  },
-  investmentTable: {
-    key: "investmentRows",
-    addLabel: "+ Add Investment Asset",
-    emptyRow: { owner: "", accountType: "", balance: "", contribution: "" },
-    columns: [
-      { key: "owner", label: "Owner", placeholder: "Client / Partner / Joint", type: "text" },
-      { key: "accountType", label: "Account Type", placeholder: "RRSP / TFSA / FHSA / RESP", type: "text" },
-      { key: "balance", label: "Current Balance", placeholder: "25000", type: "currency" },
-      { key: "contribution", label: "Contribution", placeholder: "250", type: "currency" }
-    ]
-  },
-  debtTable: {
-    key: "debtRows",
-    addLabel: "+ Add Debt",
-    emptyRow: { name: "", balance: "", payment: "", rate: "" },
-    columns: [
-      { key: "name", label: "Name", placeholder: "Visa / LOC / Car loan", type: "text" },
-      { key: "balance", label: "Current Balance", placeholder: "8000", type: "currency" },
-      { key: "payment", label: "Payment", placeholder: "250", type: "currency" },
-      { key: "rate", label: "Interest Rate", placeholder: "19.99", type: "percentage" }
-    ]
-  }
+  policyTable: { key: "policyRows", addLabel: "+ Add Policy", emptyRow: { covered: "", type: "", amount: "", premium: "" }, columns: [
+    { key: "covered", label: "Who is covered?", placeholder: "Client / Partner / Child", type: "text" }, { key: "type", label: "Type of policy", placeholder: "Life / Disability / CI", type: "text" }, { key: "amount", label: "Coverage amount", placeholder: "500,000", type: "currency" }, { key: "premium", label: "Monthly premium", placeholder: "50", type: "currency" }
+  ]},
+  investmentTable: { key: "investmentRows", addLabel: "+ Add Investment Asset", emptyRow: { owner: "", accountType: "", balance: "", contribution: "" }, columns: [
+    { key: "owner", label: "Owner", placeholder: "Client / Partner / Joint", type: "text" }, { key: "accountType", label: "Account Type", placeholder: "RRSP / TFSA / FHSA / RESP", type: "text" }, { key: "balance", label: "Current Balance", placeholder: "25,000", type: "currency" }, { key: "contribution", label: "Contribution", placeholder: "250", type: "currency" }
+  ]},
+  debtTable: { key: "debtRows", addLabel: "+ Add Debt", emptyRow: { name: "", balance: "", payment: "", rate: "" }, columns: [
+    { key: "name", label: "Name", placeholder: "Visa / LOC / Car loan", type: "text" }, { key: "balance", label: "Current Balance", placeholder: "8,000", type: "currency" }, { key: "payment", label: "Payment", placeholder: "250", type: "currency" }, { key: "rate", label: "Interest Rate", placeholder: "19.99%", type: "percentage" }
+  ]}
 };
 
-function fieldName(label) {
-  return label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+function fieldName(label) { return label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, ""); }
+function escapeHTML(value) { return String(value || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+
+function normalizeNumericValue(value) {
+  return String(value || "").replace(/[$,%\s]/g, "").replace(/[^0-9.]/g, "");
 }
 
-function escapeHTML(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function formatNumberWithCommas(value) {
+  const raw = normalizeNumericValue(value);
+  if (!raw) return "";
+  const parts = raw.split(".");
+  const whole = (parts.shift() || "0").replace(/^0+(?=\d)/, "");
+  const decimal = parts.join("");
+  const formattedWhole = Number(whole || 0).toLocaleString("en-CA");
+  return decimal ? `${formattedWhole}.${decimal}` : formattedWhole;
+}
+
+function formatDisplayValue(type, value) {
+  if (value === undefined || value === null || value === "") return "";
+  if (type === "currency") return formatNumberWithCommas(value);
+  if (type === "percentage") {
+    const raw = normalizeNumericValue(value);
+    return raw ? `${raw}%` : "";
+  }
+  return String(value);
 }
 
 function inputAttributes(type) {
-  if (type === "currency") return 'type="number" min="0" step="0.01" inputmode="decimal"';
-  if (type === "percentage") return 'type="number" min="0" step="0.01" inputmode="decimal"';
+  if (type === "currency") return 'type="text" inputmode="decimal" data-format="currency"';
+  if (type === "percentage") return 'type="text" inputmode="decimal" data-format="percentage"';
   if (type === "scale10") return 'type="number" min="1" max="10" step="1" inputmode="numeric"';
   return `type="${escapeHTML(type)}"`;
 }
 
-function cloneEmptyRow(config) {
-  return { ...config.emptyRow };
-}
-
-function ensureRows(tableType) {
-  const config = tableConfigs[tableType];
-  if (!Array.isArray(formData[config.key]) || formData[config.key].length === 0) {
-    formData[config.key] = [cloneEmptyRow(config)];
-  }
-}
+function cloneEmptyRow(config) { return { ...config.emptyRow }; }
+function ensureRows(tableType) { const config = tableConfigs[tableType]; if (!Array.isArray(formData[config.key]) || formData[config.key].length === 0) formData[config.key] = [cloneEmptyRow(config)]; }
 
 function saveTableRowsFromDOM() {
-  const tableInputs = document.querySelectorAll("#stepContent [data-table-type]");
-  if (!tableInputs.length) return;
-
-  tableInputs.forEach(input => {
+  document.querySelectorAll("#stepContent [data-table-type]").forEach(input => {
     const tableType = input.dataset.tableType;
     const config = tableConfigs[tableType];
     if (!config) return;
-
     const index = Number(input.dataset.rowIndex);
     const key = input.dataset.rowField;
-
     if (!Array.isArray(formData[config.key])) formData[config.key] = [];
     if (!formData[config.key][index]) formData[config.key][index] = cloneEmptyRow(config);
-
-    formData[config.key][index][key] = input.value;
+    formData[config.key][index][key] = input.dataset.format ? normalizeNumericValue(input.value) : input.value;
   });
 }
 
-function addTableRow(tableType) {
-  saveCurrentInputs();
-  const config = tableConfigs[tableType];
-  if (!config) return;
-
-  ensureRows(tableType);
-  formData[config.key].push(cloneEmptyRow(config));
-  renderStep();
-}
-
-function deleteTableRow(tableType, index) {
-  saveCurrentInputs();
-  const config = tableConfigs[tableType];
-  if (!config) return;
-
-  ensureRows(tableType);
-  formData[config.key].splice(index, 1);
-
-  if (formData[config.key].length === 0) {
-    formData[config.key].push(cloneEmptyRow(config));
-  }
-
-  renderStep();
-}
+function addTableRow(tableType) { saveCurrentInputs(); const config = tableConfigs[tableType]; if (!config) return; ensureRows(tableType); formData[config.key].push(cloneEmptyRow(config)); renderStep(); }
+function deleteTableRow(tableType, index) { saveCurrentInputs(); const config = tableConfigs[tableType]; if (!config) return; ensureRows(tableType); formData[config.key].splice(index, 1); if (!formData[config.key].length) formData[config.key].push(cloneEmptyRow(config)); renderStep(); }
 
 function saveCurrentInputs() {
-  const fields = document.querySelectorAll("#stepContent input, #stepContent select, #stepContent textarea");
-
-  fields.forEach(field => {
-    if (field.dataset.tableType) return;
-    if (!field.name) return;
-
-    if (field.type === "radio") {
-      if (field.checked) formData[field.name] = field.value;
-    } else if (field.type === "checkbox") {
-      const checkedBoxes = document.querySelectorAll(`input[name="${field.name}"]:checked`);
-      formData[field.name] = Array.from(checkedBoxes).map(box => box.value);
-    } else {
-      formData[field.name] = field.value;
-    }
+  document.querySelectorAll("#stepContent input, #stepContent select, #stepContent textarea").forEach(field => {
+    if (field.dataset.tableType || !field.name) return;
+    if (field.type === "radio") { if (field.checked) formData[field.name] = field.value; }
+    else if (field.type === "checkbox") { formData[field.name] = Array.from(document.querySelectorAll(`input[name="${field.name}"]:checked`)).map(box => box.value); }
+    else { formData[field.name] = field.dataset.format ? normalizeNumericValue(field.value) : field.value; }
   });
-
   saveTableRowsFromDOM();
   clearHiddenLicenseQuestions();
 }
 
-function clearHiddenLicenseQuestions() {
-  ["client", "partner"].forEach(person => {
-    const sliderName = `${person}_detail_preference_level`;
-    const answerName = `${person}_license_interest`;
-    const score = Number(formData[sliderName] || 1);
-    if (score <= 6) delete formData[answerName];
-  });
-}
-
-function getSavedValue(name) {
-  return formData[name] || "";
-}
+function clearHiddenLicenseQuestions() { ["client", "partner"].forEach(person => { const sliderName = `${person}_detail_preference_level`; const answerName = `${person}_license_interest`; if (Number(formData[sliderName] || 1) <= 6) delete formData[answerName]; }); }
+function getSavedValue(name) { return formData[name] || ""; }
 
 function renderField(field) {
   const [label, type, options] = field;
   const name = fieldName(label);
-
-  const twoColumnFields = [
-    "Client Name", "Partner Name", "Client DOB", "Partner DOB", "Client Email", "Partner Email", "Client Phone", "Partner Phone", "Province", "How did you hear about us?",
-    "Client detail preference level", "Partner detail preference level"
-  ];
-
+  const twoColumnFields = ["Client Name", "Partner Name", "Client DOB", "Partner DOB", "Client Email", "Partner Email", "Client Phone", "Partner Phone", "Province", "How did you hear about us?", "Client detail preference level", "Partner detail preference level"];
   const fieldClass = twoColumnFields.includes(label) ? "form-group two-col" : "form-group full";
-
-  if (type === "sectionHeading") {
-    return `<div class="section-heading">${escapeHTML(label)}</div>`;
-  }
-
-  if (type === "textarea") {
-    return `
-      <div class="${fieldClass}">
-        <label>${escapeHTML(label)}</label>
-        <textarea name="${escapeHTML(name)}" rows="3">${escapeHTML(getSavedValue(name))}</textarea>
-      </div>
-    `;
-  }
-
-  if (type === "select") {
-    return `
-      <div class="${fieldClass}">
-        <label>${escapeHTML(label)}</label>
-        <select name="${escapeHTML(name)}">
-          ${options.map(option => `
-            <option value="${escapeHTML(option)}" ${getSavedValue(name) === option ? "selected" : ""}>${escapeHTML(option)}</option>
-          `).join("")}
-        </select>
-      </div>
-    `;
-  }
-
-  if (type === "radio") {
-    return renderRadioField(label, name, options, "form-group full");
-  }
-
-  if (type === "checkbox") {
-    const savedValues = Array.isArray(formData[name]) ? formData[name] : [];
-    return `
-      <div class="form-group full">
-        <label>${escapeHTML(label)}</label>
-        <div class="checkbox-row">
-          ${options.map(option => `
-            <label class="checkbox-option">
-              <input type="checkbox" name="${escapeHTML(name)}" value="${escapeHTML(option)}" ${savedValues.includes(option) ? "checked" : ""}>
-              ${escapeHTML(option)}
-            </label>
-          `).join("")}
-        </div>
-      </div>
-    `;
-  }
-
+  if (type === "sectionHeading") return `<div class="section-heading">${escapeHTML(label)}</div>`;
+  if (type === "textarea") return `<div class="${fieldClass}"><label>${escapeHTML(label)}</label><textarea name="${escapeHTML(name)}" rows="3">${escapeHTML(getSavedValue(name))}</textarea></div>`;
+  if (type === "select") return `<div class="${fieldClass}"><label>${escapeHTML(label)}</label><select name="${escapeHTML(name)}">${options.map(option => `<option value="${escapeHTML(option)}" ${getSavedValue(name) === option ? "selected" : ""}>${escapeHTML(option)}</option>`).join("")}</select></div>`;
+  if (type === "radio") return renderRadioField(label, name, options, "form-group full");
+  if (type === "checkbox") { const savedValues = Array.isArray(formData[name]) ? formData[name] : []; return `<div class="form-group full"><label>${escapeHTML(label)}</label><div class="checkbox-row">${options.map(option => `<label class="checkbox-option"><input type="checkbox" name="${escapeHTML(name)}" value="${escapeHTML(option)}" ${savedValues.includes(option) ? "checked" : ""}>${escapeHTML(option)}</label>`).join("")}</div></div>`; }
   if (type === "sliderLicense") {
-    const person = options.person;
-    const personKey = person.toLowerCase();
-    const sliderName = `${personKey}_detail_preference_level`;
-    const answerName = `${personKey}_license_interest`;
-    const sliderValue = getSavedValue(sliderName) || "1";
-    const showConditional = Number(sliderValue) >= 7;
-
-    return `
-      <div class="${fieldClass}">
-        <label>${escapeHTML(person)} detail preference level</label>
-        <div class="slider-wrap">
-          <div class="slider-top-row">
-            <span>1 = legally-required information only<br>10 = financial professional in training</span>
-            <span class="slider-value" id="${personKey}SliderValue">${escapeHTML(sliderValue)}</span>
-          </div>
-          <input type="range" min="1" max="10" step="1" name="${escapeHTML(sliderName)}" value="${escapeHTML(sliderValue)}" data-license-slider="${personKey}">
-        </div>
-        <div class="conditional-box ${showConditional ? "active" : ""}" id="${personKey}LicenseBox">
-          ${renderRadioField(licenseQuestion, answerName, ["Yes", "No", "Maybe / Not Sure"], "")}
-        </div>
-      </div>
-    `;
+    const person = options.person; const personKey = person.toLowerCase(); const sliderName = `${personKey}_detail_preference_level`; const answerName = `${personKey}_license_interest`; const sliderValue = getSavedValue(sliderName) || "1"; const showConditional = Number(sliderValue) >= 7;
+    return `<div class="${fieldClass}"><label>${escapeHTML(person)} detail preference level</label><div class="slider-wrap"><div class="slider-top-row"><span>1 = legally-required information only<br>10 = financial professional in training</span><span class="slider-value" id="${personKey}SliderValue">${escapeHTML(sliderValue)}</span></div><input type="range" min="1" max="10" step="1" name="${escapeHTML(sliderName)}" value="${escapeHTML(sliderValue)}" data-license-slider="${personKey}"></div><div class="conditional-box ${showConditional ? "active" : ""}" id="${personKey}LicenseBox">${renderRadioField(licenseQuestion, answerName, ["Yes", "No", "Maybe / Not Sure"], "")}</div></div>`;
   }
-
-  if (tableConfigs[type]) {
-    return renderDynamicTable(label, type);
-  }
-
-  const placeholder = type === "currency" ? "0.00" : type === "percentage" ? "0.00" : "";
-  return `
-    <div class="${fieldClass}">
-      <label>${escapeHTML(label)}</label>
-      <input ${inputAttributes(type)} name="${escapeHTML(name)}" value="${escapeHTML(getSavedValue(name))}" ${placeholder ? `placeholder="${placeholder}"` : ""}>
-    </div>
-  `;
+  if (tableConfigs[type]) return renderDynamicTable(label, type);
+  const placeholder = type === "currency" ? "0" : type === "percentage" ? "0.00%" : "";
+  const displayValue = formatDisplayValue(type, getSavedValue(name));
+  return `<div class="${fieldClass}"><label>${escapeHTML(label)}</label><input ${inputAttributes(type)} name="${escapeHTML(name)}" value="${escapeHTML(displayValue)}" ${placeholder ? `placeholder="${placeholder}"` : ""}></div>`;
 }
 
 function renderRadioField(label, name, options, wrapperClass) {
-  const inner = `
-    <label>${escapeHTML(label)}</label>
-    <div class="radio-row">
-      ${options.map(option => `
-        <label class="radio-option">
-          <input type="radio" name="${escapeHTML(name)}" value="${escapeHTML(option)}" ${getSavedValue(name) === option ? "checked" : ""}>
-          ${escapeHTML(option)}
-        </label>
-      `).join("")}
-    </div>
-  `;
-
+  const inner = `<label>${escapeHTML(label)}</label><div class="radio-row">${options.map(option => `<label class="radio-option"><input type="radio" name="${escapeHTML(name)}" value="${escapeHTML(option)}" ${getSavedValue(name) === option ? "checked" : ""}>${escapeHTML(option)}</label>`).join("")}</div>`;
   return wrapperClass ? `<div class="${wrapperClass}">${inner}</div>` : inner;
 }
 
 function renderDynamicTable(label, tableType) {
-  const config = tableConfigs[tableType];
-  ensureRows(tableType);
-
-  return `
-    <div class="form-group full dynamic-table-wrap">
-      <label>${escapeHTML(label)}</label>
-      <table class="dynamic-table">
-        <thead>
-          <tr>
-            ${config.columns.map(col => `<th>${escapeHTML(col.label)}</th>`).join("")}
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${formData[config.key].map((row, index) => `
-            <tr>
-              ${config.columns.map(col => `
-                <td>
-                  <input
-                    ${inputAttributes(col.type || "text")}
-                    data-table-type="${escapeHTML(tableType)}"
-                    data-row-index="${index}"
-                    data-row-field="${escapeHTML(col.key)}"
-                    value="${escapeHTML(row[col.key])}"
-                    placeholder="${escapeHTML(col.placeholder)}">
-                </td>
-              `).join("")}
-              <td class="delete-cell"><button type="button" class="table-delete" onclick="deleteTableRow('${escapeHTML(tableType)}', ${index})">X</button></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-      <button type="button" class="btn secondary add-row-btn" onclick="addTableRow('${escapeHTML(tableType)}')">${escapeHTML(config.addLabel)}</button>
-    </div>
-  `;
+  const config = tableConfigs[tableType]; ensureRows(tableType);
+  return `<div class="form-group full dynamic-table-wrap"><label>${escapeHTML(label)}</label><table class="dynamic-table"><thead><tr>${config.columns.map(col => `<th>${escapeHTML(col.label)}</th>`).join("")}<th></th></tr></thead><tbody>${formData[config.key].map((row, index) => `<tr>${config.columns.map(col => `<td><input ${inputAttributes(col.type || "text")} data-table-type="${escapeHTML(tableType)}" data-row-index="${index}" data-row-field="${escapeHTML(col.key)}" value="${escapeHTML(formatDisplayValue(col.type || "text", row[col.key]))}" placeholder="${escapeHTML(col.placeholder)}"></td>`).join("")}<td class="delete-cell"><button type="button" class="table-delete" onclick="deleteTableRow('${escapeHTML(tableType)}', ${index})">X</button></td></tr>`).join("")}</tbody></table><button type="button" class="btn secondary add-row-btn" onclick="addTableRow('${escapeHTML(tableType)}')">${escapeHTML(config.addLabel)}</button></div>`;
 }
 
 function renderNav() {
-  const nav = document.getElementById("stepNav");
-  nav.innerHTML = "";
-
-  steps.forEach((step, index) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = index === currentStep ? "active" : "";
-
-    let badge;
-    let label;
-
-    if (step.type === "basic") {
-      badge = "i";
-      label = "Basic Information";
-    } else if (step.type === "notes") {
-      badge = "N";
-      label = "Next Steps";
-    } else {
-      badge = step.stepNumber;
-      label = `Step ${step.stepNumber}`;
-    }
-
-    btn.innerHTML = `
-      <span class="step-num">${badge}</span>
-      <span><strong>${label}</strong><br><small>${escapeHTML(step.title)}</small></span>
-    `;
-
-    btn.onclick = () => {
-      saveCurrentInputs();
-      currentStep = index;
-      renderStep();
-    };
-
-    nav.appendChild(btn);
-  });
+  const nav = document.getElementById("stepNav"); nav.innerHTML = "";
+  steps.forEach((step, index) => { const btn = document.createElement("button"); btn.type = "button"; btn.className = index === currentStep ? "active" : ""; let badge, label; if (step.type === "basic") { badge = "i"; label = "Basic Information"; } else if (step.type === "notes") { badge = "N"; label = "Next Steps"; } else { badge = step.stepNumber; label = `Step ${step.stepNumber}`; } btn.innerHTML = `<span class="step-num">${badge}</span><span><strong>${label}</strong><br><small>${escapeHTML(step.title)}</small></span>`; btn.onclick = () => { saveCurrentInputs(); currentStep = index; renderStep(); }; nav.appendChild(btn); });
 }
 
 function renderStep() {
   const step = steps[currentStep];
-
-  document.getElementById("stepTitle").textContent = step.title;
-  document.getElementById("stepSubtitle").textContent = step.subtitle;
-
-  if (step.type === "basic") {
-    document.getElementById("stepBadge").textContent = "i";
-    document.getElementById("stepCount").textContent = "Basic Information";
-  } else if (step.type === "notes") {
-    document.getElementById("stepBadge").textContent = "N";
-    document.getElementById("stepCount").textContent = "Next Steps";
-  } else {
-    document.getElementById("stepBadge").textContent = step.stepNumber;
-    document.getElementById("stepCount").textContent = `Step ${step.stepNumber} of 9`;
-  }
-
+  document.getElementById("stepTitle").textContent = step.title; document.getElementById("stepSubtitle").textContent = step.subtitle;
+  if (step.type === "basic") { document.getElementById("stepBadge").textContent = "i"; document.getElementById("stepCount").textContent = "Basic Information"; }
+  else if (step.type === "notes") { document.getElementById("stepBadge").textContent = "N"; document.getElementById("stepCount").textContent = "Next Steps"; }
+  else { document.getElementById("stepBadge").textContent = step.stepNumber; document.getElementById("stepCount").textContent = `Step ${step.stepNumber} of 9`; }
   document.getElementById("stepContent").className = step.type === "basic" ? "step-content basic-info-grid" : "step-content";
   document.getElementById("stepContent").innerHTML = step.fields.map(renderField).join("");
-
   document.getElementById("prevStep").style.display = currentStep === 0 ? "none" : "inline-block";
   document.getElementById("nextStep").textContent = currentStep === steps.length - 1 ? "Finish & Print PDF" : "Next Step";
-
-  const progress = Math.round((currentStep / (steps.length - 1)) * 100);
-  document.getElementById("progressPercent").textContent = `${progress}%`;
-  document.getElementById("progressFill").style.width = `${progress}%`;
-
-  renderNav();
+  const progress = Math.round((currentStep / (steps.length - 1)) * 100); document.getElementById("progressPercent").textContent = `${progress}%`; document.getElementById("progressFill").style.width = `${progress}%`; renderNav();
 }
 
 function buildPrintView() {
-  saveCurrentInputs();
-
-  const printContainer = document.getElementById("printView");
-
-  let html = `
-    <section class="print-card">
-      <div class="print-header">
-        <h2>The 9 Freedom Steps&reg; Intake Summary</h2>
-        <p>Date: ${escapeHTML(document.getElementById("fsDate").value || "")}</p>
-      </div>
-  `;
-
+  saveCurrentInputs(); const printContainer = document.getElementById("printView");
+  let html = `<section class="print-card"><div class="print-header"><h2>The 9 Freedom Steps&reg; Intake Summary</h2><p>Date: ${escapeHTML(document.getElementById("fsDate").value || "")}</p></div>`;
   steps.forEach(step => {
-    let heading;
-    if (step.type === "basic") {
-      heading = "Basic Information";
-    } else if (step.type === "notes") {
-      heading = "Next Steps";
-    } else {
-      heading = `Step ${step.stepNumber}: ${step.title}`;
-    }
-
-    html += `
-      <section class="print-card">
-        <div class="print-header">
-          <h3>${escapeHTML(heading)}</h3>
-          <p>${escapeHTML(step.subtitle)}</p>
-        </div>
-        <div class="print-body">
-    `;
-
+    let heading = step.type === "basic" ? "Basic Information" : step.type === "notes" ? "Next Steps" : `Step ${step.stepNumber}: ${step.title}`;
+    html += `<section class="print-card"><div class="print-header"><h3>${escapeHTML(heading)}</h3><p>${escapeHTML(step.subtitle)}</p></div><div class="print-body">`;
     step.fields.forEach(field => {
-      const label = field[0];
-      const type = field[1];
-
-      if (type === "sectionHeading") {
-        html += `<h4>${escapeHTML(label)}</h4>`;
-        return;
-      }
-
-      if (tableConfigs[type]) {
-        html += buildPrintTable(label, type);
-        return;
-      }
-
-      if (type === "sliderLicense") {
-        const person = field[2].person;
-        const personKey = person.toLowerCase();
-        const sliderName = `${personKey}_detail_preference_level`;
-        const answerName = `${personKey}_license_interest`;
-        const sliderValue = formData[sliderName] || "";
-
-        html += `
-          <div class="print-row">
-            <strong>${escapeHTML(person)} detail preference level</strong>
-            <span>${escapeHTML(sliderValue)}</span>
-          </div>
-        `;
-
-        if (Number(sliderValue) >= 7) {
-          html += `
-            <div class="print-row">
-              <strong>${escapeHTML(person)}: ${escapeHTML(licenseQuestion)}</strong>
-              <span>${escapeHTML(formData[answerName] || "")}</span>
-            </div>
-          `;
-        }
-        return;
-      }
-
-      const name = fieldName(label);
-      const rawValue = formData[name] || "";
-      const value = Array.isArray(rawValue) ? rawValue.join(", ") : rawValue;
-
-      html += `
-        <div class="print-row">
-          <strong>${escapeHTML(label)}</strong>
-          <span>${escapeHTML(value)}</span>
-        </div>
-      `;
+      const label = field[0], type = field[1];
+      if (type === "sectionHeading") { html += `<h4>${escapeHTML(label)}</h4>`; return; }
+      if (tableConfigs[type]) { html += buildPrintTable(label, type); return; }
+      if (type === "sliderLicense") { const person = field[2].person, personKey = person.toLowerCase(), sliderName = `${personKey}_detail_preference_level`, answerName = `${personKey}_license_interest`, sliderValue = formData[sliderName] || ""; html += `<div class="print-row"><strong>${escapeHTML(person)} detail preference level</strong><span>${escapeHTML(sliderValue)}</span></div>`; if (Number(sliderValue) >= 7) html += `<div class="print-row"><strong>${escapeHTML(person)}: ${escapeHTML(licenseQuestion)}</strong><span>${escapeHTML(formData[answerName] || "")}</span></div>`; return; }
+      const name = fieldName(label); const rawValue = formData[name] || ""; const value = Array.isArray(rawValue) ? rawValue.join(", ") : formatDisplayValue(type, rawValue);
+      html += `<div class="print-row"><strong>${escapeHTML(label)}</strong><span>${escapeHTML(value)}</span></div>`;
     });
-
     html += `</div></section>`;
   });
-
-  html += `
-      <div class="print-disclosure">
-        The 9 Freedom Steps&reg; is an educational framework designed to improve financial understanding and decision-making.
-        It does not constitute personalized financial, investment, tax, or legal advice. Recommendations, if any, are only made
-        after a full review of an individual’s situation by a properly licensed representative.
-      </div>
-    </section>
-  `;
-
+  html += `<div class="print-disclosure">The 9 Freedom Steps&reg; is an educational framework designed to improve financial understanding and decision-making. It does not constitute personalized financial, investment, tax, or legal advice. Recommendations, if any, are only made after a full review of an individual’s situation by a properly licensed representative.</div></section>`;
   printContainer.innerHTML = html;
 }
 
 function buildPrintTable(label, tableType) {
-  const config = tableConfigs[tableType];
-  ensureRows(tableType);
-  const rows = formData[config.key].filter(row => config.columns.some(col => row[col.key]));
-
-  return `
-    <h4>${escapeHTML(label)}</h4>
-    <table class="print-table">
-      <thead>
-        <tr>${config.columns.map(col => `<th>${escapeHTML(col.label)}</th>`).join("")}</tr>
-      </thead>
-      <tbody>
-        ${rows.length ? rows.map(row => `
-          <tr>${config.columns.map(col => `<td>${escapeHTML(row[col.key])}</td>`).join("")}</tr>
-        `).join("") : `
-          <tr><td colspan="${config.columns.length}">No entries added.</td></tr>
-        `}
-      </tbody>
-    </table>
-  `;
+  const config = tableConfigs[tableType]; ensureRows(tableType); const rows = formData[config.key].filter(row => config.columns.some(col => row[col.key]));
+  return `<h4>${escapeHTML(label)}</h4><table class="print-table"><thead><tr>${config.columns.map(col => `<th>${escapeHTML(col.label)}</th>`).join("")}</tr></thead><tbody>${rows.length ? rows.map(row => `<tr>${config.columns.map(col => `<td>${escapeHTML(formatDisplayValue(col.type || "text", row[col.key]))}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${config.columns.length}">No entries added.</td></tr>`}</tbody></table>`;
 }
 
-document.getElementById("nextStep").addEventListener("click", () => {
-  saveCurrentInputs();
-  if (currentStep < steps.length - 1) {
-    currentStep++;
-    renderStep();
-  } else {
-    buildPrintView();
-    window.print();
-  }
+document.getElementById("nextStep").addEventListener("click", () => { saveCurrentInputs(); if (currentStep < steps.length - 1) { currentStep++; renderStep(); } else { buildPrintView(); window.print(); } });
+document.getElementById("prevStep").addEventListener("click", () => { saveCurrentInputs(); if (currentStep > 0) { currentStep--; renderStep(); } });
+document.getElementById("fsPrint").addEventListener("click", () => { buildPrintView(); window.print(); });
+document.getElementById("fsClear").addEventListener("click", () => { if (!confirm("Clear all form data?")) return; Object.keys(formData).forEach(key => delete formData[key]); document.getElementById("fsDate").valueAsDate = new Date(); currentStep = 0; renderStep(); });
+
+document.addEventListener("focusin", e => {
+  if (!e.target.dataset.format) return;
+  e.target.value = normalizeNumericValue(e.target.value);
 });
 
-document.getElementById("prevStep").addEventListener("click", () => {
-  saveCurrentInputs();
-  if (currentStep > 0) {
-    currentStep--;
-    renderStep();
-  }
-});
-
-document.getElementById("fsPrint").addEventListener("click", () => {
-  buildPrintView();
-  window.print();
-});
-
-document.getElementById("fsClear").addEventListener("click", () => {
-  if (!confirm("Clear all form data?")) return;
-  Object.keys(formData).forEach(key => delete formData[key]);
-  document.getElementById("fsDate").valueAsDate = new Date();
-  currentStep = 0;
-  renderStep();
+document.addEventListener("focusout", e => {
+  if (!e.target.dataset.format) return;
+  const raw = normalizeNumericValue(e.target.value);
+  e.target.value = formatDisplayValue(e.target.dataset.format, raw);
+  if (e.target.dataset.tableType) {
+    const config = tableConfigs[e.target.dataset.tableType]; const index = Number(e.target.dataset.rowIndex); const key = e.target.dataset.rowField;
+    if (!Array.isArray(formData[config.key])) formData[config.key] = []; if (!formData[config.key][index]) formData[config.key][index] = cloneEmptyRow(config); formData[config.key][index][key] = raw;
+  } else if (e.target.name) formData[e.target.name] = raw;
 });
 
 document.addEventListener("input", e => {
   if (e.target.dataset.tableType) {
-    const tableType = e.target.dataset.tableType;
-    const config = tableConfigs[tableType];
-    const index = Number(e.target.dataset.rowIndex);
-    const key = e.target.dataset.rowField;
-
-    if (!Array.isArray(formData[config.key])) formData[config.key] = [];
-    if (!formData[config.key][index]) formData[config.key][index] = cloneEmptyRow(config);
-
-    formData[config.key][index][key] = e.target.value;
-    return;
+    const config = tableConfigs[e.target.dataset.tableType]; const index = Number(e.target.dataset.rowIndex); const key = e.target.dataset.rowField;
+    if (!Array.isArray(formData[config.key])) formData[config.key] = []; if (!formData[config.key][index]) formData[config.key][index] = cloneEmptyRow(config); formData[config.key][index][key] = e.target.dataset.format ? normalizeNumericValue(e.target.value) : e.target.value; return;
   }
-
   if (e.target.dataset.licenseSlider) {
-    const personKey = e.target.dataset.licenseSlider;
-    const sliderName = e.target.name;
-    const value = e.target.value;
-    const display = document.getElementById(`${personKey}SliderValue`);
-    const box = document.getElementById(`${personKey}LicenseBox`);
-
-    formData[sliderName] = value;
-    if (display) display.textContent = value;
-
-    if (box) {
-      if (Number(value) >= 7) {
-        box.classList.add("active");
-      } else {
-        box.classList.remove("active");
-        delete formData[`${personKey}_license_interest`];
-        box.querySelectorAll("input[type='radio']").forEach(radio => radio.checked = false);
-      }
-    }
-    return;
+    const personKey = e.target.dataset.licenseSlider, sliderName = e.target.name, value = e.target.value, display = document.getElementById(`${personKey}SliderValue`), box = document.getElementById(`${personKey}LicenseBox`); formData[sliderName] = value; if (display) display.textContent = value; if (box) { if (Number(value) >= 7) box.classList.add("active"); else { box.classList.remove("active"); delete formData[`${personKey}_license_interest`]; box.querySelectorAll("input[type='radio']").forEach(radio => radio.checked = false); } } return;
   }
-
   if (!e.target.name) return;
-  if (e.target.type !== "radio" && e.target.type !== "checkbox") {
-    formData[e.target.name] = e.target.value;
-  }
+  if (e.target.type !== "radio" && e.target.type !== "checkbox") formData[e.target.name] = e.target.dataset.format ? normalizeNumericValue(e.target.value) : e.target.value;
 });
 
 document.addEventListener("change", e => {
   if (!e.target.name) return;
-
-  if (e.target.type === "radio") {
-    formData[e.target.name] = e.target.value;
-  } else if (e.target.type === "checkbox") {
-    const checkedBoxes = document.querySelectorAll(`input[name="${e.target.name}"]:checked`);
-    formData[e.target.name] = Array.from(checkedBoxes).map(box => box.value);
-  } else {
-    formData[e.target.name] = e.target.value;
-  }
+  if (e.target.type === "radio") formData[e.target.name] = e.target.value;
+  else if (e.target.type === "checkbox") formData[e.target.name] = Array.from(document.querySelectorAll(`input[name="${e.target.name}"]:checked`)).map(box => box.value);
+  else formData[e.target.name] = e.target.dataset.format ? normalizeNumericValue(e.target.value) : e.target.value;
 });
 
 document.getElementById("fsDate").valueAsDate = new Date();

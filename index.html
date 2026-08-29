@@ -440,8 +440,8 @@ const steps = [
       ["Partner detail preference level", "sliderLicense", { person: "Partner" }],
       ["Client Name", "text"],
       ["Partner Name", "text"],
-      ["Client DOB", "text"],
-      ["Partner DOB", "text"],
+      ["Client DOB", "date"],
+      ["Partner DOB", "date"],
       ["Client Email", "email"],
       ["Partner Email", "email"],
       ["Client Phone", "tel"],
@@ -456,7 +456,7 @@ const steps = [
     title: "Freedom Number & Wealth Plan",
     subtitle: "Clarify your long-term financial direction.",
     fields: [
-      ["My Freedom Number / FIN is:", "text"],
+      ["My Freedom Number / FIN is:", "currency"],
       ["Investment Assets", "investmentTable"],
       ["Can you provide us with statements so that we can identify ways to improve your investment strategy?", "radio", ["Yes", "No", "Not Sure"]],
     ]
@@ -490,7 +490,7 @@ const steps = [
     title: "Emergency Fund & Budget",
     subtitle: "Build stability before acceleration.",
     fields: [
-      ["How much do you currently have saved for emergencies?", "text"],
+      ["How much do you currently have saved for emergencies?", "currency"],
       ["Do you follow a monthly budget?", "radio", ["Yes", "No", "Somewhat"]]
     ]
   },
@@ -503,11 +503,11 @@ const steps = [
       ["Consumer Debt", "debtTable"],
       ["How stressful does your debt feel right now?", "select", ["Select one", "Low", "Moderate", "High", "Overwhelming"]],
       ["Do you currently own a home?", "radio", ["Yes", "No"]],
-      ["Value of Home:", "text"],
-      ["Mortgage Balance:", "text"],
-      ["Mortgage Payment:", "text"],
-      ["Mortgage Interest Rate:", "text"],
-      ["Mortgage Renewal Date:", "text"],
+      ["Value of Home:", "currency"],
+      ["Mortgage Balance:", "currency"],
+      ["Mortgage Payment:", "currency"],
+      ["Mortgage Interest Rate:", "percentage"],
+      ["Mortgage Renewal Date:", "date"],
       ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]],
       ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]
     ]
@@ -518,12 +518,12 @@ const steps = [
     title: "Optimize Wealth Contributions",
     subtitle: "Improve investing, tax efficiency, and contribution strategy.",
     fields: [
-      ["Client RRSP Room", "text"],
-      ["Partner RRSP Room", "text"],
-      ["Client TFSA Room", "text"],
-      ["Partner TFSA Room", "text"],
-      ["Client FHSA Room", "text"],
-      ["Partner FHSA Room", "text"],
+      ["Client RRSP Room", "currency"],
+      ["Partner RRSP Room", "currency"],
+      ["Client TFSA Room", "currency"],
+      ["Partner TFSA Room", "currency"],
+      ["Client FHSA Room", "currency"],
+      ["Partner FHSA Room", "currency"],
       ["Do you own a corporation?", "radio", ["Yes", "No"]]
     ]
   },
@@ -543,11 +543,11 @@ const steps = [
     subtitle: "Create a strategy to reduce mortgage debt over time.",
     fields: [
       ["Do you currently own a home?", "radio", ["Yes", "No"]],
-      ["Value of Home:", "text"],
-      ["Mortgage Balance:", "text"],
-      ["Mortgage Payment:", "text"],
-      ["Mortgage Interest Rate:", "text"],
-      ["Mortgage Renewal Date:", "text"],
+      ["Value of Home:", "currency"],
+      ["Mortgage Balance:", "currency"],
+      ["Mortgage Payment:", "currency"],
+      ["Mortgage Interest Rate:", "percentage"],
+      ["Mortgage Renewal Date:", "date"],
       ["Did you work with mortgage broker or directly with the bank?", "radio", ["Broker", "Bank"]],
       ["How important is becoming mortgage free to you?", "select", ["Select one", "Very important", "Somewhat important", "Not a major priority right now"]]
     ]
@@ -567,12 +567,12 @@ const steps = [
     title: "Next Steps",
     subtitle: "Before we build your personalized roadmap, let's understand your commitment to achieving your goals.",
     fields: [
-      ["On a scale of 1-10, how important is financial freedom to you?", "text"],
+      ["On a scale of 1-10, how important is financial freedom to you?", "scale10"],
       ["How much could you realistically commit each month toward building your financial future?", "radio", ["Less than $100/month", "$100-$250/month", "$250-$500/month", "$500-$1,000/month", "$1,000-$2,500/month", "$2,500+/month"]],
       ["Assuming we identify an opportunity that improves your situation, is there any reason you would not move forward with implementing it?", "radio", ["No, there is no reason!", "Yes, I have a reason"]],
       ["If Yes, what is the reason you would NOT implement improvements to your financial strategy?", "textarea"],
       ["Additional Notes", "textarea"],
-      ["Next Appointment Date", "text"]
+      ["Next Appointment Date", "date"]
     ]
   }
 ];
@@ -586,10 +586,10 @@ const tableConfigs = {
     addLabel: "+ Add Policy",
     emptyRow: { covered: "", type: "", amount: "", premium: "" },
     columns: [
-      { key: "covered", label: "Who is covered?", placeholder: "Client / Partner / Child" },
-      { key: "type", label: "Type of policy", placeholder: "Life / Disability / CI" },
-      { key: "amount", label: "Coverage amount", placeholder: "$500,000" },
-      { key: "premium", label: "Monthly premium", placeholder: "$50/mo" }
+      { key: "covered", label: "Who is covered?", placeholder: "Client / Partner / Child", type: "text" },
+      { key: "type", label: "Type of policy", placeholder: "Life / Disability / CI", type: "text" },
+      { key: "amount", label: "Coverage amount", placeholder: "500000", type: "currency" },
+      { key: "premium", label: "Monthly premium", placeholder: "50", type: "currency" }
     ]
   },
   investmentTable: {
@@ -597,10 +597,10 @@ const tableConfigs = {
     addLabel: "+ Add Investment Asset",
     emptyRow: { owner: "", accountType: "", balance: "", contribution: "" },
     columns: [
-      { key: "owner", label: "Owner", placeholder: "Client / Partner / Joint" },
-      { key: "accountType", label: "Account Type", placeholder: "RRSP / TFSA / FHSA / RESP" },
-      { key: "balance", label: "Current Balance", placeholder: "$25,000" },
-      { key: "contribution", label: "Contribution", placeholder: "$250/mo" }
+      { key: "owner", label: "Owner", placeholder: "Client / Partner / Joint", type: "text" },
+      { key: "accountType", label: "Account Type", placeholder: "RRSP / TFSA / FHSA / RESP", type: "text" },
+      { key: "balance", label: "Current Balance", placeholder: "25000", type: "currency" },
+      { key: "contribution", label: "Contribution", placeholder: "250", type: "currency" }
     ]
   },
   debtTable: {
@@ -608,10 +608,10 @@ const tableConfigs = {
     addLabel: "+ Add Debt",
     emptyRow: { name: "", balance: "", payment: "", rate: "" },
     columns: [
-      { key: "name", label: "Name", placeholder: "Visa / LOC / Car loan" },
-      { key: "balance", label: "Current Balance", placeholder: "$8,000" },
-      { key: "payment", label: "Payment", placeholder: "$250/mo" },
-      { key: "rate", label: "Interest Rate", placeholder: "19.99%" }
+      { key: "name", label: "Name", placeholder: "Visa / LOC / Car loan", type: "text" },
+      { key: "balance", label: "Current Balance", placeholder: "8000", type: "currency" },
+      { key: "payment", label: "Payment", placeholder: "250", type: "currency" },
+      { key: "rate", label: "Interest Rate", placeholder: "19.99", type: "percentage" }
     ]
   }
 };
@@ -627,6 +627,13 @@ function escapeHTML(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function inputAttributes(type) {
+  if (type === "currency") return 'type="number" min="0" step="0.01" inputmode="decimal"';
+  if (type === "percentage") return 'type="number" min="0" step="0.01" inputmode="decimal"';
+  if (type === "scale10") return 'type="number" min="1" max="10" step="1" inputmode="numeric"';
+  return `type="${escapeHTML(type)}"`;
 }
 
 function cloneEmptyRow(config) {
@@ -801,10 +808,11 @@ function renderField(field) {
     return renderDynamicTable(label, type);
   }
 
+  const placeholder = type === "currency" ? "0.00" : type === "percentage" ? "0.00" : "";
   return `
     <div class="${fieldClass}">
       <label>${escapeHTML(label)}</label>
-      <input type="${escapeHTML(type)}" name="${escapeHTML(name)}" value="${escapeHTML(getSavedValue(name))}">
+      <input ${inputAttributes(type)} name="${escapeHTML(name)}" value="${escapeHTML(getSavedValue(name))}" ${placeholder ? `placeholder="${placeholder}"` : ""}>
     </div>
   `;
 }
@@ -845,7 +853,7 @@ function renderDynamicTable(label, tableType) {
               ${config.columns.map(col => `
                 <td>
                   <input
-                    type="text"
+                    ${inputAttributes(col.type || "text")}
                     data-table-type="${escapeHTML(tableType)}"
                     data-row-index="${index}"
                     data-row-field="${escapeHTML(col.key)}"

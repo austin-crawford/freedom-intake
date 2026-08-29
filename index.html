@@ -223,6 +223,15 @@ textarea { resize: vertical; }
   color: var(--navy);
 }
 
+.section-heading {
+  grid-column: 1 / -1;
+  margin: 4px 0 -4px;
+  padding-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
 .radio-row {
   display: flex;
   gap: 30px;
@@ -502,6 +511,7 @@ const steps = [
     fields: [
       ["Consumer Debt", "debtTable"],
       ["How stressful does your debt feel right now?", "select", ["Select one", "Low", "Moderate", "High", "Overwhelming"]],
+      ["Mortgage", "sectionHeading"],
       ["Do you currently own a home?", "radio", ["Yes", "No"]],
       ["Value of Home:", "currency"],
       ["Mortgage Balance:", "currency"],
@@ -735,6 +745,10 @@ function renderField(field) {
   ];
 
   const fieldClass = twoColumnFields.includes(label) ? "form-group two-col" : "form-group full";
+
+  if (type === "sectionHeading") {
+    return `<div class="section-heading">${escapeHTML(label)}</div>`;
+  }
 
   if (type === "textarea") {
     return `
@@ -974,6 +988,11 @@ function buildPrintView() {
     step.fields.forEach(field => {
       const label = field[0];
       const type = field[1];
+
+      if (type === "sectionHeading") {
+        html += `<h4>${escapeHTML(label)}</h4>`;
+        return;
+      }
 
       if (tableConfigs[type]) {
         html += buildPrintTable(label, type);

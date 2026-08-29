@@ -153,13 +153,13 @@ const formData = {};
 
 const tableConfigs = {
   policyTable: { key: "policyRows", addLabel: "+ Add Policy", emptyRow: { covered: "", type: "", amount: "", premium: "" }, columns: [
-    { key: "covered", label: "Who is covered?", placeholder: "Client / Partner / Child", type: "text" }, { key: "type", label: "Type of policy", placeholder: "Life / Disability / CI", type: "text" }, { key: "amount", label: "Coverage amount", placeholder: "500,000", type: "currency" }, { key: "premium", label: "Monthly premium", placeholder: "50", type: "currency" }
+    { key: "covered", label: "Who is covered?", placeholder: "Client / Partner / Child", type: "text" }, { key: "type", label: "Type of policy", placeholder: "Life / Disability / CI", type: "text" }, { key: "amount", label: "Coverage amount", placeholder: "$500,000", type: "currency" }, { key: "premium", label: "Monthly premium", placeholder: "$50", type: "currency" }
   ]},
   investmentTable: { key: "investmentRows", addLabel: "+ Add Investment Asset", emptyRow: { owner: "", accountType: "", balance: "", contribution: "" }, columns: [
-    { key: "owner", label: "Owner", placeholder: "Client / Partner / Joint", type: "text" }, { key: "accountType", label: "Account Type", placeholder: "RRSP / TFSA / FHSA / RESP", type: "text" }, { key: "balance", label: "Current Balance", placeholder: "25,000", type: "currency" }, { key: "contribution", label: "Contribution", placeholder: "250", type: "currency" }
+    { key: "owner", label: "Owner", placeholder: "Client / Partner / Joint", type: "text" }, { key: "accountType", label: "Account Type", placeholder: "RRSP / TFSA / FHSA / RESP", type: "text" }, { key: "balance", label: "Current Balance", placeholder: "$25,000", type: "currency" }, { key: "contribution", label: "Contribution", placeholder: "$250", type: "currency" }
   ]},
   debtTable: { key: "debtRows", addLabel: "+ Add Debt", emptyRow: { name: "", balance: "", payment: "", rate: "" }, columns: [
-    { key: "name", label: "Name", placeholder: "Visa / LOC / Car loan", type: "text" }, { key: "balance", label: "Current Balance", placeholder: "8,000", type: "currency" }, { key: "payment", label: "Payment", placeholder: "250", type: "currency" }, { key: "rate", label: "Interest Rate", placeholder: "19.99%", type: "percentage" }
+    { key: "name", label: "Name", placeholder: "Visa / LOC / Car loan", type: "text" }, { key: "balance", label: "Current Balance", placeholder: "$8,000", type: "currency" }, { key: "payment", label: "Payment", placeholder: "$250", type: "currency" }, { key: "rate", label: "Interest Rate", placeholder: "19.99%", type: "percentage" }
   ]}
 };
 
@@ -182,7 +182,7 @@ function formatNumberWithCommas(value) {
 
 function formatDisplayValue(type, value) {
   if (value === undefined || value === null || value === "") return "";
-  if (type === "currency") return formatNumberWithCommas(value);
+  if (type === "currency") return `$${formatNumberWithCommas(value)}`;
   if (type === "percentage") {
     const raw = normalizeNumericValue(value);
     return raw ? `${raw}%` : "";
@@ -245,7 +245,7 @@ function renderField(field) {
     return `<div class="${fieldClass}"><label>${escapeHTML(person)} detail preference level</label><div class="slider-wrap"><div class="slider-top-row"><span>1 = legally-required information only<br>10 = financial professional in training</span><span class="slider-value" id="${personKey}SliderValue">${escapeHTML(sliderValue)}</span></div><input type="range" min="1" max="10" step="1" name="${escapeHTML(sliderName)}" value="${escapeHTML(sliderValue)}" data-license-slider="${personKey}"></div><div class="conditional-box ${showConditional ? "active" : ""}" id="${personKey}LicenseBox">${renderRadioField(licenseQuestion, answerName, ["Yes", "No", "Maybe / Not Sure"], "")}</div></div>`;
   }
   if (tableConfigs[type]) return renderDynamicTable(label, type);
-  const placeholder = type === "currency" ? "0" : type === "percentage" ? "0.00%" : "";
+  const placeholder = type === "currency" ? "$0" : type === "percentage" ? "0.00%" : "";
   const displayValue = formatDisplayValue(type, getSavedValue(name));
   return `<div class="${fieldClass}"><label>${escapeHTML(label)}</label><input ${inputAttributes(type)} name="${escapeHTML(name)}" value="${escapeHTML(displayValue)}" ${placeholder ? `placeholder="${placeholder}"` : ""}></div>`;
 }

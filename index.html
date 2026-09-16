@@ -132,7 +132,7 @@ const steps = [
     ["What are your top financial priorities or concerns? (debt, retirement, investments, budgeting, protection, children's future, etc.)", "textarea"],
     ["How would you define Financial Freedom for your family?", "textarea"],
     ["Client detail preference level", "sliderLicense", { person: "Client" }], ["Partner detail preference level", "sliderLicense", { person: "Partner" }],
-    ["Client Name", "text"], ["Partner Name", "text"], ["Client DOB", "date"], ["Partner DOB", "date"], ["Client Email", "email"], ["Partner Email", "email"], ["Client Phone", "tel"], ["Partner Phone", "tel"],
+    ["Client Name", "text"], ["Partner Name", "text"], ["Client DOB", "date"], ["Partner DOB", "date"], ["Client Email", "email"], ["Partner Email", "email"], ["Client Phone", "tel"], ["Partner Phone", "tel"], ["Client Income", "currency"], ["Partner Income", "currency"],,
     ["Province", "select", ["Select Province", "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Northwest Territories", "Nova Scotia", "Nunavut", "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Yukon"]],
     ["How did you hear about us?", "select", ["Select an option", "Referral", "Social Media", "Event", "Existing Client", "Other"]]
   ]},
@@ -233,7 +233,7 @@ function getSavedValue(name) { return formData[name] || ""; }
 function renderField(field) {
   const [label, type, options] = field;
   const name = fieldName(label);
-  const twoColumnFields = ["Client Name", "Partner Name", "Client DOB", "Partner DOB", "Client Email", "Partner Email", "Client Phone", "Partner Phone", "Province", "How did you hear about us?", "Client detail preference level", "Partner detail preference level"];
+  const twoColumnFields = ["Client Name", "Partner Name", "Client DOB", "Partner DOB", "Client Email", "Partner Email", "Client Phone", "Partner Phone", "Client Income", "Partner Income", "Province", "How did you hear about us?", "Client detail preference level", "Partner detail preference level"];
   const fieldClass = twoColumnFields.includes(label) ? "form-group two-col" : "form-group full";
   if (type === "sectionHeading") return `<div class="section-heading">${escapeHTML(label)}</div>`;
   if (type === "textarea") return `<div class="${fieldClass}"><label>${escapeHTML(label)}</label><textarea name="${escapeHTML(name)}" rows="3">${escapeHTML(getSavedValue(name))}</textarea></div>`;

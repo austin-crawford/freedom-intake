@@ -280,7 +280,7 @@ function renderStep() {
 
 function buildPrintView() {
   saveCurrentInputs(); const printContainer = document.getElementById("printView");
-  let html = `<section class="print-card"><div class="print-header"><h2>The 9 Freedom Steps  Intake Summary</h2><p>Date: ${escapeHTML(document.getElementById("fsDate").value || "")}</p></div>`;
+  let html = `<section class="print-card"><div class="print-header"><h2>The 9 Freedom Steps Summary</h2><p>Date: ${escapeHTML(document.getElementById("fsDate").value || "")}</p></div>`;
   steps.forEach(step => {
     let heading = step.type === "basic" ? "Basic Information" : step.type === "notes" ? "Next Steps" : `Step ${step.stepNumber}: ${step.title}`;
     html += `<section class="print-card"><div class="print-header"><h3>${escapeHTML(heading)}</h3><p>${escapeHTML(step.subtitle)}</p></div><div class="print-body">`;

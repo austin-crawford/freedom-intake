@@ -280,7 +280,7 @@ function renderStep() {
 
 function buildPrintView() {
   saveCurrentInputs(); const printContainer = document.getElementById("printView");
-  let html = `<section class="print-card"><div class="print-header"><h2>The 9 Freedom Steps&reg; Intake Summary</h2><p>Date: ${escapeHTML(document.getElementById("fsDate").value || "")}</p></div>`;
+  let html = `<section class="print-card"><div class="print-header"><h2>The 9 Freedom Steps  Intake Summary</h2><p>Date: ${escapeHTML(document.getElementById("fsDate").value || "")}</p></div>`;
   steps.forEach(step => {
     let heading = step.type === "basic" ? "Basic Information" : step.type === "notes" ? "Next Steps" : `Step ${step.stepNumber}: ${step.title}`;
     html += `<section class="print-card"><div class="print-header"><h3>${escapeHTML(heading)}</h3><p>${escapeHTML(step.subtitle)}</p></div><div class="print-body">`;
@@ -294,7 +294,7 @@ function buildPrintView() {
     });
     html += `</div></section>`;
   });
-  html += `<div class="print-disclosure">The 9 Freedom Steps&reg; is an educational framework designed to improve financial understanding and decision-making. It does not constitute personalized financial, investment, tax, or legal advice. Recommendations, if any, are only made after a full review of an individual’s situation by a properly licensed representative.</div></section>`;
+  html += `<div class="print-disclosure">The 9 Freedom Steps  is an educational framework designed to improve financial understanding and decision-making. It does not constitute personalized financial, investment, tax, or legal advice. Recommendations, if any, are only made after a full review of an individual’s situation by a properly licensed representative.</div></section>`;
   printContainer.innerHTML = html;
 }
 

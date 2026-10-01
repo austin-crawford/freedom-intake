@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Canadian RDollarSmart</title>
+<style>
+:root{--n:#0b1f3a;--b:#1463ff;--bg:#f5f8fc;--t:#202b3c;--m:#667085;--bd:#dce4ef}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--t)}
+.app{max-width:720px;margin:auto;min-height:100vh;padding:18px 16px 40px}.top{display:flex;justify-content:space-between;gap:10px;margin-bottom:14px}
+.brand{font-weight:900;color:var(--n);font-size:18px}.rep{font-size:12px;color:var(--m);text-align:right}.pcopy{display:flex;justify-content:space-between;font-size:13px;color:var(--m);margin:0 0 8px}
+.track{height:8px;background:#e5ebf3;border-radius:99px;overflow:hidden;margin-bottom:18px}.bar{height:100%;background:var(--b);width:0;transition:.2s}
+.card{background:#fff;border:1px solid var(--bd);border-radius:22px;box-shadow:0 12px 35px rgba(15,35,75,.07);padding:24px}
+.eye{font-size:13px;font-weight:800;color:var(--b);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+h1{font-size:29px;line-height:1.08;letter-spacing:-.03em;margin:0 0 10px;color:var(--n)}.sub{font-size:15px;line-height:1.5;color:var(--m);margin:0 0 22px}
+label{display:block;font-weight:800;color:var(--n);margin-bottom:8px}input,textarea{width:100%;border:1px solid var(--bd);border-radius:14px;padding:16px;font:inherit;font-size:17px;outline:none;background:#fff}
+input:focus,textarea:focus{border-color:var(--b);box-shadow:0 0 0 3px rgba(20,99,255,.12)}textarea{min-height:115px;resize:vertical}
+.opts{display:grid;gap:10px}.opt{width:100%;border:1px solid var(--bd);background:#fff;color:var(--n);border-radius:14px;padding:15px 16px;text-align:left;font-weight:750;cursor:pointer}
+.opt.sel{border-color:var(--b);background:#eef5ff;color:#0d4ed8}.money,.pct{position:relative}.money span,.pct span{position:absolute;top:50%;transform:translateY(-50%);font-weight:800;color:var(--m)}
+.money span{left:16px}.money input{padding-left:34px}.pct span{right:16px}.pct input{padding-right:42px}
+.actions{display:flex;gap:10px;margin-top:26px}.btn{border:0;border-radius:14px;padding:15px 18px;font-weight:850;cursor:pointer;min-height:52px}.back{background:#fff;border:1px solid var(--bd);color:var(--n)}.next{background:var(--b);color:#fff;flex:1}
+.r{padding:14px 0;border-top:1px solid var(--bd)}.r:first-child{border-top:0}.rl{font-size:13px;font-weight:800;color:var(--m);margin-bottom:4px}.rv{color:var(--n);white-space:pre-wrap}
+.box{background:#f8fbff;border:1px solid #d8e5ff;border-radius:16px;padding:16px;margin-top:18px}.box h3{margin:0 0 8px;color:var(--n)}.box ul{padding-left:20px;margin:0}.note{font-size:12px;line-height:1.45;color:var(--m);margin-top:14px}.err{font-size:13px;color:#b42318;font-weight:700;margin-top:8px}
+@media(min-width:700px){.app{padding-top:30px}.card{padding:34px}h1{font-size:36px}}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="top"><div class="brand">Canadian RDollarSmart</div><div class="rep" id="rep">Rep not set</div></div>
+<div class="pcopy"><span id="ptext">Question 1</span><span id="ppct">0%</span></div><div class="track"><div class="bar" id="bar"></div></div>
+<section class="card"><div id="screen"></div><div class="actions"><button class="btn back" id="back" type="button">Back</button><button class="btn next" id="next" type="button">Continue</button></div></section>
+</main>
+<script>
+(function(){
+var S={repId:"",clientName:"",priorities:[],emergencyFund:"",consumerDebt:"",consumerDebtBalance:"",consumerDebtPayment:"",ownsHome:"",mortgageBalance:"",mortgageRate:"",mortgageRenewal:"",lifeInsurance:"",lifeCoverage:"",accounts:[],investmentTotal:"",hasChildren:"",resp:"",retirementAge:"",otherNotes:""};
+var priorities=["Pay off debt","Build emergency savings","Retirement","Investing","Life insurance","Mortgage","Children's education","First home","Tax efficiency","Other"];
+var accounts=["RRSP","TFSA","FHSA","RESP","Non-registered investments","Workplace pension / group plan","None / Not sure"];
+var Q=[
+{k:"repId",t:"What is your Primerica Rep ID?",s:"This determines where your completed information will be emailed.",y:"text",p:"Example: ABC123",r:1,h:"Your rep email will be created as REPID@primerica.com."},
+{k:"clientName",t:"What's your name?",s:"We'll use this to clearly identify your submission.",y:"text",p:"First and last name",r:1},
+{k:"priorities",t:"What would you most like to review?",s:"Choose as many as apply.",y:"multi",o:priorities,r:1},
+{k:"emergencyFund",t:"About how much do you currently have in emergency savings?",s:"An estimate is fine.",y:"money",p:"0"},
+{k:"consumerDebt",t:"Do you currently have consumer debt?",s:"Examples: credit cards, lines of credit, vehicle loans or personal loans.",y:"single",o:["Yes","No","Not sure"],r:1},
+{k:"consumerDebtBalance",t:"About how much consumer debt do you have?",s:"Enter the approximate total outstanding balance.",y:"money",p:"0",v:function(){return S.consumerDebt==="Yes"}},
+{k:"consumerDebtPayment",t:"About how much are you paying toward consumer debt each month?",s:"Enter the approximate combined monthly payment.",y:"money",p:"0",v:function(){return S.consumerDebt==="Yes"}},
+{k:"ownsHome",t:"Do you currently own a home?",s:"This helps identify whether mortgage planning should be reviewed.",y:"single",o:["Yes","No"],r:1},
+{k:"mortgageBalance",t:"What is your approximate mortgage balance?",s:"An estimate is fine.",y:"money",p:"0",v:function(){return S.ownsHome==="Yes"}},
+{k:"mortgageRate",t:"What is your current mortgage interest rate?",s:"Enter the rate if you know it.",y:"percent",p:"4.99",v:function(){return S.ownsHome==="Yes"}},
+{k:"mortgageRenewal",t:"When does your mortgage renew?",s:"Leave blank if you're not sure.",y:"date",v:function(){return S.ownsHome==="Yes"}},
+{k:"lifeInsurance",t:"Do you currently have personal life insurance?",s:"Do not include mortgage-only creditor insurance unless that is your only coverage.",y:"single",o:["Yes","No","Not sure"],r:1},
+{k:"lifeCoverage",t:"About how much life insurance coverage do you currently have?",s:"Enter the approximate total amount.",y:"money",p:"500000",v:function(){return S.lifeInsurance==="Yes"}},
+{k:"accounts",t:"Which savings or investment accounts do you currently have?",s:"Choose all that apply.",y:"multi",o:accounts,r:1},
+{k:"investmentTotal",t:"Approximately how much do you have saved or invested?",s:"Include the accounts you selected. An estimate is fine.",y:"money",p:"0",v:function(){return S.accounts.indexOf("None / Not sure")<0}},
+{k:"hasChildren",t:"Do you have children you may want to save for?",s:"This determines whether education savings should be reviewed.",y:"single",o:["Yes","No"],r:1},
+{k:"resp",t:"Do you currently have an RESP for your children?",s:"Choose the closest answer.",y:"single",o:["Yes — for all","Yes — for some","No","Not sure"],r:1,v:function(){return S.hasChildren==="Yes"}},
+{k:"retirementAge",t:"At what age would you ideally like to have the option to retire?",s:"An approximate age is enough.",y:"number",p:"65"},
+{k:"otherNotes",t:"Is there anything else you want your representative to review?",s:"Optional. Keep this short and practical.",y:"textarea",p:"Add any other financial questions or priorities here..."}
+];
+var i=0,review=false;
+function E(x){return String(x==null?"":x).replace(/[&<>"']/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]})}
+function V(){return Q.filter(function(q){return !q.v||q.v()})}
+function C(){var a=V();if(i>=a.length)i=a.length-1;return a[i]}
+function field(q){
+ if(q.y==="text"||q.y==="number")return '<label for="entry">Your answer</label><input id="entry" type="'+q.y+'" value="'+E(S[q.k])+'" placeholder="'+E(q.p||"")+'">';
+ if(q.y==="money")return '<label for="entry">Amount (CAD)</label><div class="money"><span>$</span><input id="entry" inputmode="decimal" value="'+E(S[q.k])+'" placeholder="'+E(q.p||"")+'"></div>';
+ if(q.y==="percent")return '<label for="entry">Interest rate</label><div class="pct"><input id="entry" inputmode="decimal" value="'+E(S[q.k])+'" placeholder="'+E(q.p||"")+'"><span>%</span></div>';
+ if(q.y==="date")return '<label for="entry">Renewal date</label><input id="entry" type="date" value="'+E(S[q.k])+'">';
+ if(q.y==="textarea")return '<label for="entry">Optional details</label><textarea id="entry" placeholder="'+E(q.p||"")+'">'+E(S[q.k])+'</textarea>';
+ var multi=q.y==="multi";return '<div class="opts">'+q.o.map(function(o){var s=multi?S[q.k].indexOf(o)>=0:S[q.k]===o;return '<button type="button" class="opt '+(s?"sel":"")+'" data-o="'+E(o)+'">'+E(o)+'</button>'}).join("")+'</div>';
+}
+function render(){
+ review=false;var a=V(),q=C(),pct=Math.round(i/a.length*100);
+ document.getElementById("rep").textContent=S.repId?S.repId+"@primerica.com":"Rep not set";
+ document.getElementById("ptext").textContent="Question "+(i+1)+" of "+a.length;document.getElementById("ppct").textContent=pct+"%";document.getElementById("bar").style.width=pct+"%";
+ document.getElementById("back").style.visibility=i===0?"hidden":"visible";document.getElementById("next").textContent=i===a.length-1?"Review My Answers":"Continue";
+ document.getElementById("screen").innerHTML='<div class="eye">'+(q.k==="repId"?"Representative":"Financial Snapshot")+'</div><h1>'+E(q.t)+'</h1><p class="sub">'+E(q.s||"")+'</p>'+field(q)+(q.h?'<div class="note">'+E(q.h)+'</div>':"")+'<div id="error"></div>';
+ document.querySelectorAll("[data-o]").forEach(function(b){b.onclick=function(){var x=b.getAttribute("data-o");if(q.y==="multi"){if(x==="None / Not sure")S[q.k]=S[q.k].indexOf(x)>=0?[]:[x];else{S[q.k]=S[q.k].filter(function(z){return z!=="None / Not sure"});S[q.k]=S[q.k].indexOf(x)>=0?S[q.k].filter(function(z){return z!==x}):S[q.k].concat([x])}}else S[q.k]=x;render()}});
+}
+function save(){var q=C(),e=document.getElementById("entry");if(e){var x=e.value.trim();if(q.y==="money"||q.y==="percent")x=x.replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");S[q.k]=x}if(q.k==="repId")S.repId=S.repId.toUpperCase()}
+function valid(){var q=C(),x=S[q.k],bad=q.r&&(Array.isArray(x)?!x.length:!x);if(q.k==="repId"&&x&&!/^[A-Z0-9._-]+$/.test(x))bad=true;if(bad){document.getElementById("error").innerHTML='<div class="err">Please answer this question to continue.</div>';return false}return true}
+function money(x){if(!x)return"Not provided";var n=Number(x);return isFinite(n)?n.toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:0}):x}
+function date(x){if(!x)return"Not provided";var p=x.split("-");return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:x}
+function D(k){var x=S[k];if(Array.isArray(x))return x.length?x.join(", "):"Not provided";if(["emergencyFund","consumerDebtBalance","consumerDebtPayment","mortgageBalance","lifeCoverage","investmentTotal"].indexOf(k)>=0)return money(x);if(k==="mortgageRate")return x?x+"%":"Not provided";if(k==="mortgageRenewal")return date(x);return x||"Not provided"}
+function items(){var a=[];if(S.priorities.length)a.push("Review stated priorities: "+S.priorities.join(", "));a.push("Review emergency fund and short-term cash reserves");if(S.consumerDebt==="Yes")a.push("Review consumer debt balances, rates and monthly payments");if(S.ownsHome==="Yes")a.push("Review mortgage details and renewal timing");a.push(S.lifeInsurance==="Yes"?"Review existing life insurance coverage":"Review current life insurance needs and existing coverage");a.push("Review Canadian savings and investment accounts");if(S.hasChildren==="Yes")a.push("Review education savings / RESP situation");a.push("Review retirement goals and overall financial priorities");if(S.otherNotes)a.push("Review additional client notes");return a}
+function reviewPage(){
+ save();review=true;document.getElementById("ptext").textContent="Review";document.getElementById("ppct").textContent="100%";document.getElementById("bar").style.width="100%";document.getElementById("back").style.visibility="visible";document.getElementById("next").textContent="Send My Information to My Rep";
+ var r=[["Client",D("clientName")],["Representative",S.repId+"@primerica.com"],["Top priorities",D("priorities")],["Emergency fund",D("emergencyFund")],["Consumer debt",D("consumerDebt")]];
+ if(S.consumerDebt==="Yes"){r.push(["Consumer debt balance",D("consumerDebtBalance")],["Monthly debt payments",D("consumerDebtPayment")])}r.push(["Homeowner",D("ownsHome")]);
+ if(S.ownsHome==="Yes")r.push(["Mortgage balance",D("mortgageBalance")],["Mortgage rate",D("mortgageRate")],["Mortgage renewal",D("mortgageRenewal")]);
+ r.push(["Life insurance",D("lifeInsurance")]);if(S.lifeInsurance==="Yes")r.push(["Approx. life coverage",D("lifeCoverage")]);r.push(["Savings / investment accounts",D("accounts")],["Approx. saved / invested",D("investmentTotal")],["Children to save for",D("hasChildren")]);if(S.hasChildren==="Yes")r.push(["RESP status",D("resp")]);r.push(["Desired retirement age",D("retirementAge")],["Other notes",D("otherNotes")]);
+ document.getElementById("screen").innerHTML='<div class="eye">Review</div><h1>Check your information</h1><p class="sub">Nothing is sent until you tap the button below.</p>'+r.map(function(x){return'<div class="r"><div class="rl">'+E(x[0])+'</div><div class="rv">'+E(x[1])+'</div></div>'}).join("")+'<div class="box"><h3>Potential items to review</h3><ul>'+items().map(function(x){return"<li>"+E(x)+"</li>"}).join("")+'</ul></div><div class="note">This tool organizes information only. It does not provide financial, investment, insurance, tax or legal recommendations.</div>';
+}
+function body(){var L=["CANADIAN RDOLLARSMART — CLIENT INTAKE","", "Client: "+S.clientName,"Primerica Rep ID: "+S.repId,"","CLIENT ANSWERS","• Financial priorities: "+D("priorities"),"• Emergency fund: "+D("emergencyFund"),"• Consumer debt: "+D("consumerDebt")];if(S.consumerDebt==="Yes")L.push("  - Approx. balance: "+D("consumerDebtBalance"),"  - Monthly payments: "+D("consumerDebtPayment"));L.push("• Owns a home: "+D("ownsHome"));if(S.ownsHome==="Yes")L.push("  - Mortgage balance: "+D("mortgageBalance"),"  - Mortgage rate: "+D("mortgageRate"),"  - Renewal date: "+D("mortgageRenewal"));L.push("• Personal life insurance: "+D("lifeInsurance"));if(S.lifeInsurance==="Yes")L.push("  - Approx. coverage: "+D("lifeCoverage"));L.push("• Savings / investment accounts: "+D("accounts"),"• Approx. saved / invested: "+D("investmentTotal"),"• Children to save for: "+D("hasChildren"));if(S.hasChildren==="Yes")L.push("  - RESP status: "+D("resp"));L.push("• Desired retirement age: "+D("retirementAge"),"• Other notes: "+D("otherNotes"),"","POTENTIAL ITEMS TO REVIEW");items().forEach(function(x){L.push("• "+x)});L.push("","This intake organizes client-provided information for review with a licensed representative. It does not provide automatic financial recommendations.");return L.join("\n")}
+function send(){var to=S.repId+"@primerica.com",sub="Canadian RDollarSmart Intake — "+S.clientName;location.href="mailto:"+encodeURIComponent(to)+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body())}
+document.getElementById("next").onclick=function(){if(review){send();return}save();if(!valid())return;var a=V();if(i<a.length-1){i++;render()}else reviewPage()};
+document.getElementById("back").onclick=function(){if(review){i=V().length-1;render();return}save();if(i>0){i--;render()}};
+render();
+})();
+</script>
+</body>
+</html>

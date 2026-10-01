@@ -99,6 +99,14 @@ textarea{min-height:110px;resize:vertical}
     householdType:"",
     clientName:"",
     partnerName:"",
+    clientAge:"",
+    partnerAge:"",
+    clientIncome:"",
+    partnerIncome:"",
+    hasDependants:"",
+    dependantAges:"",
+    monthlyAvailable:"",
+    emergencyFund:"",
     sections:["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"],
     rankedAreas:[],
 
@@ -161,7 +169,7 @@ textarea{min-height:110px;resize:vertical}
     "Investments": {
       title: "Investments",
       desc: "Retirement, Home Downpayment, Education & Wealth Building",
-      note: "Access to RRSPs, TFSAs, FHSAs, RESPs & multiple investment firms"
+      note: "Access to RRSPs, TFSAs, FHSAs, RESPs, RDSPs & multiple investment firms"
     },
     "Mortgage & Debt Elimination": {
       title: "Mortgage & Debt Elimination",
@@ -180,7 +188,7 @@ textarea{min-height:110px;resize:vertical}
     }
   };
 
-  const investmentAccountsSingle = ["RRSP","TFSA","FHSA","RESP","Workplace pension / group plan","Non-registered investments","None","Not sure"];
+  const investmentAccountsSingle = ["RRSP","TFSA","FHSA","RESP","RDSP","Workplace pension / group plan","Non-registered investments","None","Not sure"];
   const investmentAccountsCouple = () => [
     (state.clientName || "Person 1") + " RRSP",
     (state.partnerName || "Person 2") + " RRSP",
@@ -188,6 +196,8 @@ textarea{min-height:110px;resize:vertical}
     (state.partnerName || "Person 2") + " TFSA",
     (state.clientName || "Person 1") + " FHSA",
     (state.partnerName || "Person 2") + " FHSA",
+    (state.clientName || "Person 1") + " RDSP",
+    (state.partnerName || "Person 2") + " RDSP",
     "RESP",
     "Workplace pension / group plan",
     "Non-registered investments",
@@ -219,6 +229,14 @@ textarea{min-height:110px;resize:vertical}
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
+    {k:"clientAge", section:"Household Basics", t:()=>isCouple()?("How old is "+(state.clientName || "the first person")+"?"):"How old are you?", s:"Enter current age.", y:"number", p:"Age", r:true},
+    {k:"partnerAge", section:"Household Basics", t:()=>("How old is "+(state.partnerName || "your partner")+"?"), s:"Enter current age.", y:"number", p:"Age", r:true, v:()=>isCouple()},
+    {k:"clientIncome", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+" annual gross income?"):"What is your annual gross income?", s:"Enter annual income before tax.", y:"money", p:"0", r:true},
+    {k:"partnerIncome", section:"Household Basics", t:()=>("What is "+(state.partnerName || "your partner")+" annual gross income?"), s:"Enter annual income before tax.", y:"money", p:"0", r:true, v:()=>isCouple()},
+    {k:"hasDependants", section:"Household Basics", t:"Do you have children or other dependants?", s:"Choose the closest answer.", y:"single", o:["Yes","No"], r:true},
+    {k:"dependantAges", section:"Household Basics", t:"What are the ages of your children or other dependants?", s:"Separate multiple ages with commas.", y:"text", p:"Example: 8, 5", r:true, v:()=>state.hasDependants==="Yes"},
+    {k:"monthlyAvailable", section:"Household Basics", t:"About how much is available each month after regular expenses and debt payments?", s:"Enter the amount currently available for saving, investing or debt reduction.", y:"money", p:"0", r:true},
+    {k:"emergencyFund", section:"Household Basics", t:"How much do you currently have set aside for emergencies?", s:"Enter your current emergency savings.", y:"money", p:"0", r:true},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
     {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},

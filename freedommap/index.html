@@ -217,8 +217,7 @@ textarea{min-height:110px;resize:vertical}
     return all.filter(x=>state.sections.includes(x));
   }
   function remainingAreas(){
-    const all=["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
-    return all.filter(x=>!rankableAreas().includes(x)).concat("No, I'm done");
+    return ["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services","No, I'm done"];
   }
   function questionSectionForArea(area){ return area; }
   function selectedInvestmentAccounts(){

@@ -146,8 +146,8 @@ textarea{min-height:110px;resize:vertical}
   };
 
   const sectionOptions = [
-    "Personal Insurance",
     "Investments",
+    "Personal Insurance",
     "Mortgage & Debt Elimination",
     "General Insurance",
     "Legal Services",
@@ -217,11 +217,11 @@ textarea{min-height:110px;resize:vertical}
   function isCouple(){ return state.householdType === "Couple"; }
   function wants(section){ return state.sections.includes(section) || state.sections.includes("Review Everything"); }
   function rankableAreas(){
-    const all=["Personal Insurance","Investments","Mortgage & Debt Elimination","General Insurance","Legal Services"];
+    const all=["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
     return state.sections.includes("Review Everything") ? all : all.filter(x=>state.sections.includes(x));
   }
   function remainingAreas(){
-    const all=["Personal Insurance","Investments","Mortgage & Debt Elimination","General Insurance","Legal Services"];
+    const all=["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
     return all.filter(x=>!rankableAreas().includes(x)).concat("No, I'm done");
   }
   function questionSectionForArea(area){ return area; }
@@ -235,6 +235,15 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
     {k:"sections", section:"Start", t:"What would you like to review?", s:"Choose an area to start with.", y:"multi", o:sectionOptions, r:true},
 
+    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
+    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
+    {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
+    {k:"investmentGoals", section:"Investments", t:"What are you currently saving or investing for?", s:"Choose all that apply.", y:"multi", o:investmentGoals, r:true, v:()=>wants("Investments")},
+    {k:"retirementTargetKnowledge", section:"Investments", t:"Do you know how much you need to have saved to reach your retirement goal?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","No","Not sure"], r:true, v:()=>wants("Investments")},
+    {k:"taxOptimizationKnowledge", section:"Investments", t:"Do you know whether you're using the most tax-efficient accounts and contribution strategy for your situation?", s:"Choose the closest answer.", y:"single", o:["Yes","Somewhat","No","Not sure"], r:true, v:()=>wants("Investments")},
+    {k:"retirementDurationKnowledge", section:"Investments", t:"Do you know how long your retirement savings are expected to last?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","No","Not sure"], r:true, v:()=>wants("Investments")},
+    {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
+
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"partnerLife", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your life insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
     {k:"clientDisability", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your disability coverage come from?`:"Where does your disability coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
@@ -247,15 +256,6 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerTravel", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your travel insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
     {k:"insuranceFit", section:"Personal Insurance", t:"Do you feel your current personal insurance meets your needs?", s:"Choose the closest answer.", y:"single", o:fitOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"insuranceOpen", section:"Personal Insurance", t:"If an improvement or gap is identified, would you be open to reviewing options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Personal Insurance")},
-
-    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
-    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
-    {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
-    {k:"investmentGoals", section:"Investments", t:"What are you currently saving or investing for?", s:"Choose all that apply.", y:"multi", o:investmentGoals, r:true, v:()=>wants("Investments")},
-    {k:"retirementTargetKnowledge", section:"Investments", t:"Do you know how much you need to have saved to reach your retirement goal?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","No","Not sure"], r:true, v:()=>wants("Investments")},
-    {k:"taxOptimizationKnowledge", section:"Investments", t:"Do you know whether you're using the most tax-efficient accounts and contribution strategy for your situation?", s:"Choose the closest answer.", y:"single", o:["Yes","Somewhat","No","Not sure"], r:true, v:()=>wants("Investments")},
-    {k:"retirementDurationKnowledge", section:"Investments", t:"Do you know how long your retirement savings are expected to last?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","No","Not sure"], r:true, v:()=>wants("Investments")},
-    {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
     {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
     {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && ["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)},
@@ -376,7 +376,7 @@ textarea{min-height:110px;resize:vertical}
             state.sections=["Review Everything"];
             state.rankedAreas=[];
             const list=visible();
-            const targetIndex=list.findIndex(item=>item.section==="Personal Insurance");
+            const targetIndex=list.findIndex(item=>item.section==="Investments");
             if(targetIndex>=0){ index=targetIndex; render(); return; }
           } else {
             state.sections=state.sections.filter(x=>x!=="Review Everything");

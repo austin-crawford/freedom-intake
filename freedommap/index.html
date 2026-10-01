@@ -116,7 +116,9 @@ textarea{min-height:110px;resize:vertical}
     investmentAccounts:[],
     investmentDetails:{},
     investmentGoals:[],
-    investmentFit:"",
+    retirementTargetKnowledge:"",
+    taxOptimizationKnowledge:"",
+    retirementDurationKnowledge:"",
     investmentOpen:"",
 
     housingSituation:"",
@@ -247,7 +249,9 @@ textarea{min-height:110px;resize:vertical}
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
     {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
     {k:"investmentGoals", section:"Investments", t:"What are you currently saving or investing for?", s:"Choose all that apply.", y:"multi", o:investmentGoals, r:true, v:()=>wants("Investments")},
-    {k:"investmentFit", section:"Investments", t:"Do you feel your current savings and investment strategy is on track for your goals?", s:"Choose the closest answer.", y:"single", o:fitOptions, r:true, v:()=>wants("Investments")},
+    {k:"retirementTargetKnowledge", section:"Investments", t:"Do you know how much you need to have saved to reach your retirement goal?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","No","Not sure"], r:true, v:()=>wants("Investments")},
+    {k:"taxOptimizationKnowledge", section:"Investments", t:"Do you know whether you're using the most tax-efficient accounts and contribution strategy for your situation?", s:"Choose the closest answer.", y:"single", o:["Yes","Somewhat","No","Not sure"], r:true, v:()=>wants("Investments")},
+    {k:"retirementDurationKnowledge", section:"Investments", t:"Do you know how long your retirement savings are expected to last?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","No","Not sure"], r:true, v:()=>wants("Investments")},
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
     {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
@@ -465,7 +469,13 @@ textarea{min-height:110px;resize:vertical}
         const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
         rows.push([account, "Balance: "+balance+" | Contribution: "+contribution]);
       });
-      rows.push(["Saving / investing for",D("investmentGoals")],["Strategy on track?",D("investmentFit")],["Open to reviewing other options",D("investmentOpen")]);
+      rows.push(
+        ["Saving / investing for",D("investmentGoals")],
+        ["Knows retirement savings target",D("retirementTargetKnowledge")],
+        ["Knows whether strategy is tax-efficient",D("taxOptimizationKnowledge")],
+        ["Knows how long retirement savings may last",D("retirementDurationKnowledge")],
+        ["Open to reviewing other options",D("investmentOpen")]
+      );
       return rows;
     }
     if(section==="Mortgage & Debt Elimination"){
@@ -549,8 +559,10 @@ textarea{min-height:110px;resize:vertical}
       (state.investmentGoals.length?state.investmentGoals.map(x=>'<span class="summary-tag">'+escape(x)+'</span>').join(""):'<span class="summary-val attention">Not provided</span>')+
       '</div></div>';
 
-    html+='<div class="summary-group"><div class="summary-grid">'+
-      '<div class="summary-line"><div class="summary-key">Strategy on track?</div><div class="summary-val'+attentionClass(D("investmentFit"))+'">'+escape(D("investmentFit"))+'</div></div>'+
+    html+='<div class="summary-group"><div class="summary-subhead">Planning Knowledge</div><div class="summary-grid">'+
+      '<div class="summary-line"><div class="summary-key">Retirement savings target</div><div class="summary-val'+attentionClass(D("retirementTargetKnowledge"))+'">'+escape(D("retirementTargetKnowledge"))+'</div></div>'+
+      '<div class="summary-line"><div class="summary-key">Tax optimization strategy</div><div class="summary-val'+attentionClass(D("taxOptimizationKnowledge"))+'">'+escape(D("taxOptimizationKnowledge"))+'</div></div>'+
+      '<div class="summary-line"><div class="summary-key">How long retirement savings may last</div><div class="summary-val'+attentionClass(D("retirementDurationKnowledge"))+'">'+escape(D("retirementDurationKnowledge"))+'</div></div>'+
       '<div class="summary-line"><div class="summary-key">Open to reviewing other options?</div><div class="summary-val'+attentionClass(D("investmentOpen"))+'">'+escape(D("investmentOpen"))+'</div></div>'+
       '</div></div>';
     return html;

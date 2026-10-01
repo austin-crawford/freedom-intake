@@ -82,7 +82,6 @@ textarea{min-height:110px;resize:vertical}
     sections:[],
     rankedAreas:[],
 
-    insuranceTypes:[],
     clientLife:"",
     partnerLife:"",
     clientDisability:"",
@@ -203,7 +202,6 @@ textarea{min-height:110px;resize:vertical}
   const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","None","Not sure"];
   const legalDocumentOptions = ["Will","Enduring Power of Attorney","Personal Directive","None","Not sure"];
 
-  const insuranceTypes = ["Life","Disability","Critical Illness","Health & Dental","Travel","None / Not sure"];
   const coverageSourceOptions = ["Individual policy","Group coverage through work","Both individual and group coverage","None","Not sure"];
   const fitOptions = ["Yes","Mostly","Not sure","No"];
   const opennessOptions = ["Yes","Maybe","No"];
@@ -222,17 +220,16 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
     {k:"sections", section:"Start", t:"What would you like to review?", s:"Select any areas you have questions or concerns about.", y:"multi", o:sectionOptions, r:true},
 
-    {k:"insuranceTypes", section:"Personal Insurance", t:"Which types of personal insurance do you currently have?", s:"Choose all that apply.", y:"multi", o:insuranceTypes, r:true, v:()=>wants("Personal Insurance")},
-    {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && state.insuranceTypes.includes("Life")},
-    {k:"partnerLife", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your life insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple() && state.insuranceTypes.includes("Life")},
-    {k:"clientDisability", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your disability coverage come from?`:"Where does your disability coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && state.insuranceTypes.includes("Disability")},
-    {k:"partnerDisability", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your disability coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple() && state.insuranceTypes.includes("Disability")},
-    {k:"clientCI", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your critical illness coverage come from?`:"Where does your critical illness coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && state.insuranceTypes.includes("Critical Illness")},
-    {k:"partnerCI", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your critical illness coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple() && state.insuranceTypes.includes("Critical Illness")},
-    {k:"clientHealthDental", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your health & dental coverage come from?`:"Where does your health & dental coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && state.insuranceTypes.includes("Health & Dental")},
-    {k:"partnerHealthDental", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your health & dental coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple() && state.insuranceTypes.includes("Health & Dental")},
-    {k:"clientTravel", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your travel insurance come from?`:"Where does your travel insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && state.insuranceTypes.includes("Travel")},
-    {k:"partnerTravel", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your travel insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple() && state.insuranceTypes.includes("Travel")},
+    {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"partnerLife", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your life insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"clientDisability", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your disability coverage come from?`:"Where does your disability coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"partnerDisability", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your disability coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"clientCI", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your critical illness coverage come from?`:"Where does your critical illness coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"partnerCI", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your critical illness coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"clientHealthDental", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your health & dental coverage come from?`:"Where does your health & dental coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"partnerHealthDental", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your health & dental coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"clientTravel", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your travel insurance come from?`:"Where does your travel insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"partnerTravel", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your travel insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
     {k:"insuranceFit", section:"Personal Insurance", t:"Do you feel your current personal insurance meets your needs?", s:"Choose the closest answer.", y:"single", o:fitOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"insuranceOpen", section:"Personal Insurance", t:"If an improvement or gap is identified, would you be open to reviewing options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Personal Insurance")},
 
@@ -382,7 +379,6 @@ textarea{min-height:110px;resize:vertical}
   function peopleSummary(section){
     if(section==="Personal Insurance"){
       let rows=[
-        ["Coverage types",D("insuranceTypes")],
         [state.clientName||"Client",`Life: ${D("clientLife")} | Disability: ${D("clientDisability")} | Critical Illness: ${D("clientCI")} | Health & Dental: ${D("clientHealthDental")} | Travel: ${D("clientTravel")}`]
       ];
       if(isCouple()) rows.push([state.partnerName||"Partner",`Life: ${D("partnerLife")} | Disability: ${D("partnerDisability")} | Critical Illness: ${D("partnerCI")} | Health & Dental: ${D("partnerHealthDental")} | Travel: ${D("partnerTravel")}`]);

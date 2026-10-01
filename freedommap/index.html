@@ -209,7 +209,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
-    {k:"sections", section:"Start", t:"What would you like to review?", s:"Select any areas you have questions or concerns about.", y:"multi", o:sectionOptions, r:true},
+    {k:"sections", section:"Start", t:"What would you like to review?", s:"Choose an area to start with.", y:"multi", o:sectionOptions, r:true},
 
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"partnerLife", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your life insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
@@ -251,9 +251,9 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"If we can help you get missing documents in place or provide access to legal support, would you be open to learning more?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
 
-    {k:"exploreMore", section:"Finish", t:"Would you like to explore another area?", s:"You can add another area before finishing your FreedomMap.", y:"single", o:remainingAreas, r:true, v:()=>rankableAreas().length<5},
-    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."},
-    {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
+    {k:"exploreMore", section:"Finish", t:"Would you like to explore another area?", s:"You can add another area before finishing your FreedomMap.", y:"single", o:remainingAreas, r:true, v:()=>rankableAreas().length>0 && rankableAreas().length<5},
+    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes...", v:()=>rankableAreas().length>0},
+    {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true, v:()=>rankableAreas().length>0}
   ];
 
   let index=0, review=false, exploreReturnArea="";
@@ -308,6 +308,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
+    $("continueBtn").style.display=(q.k==="sections" || q.k==="exploreMore")?"none":"block";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
     document.querySelectorAll("[data-rank]").forEach(btn=>{
@@ -327,6 +328,41 @@ textarea{min-height:110px;resize:vertical}
     document.querySelectorAll("[data-option]").forEach(btn=>{
       btn.onclick=()=>{
         const val=btn.dataset.option;
+
+        if(q.k==="sections"){
+          if(val==="Review Everything"){
+            state.sections=["Review Everything"];
+            state.rankedAreas=[];
+            const list=visible();
+            const targetIndex=list.findIndex(item=>item.section==="Personal Insurance");
+            if(targetIndex>=0){ index=targetIndex; render(); return; }
+          } else {
+            state.sections=state.sections.filter(x=>x!=="Review Everything");
+            if(!state.sections.includes(val)) state.sections.push(val);
+            state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
+            const list=visible();
+            const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
+            if(targetIndex>=0){ index=targetIndex; render(); return; }
+          }
+        }
+
+        if(q.k==="exploreMore"){
+          if(val==="No, I'm done"){
+            state.exploreMore=val;
+            const list=visible();
+            const targetIndex=list.findIndex(item=>item.k==="otherNotes");
+            if(targetIndex>=0){ index=targetIndex; render(); return; }
+          } else {
+            if(!state.sections.includes(val)) state.sections.push(val);
+            state.exploreMore="";
+            state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
+            exploreReturnArea=val;
+            const list=visible();
+            const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
+            if(targetIndex>=0){ index=targetIndex; render(); return; }
+          }
+        }
+
         if(q.y==="multi"){
           const exclusive=["None / Not sure","None","Not sure"];
           if(exclusive.includes(val)){
@@ -342,7 +378,6 @@ textarea{min-height:110px;resize:vertical}
             state[q.k]=q.save?q.save(val):val;
           }
         }
-        if(q.k==="sections") state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
         render();
       };
     });
@@ -426,6 +461,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent="100%";
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
+    $("continueBtn").style.display="block";
     $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;

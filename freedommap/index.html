@@ -81,6 +81,7 @@ textarea{min-height:110px;resize:vertical}
     partnerName:"",
     sections:[],
     rankedAreas:[],
+    exploreMore:"",
 
     clientLife:"",
     partnerLife:"",
@@ -212,6 +213,13 @@ textarea{min-height:110px;resize:vertical}
     const all=["Personal Insurance","Investments","Mortgage","General Insurance","Legal Services"];
     return state.sections.includes("Review Everything") ? all : all.filter(x=>state.sections.includes(x));
   }
+  function remainingAreas(){
+    const all=["Personal Insurance","Investments","Mortgage","General Insurance","Legal Services"];
+    return all.filter(x=>!rankableAreas().includes(x)).concat("No, I'm done");
+  }
+  function questionSectionForArea(area){
+    return area==="Mortgage" ? "Mortgage & Debt" : area;
+  }
 
   const Q = [
     {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This determines where your completed FreedomMap will be emailed.", y:"text", p:"Example: ABC123", r:true},
@@ -260,11 +268,12 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"If we can help you get missing documents in place or provide access to legal support, would you be open to learning more?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
 
-    {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true},
-    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."}
+    {k:"exploreMore", section:"Finish", t:"Would you like to explore another area?", s:"You can add another area before finishing your FreedomMap.", y:"single", o:remainingAreas, r:true, v:()=>rankableAreas().length<5},
+    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."},
+    {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
   ];
 
-  let index=state.repId?1:0, review=false;
+  let index=state.repId?1:0, review=false, exploreReturnArea="";
 
   function visible(){ return Q.filter(q=>!q.v || q.v()); }
   function current(){ const list=visible(); if(index>=list.length) index=Math.max(0,list.length-1); return list[index]; }
@@ -280,11 +289,12 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function field(q){
-    if(q.k==="sections"){
-      return '<div class="options">'+q.o.map(o=>{
+    if(q.k==="sections" || q.k==="exploreMore"){
+      const options=typeof q.o==="function" ? q.o() : q.o;
+      return '<div class="options">'+options.map(o=>{
         const sel=state[q.k].includes(o);
-        const m=sectionMeta[o]||{title:o,desc:""};
-        return '<button type="button" class="option '+(sel?"selected":"")+'" data-option="'+escape(o)+'"><span class="option-title">'+escape(m.title)+'</span><span class="option-desc">'+escape(m.desc||"")+'</span>'+(m.note?'<span class="option-note">'+escape(m.note)+'</span>':'')+'</button>';
+        const m=sectionMeta[o]||{title:o,desc:o==="No, I'm done"?"Continue to finish your FreedomMap":""};
+        return '<button type="button" class="option '+(sel?"selected":"")+'" data-option="'+escape(o)+'"><span class="option-title">'+escape(m.title)+'</span>'+(m.desc?'<span class="option-desc">'+escape(m.desc)+'</span>':'')+(m.note?'<span class="option-note">'+escape(m.note)+'</span>':'')+'</button>';
       }).join("")+'</div>';
     }
     if(q.y==="rank"){
@@ -487,6 +497,35 @@ textarea{min-height:110px;resize:vertical}
     saveEntry(q);
     if(q.k==="repId") state.repId=state.repId.toUpperCase();
     if(!validate()) return;
+
+    if(q.k==="exploreMore"){
+      if(state.exploreMore!=="No, I'm done"){
+        const area=state.exploreMore;
+        if(!state.sections.includes(area)) state.sections.push(area);
+        state.exploreMore="";
+        state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
+        exploreReturnArea=area;
+        const list=visible();
+        const targetSection=questionSectionForArea(area);
+        const targetIndex=list.findIndex(item=>item.section===targetSection);
+        if(targetIndex>=0){ index=targetIndex; render(); return; }
+      }
+    }
+
+    if(exploreReturnArea){
+      const list=visible();
+      const targetSection=questionSectionForArea(exploreReturnArea);
+      const sectionIndexes=list.map((item,i)=>item.section===targetSection?i:-1).filter(i=>i>=0);
+      const lastSectionIndex=sectionIndexes.length?Math.max(...sectionIndexes):-1;
+      if(index===lastSectionIndex){
+        exploreReturnArea="";
+        state.exploreMore="";
+        const refreshed=visible();
+        const exploreIndex=refreshed.findIndex(item=>item.k==="exploreMore");
+        if(exploreIndex>=0){ index=exploreIndex; render(); return; }
+      }
+    }
+
     const list=visible();
     if(index<list.length-1){ index++; render(); } else renderReview();
   };
@@ -494,6 +533,7 @@ textarea{min-height:110px;resize:vertical}
   $("backBtn").onclick=()=>{
     if(review){ review=false; index=visible().length-1; render(); return; }
     saveEntry(current());
+    exploreReturnArea="";
     if(index>0){ index--; render(); }
   };
 

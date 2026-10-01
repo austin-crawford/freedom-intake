@@ -208,7 +208,7 @@ textarea{min-height:110px;resize:vertical}
   const mortgageRenewalRanges = ["Within 6 months","6–12 months","1–2 years","More than 2 years","Not sure"];
   const debtTypes = ["Credit cards","Line of credit","Vehicle loan","Personal loan","Student loan","CRA / tax debt","Other"];
 
-  const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","None","Not sure"];
+  const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","I’m not sure — review my needs"];
   const legalDocumentOptions = ["Will","Enduring Power of Attorney","Personal Directive","None","Not sure"];
 
   const coverageSourceOptions = ["Individual policy","Group coverage through work","Both individual and group coverage","None","Not sure"];
@@ -268,7 +268,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"debtRange", section:"Mortgage & Debt Elimination", t:"What is the total balance of your non-mortgage debt?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
     {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:()=>["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Would you be open to reviewing mortgage and debt elimination options?":"Would you be open to reviewing debt elimination options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
 
-    {k:"generalInsuranceNeeds", section:"General Insurance", t:"Which types of general insurance would you like reviewed or set up?", s:"Choose all that apply.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance")},
+    {k:"generalInsuranceNeeds", section:"General Insurance", t:"Which areas of general insurance would you like us to review?", s:"Select any policies you currently have or may need.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance")},
     {k:"lastCompared", section:"General Insurance", t:"When did you last compare your coverage or pricing?", s:"Choose the closest answer.", y:"single", o:["Within the last year","1–3 years ago","More than 3 years ago","Never","Not sure"], r:true, v:()=>wants("General Insurance")},
     {k:"openToComparison", section:"General Insurance", t:"If an improvement is identified, would you be open to a no-obligation comparison?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("General Insurance")},
 
@@ -408,7 +408,7 @@ textarea{min-height:110px;resize:vertical}
         }
 
         if(q.y==="multi"){
-          const exclusive=["None / Not sure","None","Not sure"];
+          const exclusive=["None / Not sure","None","Not sure","I’m not sure — review my needs"];
           if(exclusive.includes(val)){
             state[q.k]=state[q.k].includes(val)?[]:[val];
           } else {

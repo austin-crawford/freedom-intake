@@ -109,8 +109,6 @@ textarea{min-height:110px;resize:vertical}
     emergencyFund:"",
     dtcApproved:"",
     dtcApprovedWho:"",
-    dtcScreen:"",
-    dtcLimitations:[],
     sections:["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"],
     rankedAreas:[],
 
@@ -216,7 +214,6 @@ textarea{min-height:110px;resize:vertical}
 
   const housingSituations = ["Own with a mortgage","Own mortgage-free","Renting","Living with family / other","Planning to buy","Not sure"];
   const debtTypes = ["Credit cards","Line of credit","Vehicle loan","Personal loan","Student loan","CRA / tax debt","Other"];
-  const dtcLimitationOptions = ["Walking","Mental functions","Dressing","Feeding","Bowel or bladder functions","Hearing","Speaking","Vision","Life-sustaining therapy","Significant limitations in 2 or more areas","Not sure"];
 
   const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","I’m not sure — review my needs"];
   const legalDocumentOptions = ["Will","Enduring Power of Attorney","Personal Directive","None","Not sure"];
@@ -247,10 +244,8 @@ textarea{min-height:110px;resize:vertical}
     {k:"dependantAges", section:"Household Basics", t:"What are the ages of your children or other dependants?", s:"Separate multiple ages with commas.", y:"text", p:"Example: 8, 5", r:true, v:()=>state.hasDependants==="Yes"},
     {k:"monthlyAvailable", section:"Household Basics", t:"About how much is available each month after regular expenses and debt payments?", s:"Enter the amount currently available for saving, investing or debt reduction.", y:"money", p:"0", r:true},
     {k:"emergencyFund", section:"Household Basics", t:"How much do you currently have set aside for emergencies?", s:"Enter your current emergency savings.", y:"money", p:"0", r:true},
-    {k:"dtcApproved", section:"Household Basics", t:"Has anyone in your household already been approved for the Disability Tax Credit (DTC)?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true},
+    {k:"dtcApproved", section:"Household Basics", t:"Does anyone in your household already qualify for the Disability Tax Credit (DTC)?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true},
     {k:"dtcApprovedWho", section:"Household Basics", t:"Who has been approved for the DTC?", s:"Enter the person or people who have DTC approval.", y:"text", p:"Example: Me, spouse, child", r:true, v:()=>state.dtcApproved==="Yes"},
-    {k:"dtcScreen", section:"Household Basics", t:"Could anyone in your household potentially qualify for the DTC?", s:"Consider a physical or mental impairment expected to last at least 12 months that significantly restricts daily activities, or requires life-sustaining therapy.", y:"single", o:["Yes","Not sure","No"], r:true, v:()=>state.dtcApproved!=="Yes"},
-    {k:"dtcLimitations", section:"Household Basics", t:"Which areas may be affected?", s:"Choose all that apply. This is only a screening question, not a determination of DTC eligibility.", y:"multi", o:dtcLimitationOptions, r:true, v:()=>state.dtcApproved!=="Yes" && ["Yes","Not sure"].includes(state.dtcScreen)},
     {k:"clientRetirementAge", section:"Investments", t:()=>isCouple()?("At what age would "+(state.clientName || "the first person")+" like to retire?"):"At what age would you like to retire?", s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true},
     {k:"partnerRetirementAge", section:"Investments", t:()=>("At what age would "+(state.partnerName || "your partner")+" like to retire?"), s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true, v:()=>isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
@@ -655,10 +650,8 @@ textarea{min-height:110px;resize:vertical}
       ...(state.hasDependants==="Yes"?[["Dependant ages",D("dependantAges")]]:[]),
       ["Monthly amount available",moneyD("monthlyAvailable")],
       ["Emergency savings",moneyD("emergencyFund")],
-      ["DTC already approved",D("dtcApproved")],
-      ...(state.dtcApproved==="Yes"?[["DTC approved for",D("dtcApprovedWho")]]:[]),
-      ...(state.dtcApproved!=="Yes"?[["Potential DTC screening",D("dtcScreen")]]:[]),
-      ...((state.dtcApproved!=="Yes" && ["Yes","Not sure"].includes(state.dtcScreen))?[["DTC areas indicated",D("dtcLimitations")]]:[])
+      ["DTC qualification",D("dtcApproved")],
+      ...(state.dtcApproved==="Yes"?[["DTC qualifies for",D("dtcApprovedWho")]]:[])
     ];
     const householdCard='<div class="section-card"><div class="section-head"><div class="section-title">Household Snapshot</div><div class="badge">Completed</div></div>'+householdRows.map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("")+'</div>';
     const cards=sectionOptions.map(sec=>{

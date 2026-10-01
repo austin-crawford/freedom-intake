@@ -50,6 +50,7 @@ textarea{min-height:110px;resize:vertical}
 .action-box h3{margin:0 0 10px;color:var(--navy);font-size:17px}.action-box ul{padding-left:20px;margin:0}.action-box li{margin:7px 0}
 .note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:12px}.error{font-size:13px;color:#b42318;font-weight:700;margin-top:8px}
 @media(min-width:700px){.app{padding-top:30px}.card{padding:34px}h1{font-size:36px}}
+@media print{body{background:#fff}.app{max-width:none;padding:0}.topbar,.progress-copy,.progress,.actions{display:none!important}.card{border:0;box-shadow:none;padding:0}.section-card{break-inside:avoid}h1{font-size:28px}}
 </style>
 </head>
 <body>
@@ -134,7 +135,7 @@ textarea{min-height:110px;resize:vertical}
   const sectionOptions = [
     "Personal Insurance",
     "Investments",
-    "Mortgage",
+    "Mortgage & Debt Elimination",
     "General Insurance",
     "Legal Services",
     "Review Everything"
@@ -151,9 +152,9 @@ textarea{min-height:110px;resize:vertical}
       desc: "Retirement, Home Downpayment, Education & Wealth Building",
       note: "Access to RRSPs, TFSAs, FHSAs, RESPs & multiple investment firms"
     },
-    "Mortgage": {
-      title: "Mortgage",
-      desc: "Purchase, Renewal, Refinance & Debt Consolidation",
+    "Mortgage & Debt Elimination": {
+      title: "Mortgage & Debt Elimination",
+      desc: "Purchase, Renewal, Refinance, Debt Consolidation & Debt Elimination",
       note: "Access to 65+ lenders"
     },
     "General Insurance": {
@@ -187,17 +188,11 @@ textarea{min-height:110px;resize:vertical}
     "None",
     "Not sure"
   ];
-  const investmentValueRanges = ["Under $10,000","$10,000–$24,999","$25,000–$49,999","$50,000–$99,999","$100,000–$249,999","$250,000–$499,999","$500,000+","Not sure / Prefer not to say"];
   const investmentGoals = ["Retirement","Home downpayment","Children's education","Building wealth","Emergency / short-term savings","Other","Not sure"];
-  const monthlyContributionRanges = ["$0","Under $250/month","$250–$499/month","$500–$999/month","$1,000–$1,999/month","$2,000–$2,999/month","$3,000+/month","Not sure / Prefer not to say"];
 
   const housingSituations = ["Own with a mortgage","Own mortgage-free","Renting","Living with family / other","Planning to buy","Not sure"];
-  const homeValueRanges = ["Under $250,000","$250,000–$399,999","$400,000–$599,999","$600,000–$799,999","$800,000–$999,999","$1,000,000+","Not sure / Prefer not to say"];
-  const mortgageBalanceRanges = ["Under $100,000","$100,000–$249,999","$250,000–$399,999","$400,000–$599,999","$600,000–$799,999","$800,000+","Not sure / Prefer not to say"];
-  const mortgageRateRanges = ["Under 3%","3%–3.99%","4%–4.99%","5%–5.99%","6%+","Not sure"];
   const mortgageRenewalRanges = ["Within 6 months","6–12 months","1–2 years","More than 2 years","Not sure"];
   const debtTypes = ["Credit cards","Line of credit","Vehicle loan","Personal loan","Student loan","CRA / tax debt","Other"];
-  const debtRanges = ["Under $5,000","$5,000–$9,999","$10,000–$24,999","$25,000–$49,999","$50,000–$99,999","$100,000+","Not sure / Prefer not to say"];
   const mortgageDebtFeelOptions = ["Comfortable with it","Mostly comfortable","Not sure","I would like to improve it","It is a significant concern"];
 
   const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","None","Not sure"];
@@ -210,19 +205,17 @@ textarea{min-height:110px;resize:vertical}
   function isCouple(){ return state.householdType === "Couple"; }
   function wants(section){ return state.sections.includes(section) || state.sections.includes("Review Everything"); }
   function rankableAreas(){
-    const all=["Personal Insurance","Investments","Mortgage","General Insurance","Legal Services"];
+    const all=["Personal Insurance","Investments","Mortgage & Debt Elimination","General Insurance","Legal Services"];
     return state.sections.includes("Review Everything") ? all : all.filter(x=>state.sections.includes(x));
   }
   function remainingAreas(){
-    const all=["Personal Insurance","Investments","Mortgage","General Insurance","Legal Services"];
+    const all=["Personal Insurance","Investments","Mortgage & Debt Elimination","General Insurance","Legal Services"];
     return all.filter(x=>!rankableAreas().includes(x)).concat("No, I'm done");
   }
-  function questionSectionForArea(area){
-    return area==="Mortgage" ? "Mortgage & Debt" : area;
-  }
+  function questionSectionForArea(area){ return area; }
 
   const Q = [
-    {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This determines where your completed FreedomMap will be emailed.", y:"text", p:"Example: ABC123", r:true},
+    {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This identifies the representative completing the FreedomMap.", y:"text", p:"Example: ABC123", r:true},
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
@@ -243,22 +236,22 @@ textarea{min-height:110px;resize:vertical}
 
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
-    {k:"investmentTotal", section:"Investments", t:"Approximately how much do you currently have saved or invested?", s:"Choose the closest range.", y:"single", o:investmentValueRanges, r:true, v:()=>wants("Investments")},
+    {k:"investmentTotal", section:"Investments", t:"How much do you currently have saved or invested?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Investments")},
     {k:"investmentGoals", section:"Investments", t:"What are you currently saving or investing for?", s:"Choose all that apply.", y:"multi", o:investmentGoals, r:true, v:()=>wants("Investments")},
-    {k:"monthlyContribution", section:"Investments", t:"Approximately how much are you currently contributing each month?", s:"Choose the closest range.", y:"single", o:monthlyContributionRanges, r:true, v:()=>wants("Investments")},
+    {k:"monthlyContribution", section:"Investments", t:"How much are you currently contributing each month?", s:"Enter the current monthly amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Investments")},
     {k:"investmentFit", section:"Investments", t:"Do you feel your current savings and investment strategy is on track for your goals?", s:"Choose the closest answer.", y:"single", o:fitOptions, r:true, v:()=>wants("Investments")},
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
-    {k:"housingSituation", section:"Mortgage & Debt", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage")},
-    {k:"homeValueRange", section:"Mortgage & Debt", t:"Approximately what is your home worth?", s:"Choose the closest range.", y:"single", o:homeValueRanges, r:true, v:()=>wants("Mortgage") && state.housingSituation==="Own with a mortgage"},
-    {k:"mortgageBalanceRange", section:"Mortgage & Debt", t:"Approximately how much is left on your mortgage?", s:"Choose the closest range.", y:"single", o:mortgageBalanceRanges, r:true, v:()=>wants("Mortgage") && state.housingSituation==="Own with a mortgage"},
-    {k:"mortgageRateRange", section:"Mortgage & Debt", t:"What range is your current mortgage interest rate?", s:"Choose the closest range.", y:"single", o:mortgageRateRanges, r:true, v:()=>wants("Mortgage") && state.housingSituation==="Own with a mortgage"},
-    {k:"mortgageRenewalRange", section:"Mortgage & Debt", t:"When is your mortgage coming up for renewal?", s:"Choose the closest answer.", y:"single", o:mortgageRenewalRanges, r:true, v:()=>wants("Mortgage") && state.housingSituation==="Own with a mortgage"},
-    {k:"hasNonMortgageDebt", section:"Mortgage & Debt", t:"Do you currently have debt outside of your mortgage?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage")},
-    {k:"debtTypes", section:"Mortgage & Debt", t:"What types of debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage") && state.hasNonMortgageDebt==="Yes"},
-    {k:"debtRange", section:"Mortgage & Debt", t:"Approximately how much non-mortgage debt do you have?", s:"Choose the closest range.", y:"single", o:debtRanges, r:true, v:()=>wants("Mortgage") && state.hasNonMortgageDebt==="Yes"},
-    {k:"mortgageDebtFeel", section:"Mortgage & Debt", t:"How do you feel about your current mortgage and debt situation?", s:"Choose the closest answer.", y:"single", o:mortgageDebtFeelOptions, r:true, v:()=>wants("Mortgage")},
-    {k:"mortgageOpen", section:"Mortgage & Debt", t:"If an improvement is identified, would you be open to speaking with a mortgage professional?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage")},
+    {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
+    {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"mortgageRateRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage interest rate?", s:"Enter the current rate.", y:"percent", p:"0.00", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"mortgageRenewalRange", section:"Mortgage & Debt Elimination", t:"When is your mortgage coming up for renewal?", s:"Choose the closest answer.", y:"single", o:mortgageRenewalRanges, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have debt outside of your mortgage?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
+    {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
+    {k:"debtRange", section:"Mortgage & Debt Elimination", t:"How much non-mortgage debt do you currently have?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
+    {k:"mortgageDebtFeel", section:"Mortgage & Debt Elimination", t:"How do you feel about your current mortgage and debt situation?", s:"Choose the closest answer.", y:"single", o:mortgageDebtFeelOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
+    {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:"If an improvement is identified, would you be open to speaking with a mortgage professional?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
 
     {k:"generalInsuranceNeeds", section:"General Insurance", t:"Which types of general insurance would you like reviewed or set up?", s:"Choose all that apply.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance")},
     {k:"lastCompared", section:"General Insurance", t:"When did you last compare your coverage or pricing?", s:"Choose the closest answer.", y:"single", o:["Within the last year","1–3 years ago","More than 3 years ago","Never","Not sure"], r:true, v:()=>wants("General Insurance")},
@@ -321,7 +314,7 @@ textarea{min-height:110px;resize:vertical}
   function render(){
     review=false;
     const list=visible(), q=current(), pct=Math.round(index/list.length*100);
-    $("repPill").textContent=state.repId?state.repId+"@primerica.com":"Rep not set";
+    $("repPill").textContent=state.repId?"Rep ID: "+state.repId:"Rep not set";
     $("progressText").textContent=`Question ${index+1} of ${list.length}`;
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
@@ -386,6 +379,9 @@ textarea{min-height:110px;resize:vertical}
     return v||"Not provided";
   }
 
+  function moneyD(k){ const v=Number(state[k]); return state[k]!=="" && Number.isFinite(v) ? v.toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided"; }
+  function percentD(k){ return state[k]!=="" ? state[k]+"%" : "Not provided"; }
+
   function sectionStatus(name){
     return wants(name) ? "Selected" : "Not selected";
   }
@@ -402,23 +398,23 @@ textarea{min-height:110px;resize:vertical}
     if(section==="Investments"){
       return [
         ["Current accounts",D("investmentAccounts")],
-        ["Approx. saved / invested",D("investmentTotal")],
+        ["Saved / invested",moneyD("investmentTotal")],
         ["Saving / investing for",D("investmentGoals")],
-        ["Approx. monthly contributions",D("monthlyContribution")],
+        ["Monthly contributions",moneyD("monthlyContribution")],
         ["Strategy on track?",D("investmentFit")],
         ["Open to reviewing other options",D("investmentOpen")]
       ];
     }
-    if(section==="Mortgage"){
+    if(section==="Mortgage & Debt Elimination"){
       const rows=[
         ["Housing situation",D("housingSituation")]
       ];
       if(state.housingSituation==="Own with a mortgage"){
-        rows.push(["Approx. home value",D("homeValueRange")],["Approx. mortgage balance",D("mortgageBalanceRange")],["Mortgage rate range",D("mortgageRateRange")],["Renewal timing",D("mortgageRenewalRange")]);
+        rows.push(["Home value",moneyD("homeValueRange")],["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Renewal timing",D("mortgageRenewalRange")]);
       }
       rows.push(["Debt outside mortgage",D("hasNonMortgageDebt")]);
       if(state.hasNonMortgageDebt==="Yes"){
-        rows.push(["Debt types",D("debtTypes")],["Approx. non-mortgage debt",D("debtRange")]);
+        rows.push(["Debt types",D("debtTypes")],["Non-mortgage debt",moneyD("debtRange")]);
       }
       rows.push(["How they feel about mortgage & debt",D("mortgageDebtFeel")],["Open to speaking with a mortgage professional",D("mortgageOpen")]);
       return rows;
@@ -445,7 +441,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent="100%";
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
-    $("continueBtn").textContent="Email My FreedomMap to My Rep";
+    $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
     const cards=sectionOptions.filter(sec=>sec!=="Review Everything").map(sec=>{
@@ -458,41 +454,18 @@ textarea{min-height:110px;resize:vertical}
     $("screen").innerHTML=`
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
-      <p class="sub">Review your answers before opening your email app. Nothing is sent automatically.</p>
+      <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
+      <div class="review-row"><div class="review-label">Primerica Rep ID</div><div class="review-value">${escape(state.repId)}</div></div>
       <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Selected areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
     `;
   }
 
-  function emailBody(){
-    const lines=[
-      "Household: "+(isCouple()?state.clientName+" & "+state.partnerName:state.clientName),
-      "Household type: "+state.householdType,
-      "Areas selected: "+(state.sections.includes("Review Everything") ? "Review Everything" : state.sections.join(", ")),
-      "AREAS RANKED BY IMPORTANCE",
-      ...state.rankedAreas.map((x,i)=>(i+1)+". "+x),
-      ""
-    ];
-    sectionOptions.filter(sec=>sec!=="Review Everything").forEach(sec=>{
-      lines.push(sec==="Mortgage" ? "MORTGAGE & DEBT" : sec.toUpperCase());
-      if(!wants(sec)){ lines.push("• Not selected",""); return; }
-      peopleSummary(sec).forEach(([l,v])=>lines.push("• "+l+": "+v));
-      lines.push("");
-    });
-    lines.push("ADDITIONAL NOTES");
-    lines.push(state.otherNotes||"None provided");
-    return lines.join("\n");
-  }
-
-  function sendEmail(){
-    const to=`${state.repId}@primerica.com`;
-    const subject=`FreedomMap — ${isCouple()?state.clientName+" & "+state.partnerName:state.clientName}`;
-    location.href=`mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody())}`;
-  }
+  function savePdf(){ window.print(); }
 
   $("continueBtn").onclick=()=>{
-    if(review){ sendEmail(); return; }
+    if(review){ savePdf(); return; }
     const q=current();
     saveEntry(q);
     if(q.k==="repId") state.repId=state.repId.toUpperCase();

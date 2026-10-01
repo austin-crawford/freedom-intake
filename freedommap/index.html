@@ -109,7 +109,6 @@ textarea{min-height:110px;resize:vertical}
     hasNonMortgageDebt:"",
     debtTypes:[],
     debtRange:"",
-    mortgageDebtFeel:"",
     mortgageOpen:"",
 
     generalInsuranceNeeds:[],
@@ -184,7 +183,6 @@ textarea{min-height:110px;resize:vertical}
   const housingSituations = ["Own with a mortgage","Own mortgage-free","Renting","Living with family / other","Planning to buy","Not sure"];
   const mortgageRenewalRanges = ["Within 6 months","6–12 months","1–2 years","More than 2 years","Not sure"];
   const debtTypes = ["Credit cards","Line of credit","Vehicle loan","Personal loan","Student loan","CRA / tax debt","Other"];
-  const mortgageDebtFeelOptions = ["Comfortable with it","Mostly comfortable","Not sure","I would like to improve it","It is a significant concern"];
 
   const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","None","Not sure"];
   const legalDocumentOptions = ["Will","Enduring Power of Attorney","Personal Directive","None","Not sure"];
@@ -233,15 +231,14 @@ textarea{min-height:110px;resize:vertical}
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
     {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
-    {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && ["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)},
     {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRateRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage interest rate?", s:"Enter the current rate.", y:"percent", p:"0.00", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRenewalRange", section:"Mortgage & Debt Elimination", t:"When is your mortgage coming up for renewal?", s:"Choose the closest answer.", y:"single", o:mortgageRenewalRanges, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
-    {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have debt outside of your mortgage?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
-    {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
-    {k:"debtRange", section:"Mortgage & Debt Elimination", t:"How much non-mortgage debt do you currently have?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
-    {k:"mortgageDebtFeel", section:"Mortgage & Debt Elimination", t:"How do you feel about your current mortgage and debt situation?", s:"Choose the closest answer.", y:"single", o:mortgageDebtFeelOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
-    {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:"If an improvement is identified, would you be open to speaking with a mortgage professional?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
+    {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have any non-mortgage debt?", s:"This can include credit cards, lines of credit, vehicle loans, personal loans, student loans or tax debt.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
+    {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of non-mortgage debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
+    {k:"debtRange", section:"Mortgage & Debt Elimination", t:"What is the total balance of your non-mortgage debt?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
+    {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:()=>["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Would you be open to reviewing mortgage and debt elimination options?":"Would you be open to reviewing debt elimination options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")}
 
     {k:"generalInsuranceNeeds", section:"General Insurance", t:"Which types of general insurance would you like reviewed or set up?", s:"Choose all that apply.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance")},
     {k:"lastCompared", section:"General Insurance", t:"When did you last compare your coverage or pricing?", s:"Choose the closest answer.", y:"single", o:["Within the last year","1–3 years ago","More than 3 years ago","Never","Not sure"], r:true, v:()=>wants("General Insurance")},
@@ -429,14 +426,17 @@ textarea{min-height:110px;resize:vertical}
       const rows=[
         ["Housing situation",D("housingSituation")]
       ];
+      if(["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)){
+        rows.push(["Home value",moneyD("homeValueRange")]);
+      }
       if(state.housingSituation==="Own with a mortgage"){
-        rows.push(["Home value",moneyD("homeValueRange")],["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Renewal timing",D("mortgageRenewalRange")]);
+        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Renewal timing",D("mortgageRenewalRange")]);
       }
-      rows.push(["Debt outside mortgage",D("hasNonMortgageDebt")]);
+      rows.push(["Non-mortgage debt",D("hasNonMortgageDebt")]);
       if(state.hasNonMortgageDebt==="Yes"){
-        rows.push(["Debt types",D("debtTypes")],["Non-mortgage debt",moneyD("debtRange")]);
+        rows.push(["Debt types",D("debtTypes")],["Total non-mortgage debt",moneyD("debtRange")]);
       }
-      rows.push(["How they feel about mortgage & debt",D("mortgageDebtFeel")],["Open to speaking with a mortgage professional",D("mortgageOpen")]);
+      rows.push([["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Open to reviewing mortgage & debt elimination options":"Open to reviewing debt elimination options",D("mortgageOpen")]);
       return rows;
     }
     if(section==="General Insurance"){

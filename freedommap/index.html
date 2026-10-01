@@ -125,6 +125,12 @@ textarea{min-height:110px;resize:vertical}
     otherNotes:""
   };
 
+  const params = new URLSearchParams(window.location.search);
+  const repFromUrl = (params.get("rep") || "").trim().toUpperCase();
+  if(repFromUrl && /^[A-Z0-9._-]+$/.test(repFromUrl)){
+    state.repId = repFromUrl;
+  }
+
   const sectionOptions = [
     "Personal Insurance",
     "Investments",
@@ -261,7 +267,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."}
   ];
 
-  let index=0, review=false;
+  let index=state.repId?1:0, review=false;
 
   function visible(){ return Q.filter(q=>!q.v || q.v()); }
   function current(){ const list=visible(); if(index>=list.length) index=Math.max(0,list.length-1); return list[index]; }

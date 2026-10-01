@@ -88,7 +88,6 @@ textarea{min-height:110px;resize:vertical}
     <div class="actions">
       <button class="btn secondary" id="backBtn" type="button">Back</button>
       <button class="btn secondary" id="productsBtn" type="button">Products</button>
-      <button class="btn secondary" id="finishBtn" type="button">Finish</button>
       <button class="btn primary" id="continueBtn" type="button">Continue</button>
     </div>
   </section>
@@ -270,7 +269,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"If we can help you get missing documents in place or provide access to legal support, would you be open to learning more?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
 
-    {k:"exploreMore", section:"Finish", t:"Would you like to explore another area?", s:"You can add another area before finishing your FreedomMap.", y:"single", o:remainingAreas, r:true, v:()=>rankableAreas().length>0 && rankableAreas().length<5},
+    {k:"exploreMore", section:"Finish", t:"Would you like to explore another area?", s:"You can add another area before finishing your FreedomMap.", y:"single", o:remainingAreas, r:true, v:()=>rankableAreas().length>0},
     {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes...", v:()=>rankableAreas().length>0},
     {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true, v:()=>rankableAreas().length>0}
   ];
@@ -366,7 +365,6 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
     $("productsBtn").style.display=q.section==="Start"?"none":"block";
-    $("finishBtn").style.display=(rankableAreas().length>0 && q.section!=="Finish")?"block":"none";
     $("continueBtn").style.display=(q.k==="sections" || q.k==="exploreMore")?"none":"block";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
@@ -594,7 +592,6 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
     $("productsBtn").style.display="block";
-    $("finishBtn").style.display="none";
     $("continueBtn").style.display="block";
     $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
@@ -663,24 +660,14 @@ textarea{min-height:110px;resize:vertical}
     }
   };
 
-  $("finishBtn").onclick=()=>{
+  $("productsBtn").onclick=()=>{
     if(!review) saveEntry(current());
     rememberCurrent();
     review=false;
     exploreReturnArea="";
     state.exploreMore="";
     const list=visible();
-    const finishIndex=list.findIndex(item=>item.k==="exploreMore");
-    if(finishIndex>=0){ index=finishIndex; render(); }
-  };
-
-  $("productsBtn").onclick=()=>{
-    if(!review) saveEntry(current());
-    rememberCurrent();
-    review=false;
-    exploreReturnArea="";
-    const list=visible();
-    const menuIndex=list.findIndex(item=>item.k==="sections");
+    const menuIndex=list.findIndex(item=>item.k==="exploreMore");
     if(menuIndex>=0){ index=menuIndex; render(); }
   };
 

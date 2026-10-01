@@ -217,7 +217,7 @@ textarea{min-height:110px;resize:vertical}
 
   const Q = [
     {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This determines where your completed FreedomMap will be emailed.", y:"text", p:"Example: ABC123", r:true},
-    {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true, save:v=>v==="Just me"?"Single":"Couple"},
+    {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
     {k:"sections", section:"Start", t:"What would you like to review?", s:"Select any areas you have questions or concerns about.", y:"multi", o:sectionOptions, r:true},

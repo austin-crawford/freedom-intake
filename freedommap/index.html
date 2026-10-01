@@ -319,6 +319,34 @@ textarea{min-height:110px;resize:vertical}
 
   function saveEntry(q){
     if(q.y==="investmentDetails"){
+      document.querySelectorAll("[data-invest-account]").forEach(el=>{
+        const account=el.dataset.investAccount;
+        const type=el.dataset.investField;
+        const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
+        if(!state.investmentDetails[account]) state.investmentDetails[account]={balance:"",contribution:"",employerContribution:""};
+        state.investmentDetails[account][type]=raw;
+      });
+      return;
+    }
+    if(q.y==="debtDetails"){
+      document.querySelectorAll("[data-debt-type]").forEach(el=>{
+        const debt=el.dataset.debtType;
+        const type=el.dataset.debtField;
+        const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
+        if(!state.debtDetails[debt]) state.debtDetails[debt]={balance:"",rate:""};
+        state.debtDetails[debt][type]=raw;
+      });
+      return;
+    }
+    const e=$("entry");
+    if(!e) return;
+    let v=e.value.trim();
+    if(["money","percent"].includes(q.y)) v=v.replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
+    state[q.k]=q.save?q.save(v):v;
+  }
+
+  function field(q){
+    if(q.y==="investmentDetails"){
       return '<div class="options">'+selectedInvestmentAccounts().map(account=>{
         const d=state.investmentDetails[account]||{balance:"",contribution:"",employerContribution:""};
         return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(account)+'</div>'+

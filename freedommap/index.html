@@ -95,9 +95,8 @@ textarea{min-height:110px;resize:vertical}
     insuranceOpen:"",
 
     investmentAccounts:[],
-    investmentTotal:"",
+    investmentDetails:{},
     investmentGoals:[],
-    monthlyContribution:"",
     investmentFit:"",
     investmentOpen:"",
 
@@ -202,6 +201,9 @@ textarea{min-height:110px;resize:vertical}
     return all.filter(x=>!rankableAreas().includes(x)).concat("No, I'm done");
   }
   function questionSectionForArea(area){ return area; }
+  function selectedInvestmentAccounts(){
+    return state.investmentAccounts.filter(x=>!["None","Not sure"].includes(x));
+  }
 
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
@@ -224,9 +226,8 @@ textarea{min-height:110px;resize:vertical}
 
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
-    {k:"investmentTotal", section:"Investments", t:"How much do you currently have saved or invested?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Investments")},
+    {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
     {k:"investmentGoals", section:"Investments", t:"What are you currently saving or investing for?", s:"Choose all that apply.", y:"multi", o:investmentGoals, r:true, v:()=>wants("Investments")},
-    {k:"monthlyContribution", section:"Investments", t:"How much are you currently contributing each month?", s:"Enter the current monthly amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Investments")},
     {k:"investmentFit", section:"Investments", t:"Do you feel your current savings and investment strategy is on track for your goals?", s:"Choose the closest answer.", y:"single", o:fitOptions, r:true, v:()=>wants("Investments")},
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
@@ -261,6 +262,16 @@ textarea{min-height:110px;resize:vertical}
   function escape(v){ return String(v??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 
   function saveEntry(q){
+    if(q.y==="investmentDetails"){
+      document.querySelectorAll("[data-invest-account]").forEach(el=>{
+        const account=el.dataset.investAccount;
+        const type=el.dataset.investField;
+        const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
+        if(!state.investmentDetails[account]) state.investmentDetails[account]={balance:"",contribution:""};
+        state.investmentDetails[account][type]=raw;
+      });
+      return;
+    }
     const e=$("entry");
     if(!e) return;
     let v=e.value.trim();
@@ -275,6 +286,14 @@ textarea{min-height:110px;resize:vertical}
         const sel=state[q.k].includes(o);
         const m=sectionMeta[o]||{title:o,desc:o==="No, I'm done"?"Continue to finish your FreedomMap":""};
         return '<button type="button" class="option '+(sel?"selected":"")+'" data-option="'+escape(o)+'"><span class="option-title">'+escape(m.title)+'</span>'+(m.desc?'<span class="option-desc">'+escape(m.desc)+'</span>':'')+(m.note?'<span class="option-note">'+escape(m.note)+'</span>':'')+'</button>';
+      }).join("")+'</div>';
+    }
+    if(q.y==="investmentDetails"){
+      return '<div class="options">'+selectedInvestmentAccounts().map(account=>{
+        const d=state.investmentDetails[account]||{balance:"",contribution:""};
+        return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(account)+'</div>'+
+          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="balance" inputmode="decimal" value="'+escape(d.balance)+'" placeholder="0"></div>'+
+          '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="contribution" inputmode="decimal" value="'+escape(d.contribution)+'" placeholder="0"></div></div>';
       }).join("")+'</div>';
     }
     if(q.y==="rank"){
@@ -383,6 +402,13 @@ textarea{min-height:110px;resize:vertical}
   function validate(){
     const q=current(), v=state[q.k];
     if(q.y==="rank" && v.length!==rankableAreas().length){ $("errorBox").innerHTML='<div class="error">Please rank all selected areas to continue.</div>'; return false; }
+    if(q.y==="investmentDetails"){
+      const missing=selectedInvestmentAccounts().some(account=>{
+        const d=state.investmentDetails[account]||{};
+        return d.balance==="" || d.contribution==="";
+      });
+      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter both the current balance and monthly contribution for each account.</div>'; return false; }
+    }
     if(q.r && (Array.isArray(v)?v.length===0:!v)){
       $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
       return false;
@@ -413,14 +439,15 @@ textarea{min-height:110px;resize:vertical}
       return rows;
     }
     if(section==="Investments"){
-      return [
-        ["Current accounts",D("investmentAccounts")],
-        ["Saved / invested",moneyD("investmentTotal")],
-        ["Saving / investing for",D("investmentGoals")],
-        ["Monthly contributions",moneyD("monthlyContribution")],
-        ["Strategy on track?",D("investmentFit")],
-        ["Open to reviewing other options",D("investmentOpen")]
-      ];
+      const rows=[["Current accounts",D("investmentAccounts")]];
+      selectedInvestmentAccounts().forEach(account=>{
+        const d=state.investmentDetails[account]||{};
+        const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
+        const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
+        rows.push([account, "Balance: "+balance+" | Contribution: "+contribution]);
+      });
+      rows.push(["Saving / investing for",D("investmentGoals")],["Strategy on track?",D("investmentFit")],["Open to reviewing other options",D("investmentOpen")]);
+      return rows;
     }
     if(section==="Mortgage & Debt Elimination"){
       const rows=[

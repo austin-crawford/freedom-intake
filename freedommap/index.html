@@ -325,6 +325,14 @@ textarea{min-height:110px;resize:vertical}
   }
   function title(q){ return typeof q.t==="function" ? q.t() : q.t; }
   function escape(v){ return String(v??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+  function formatNumberInput(v){
+    const raw=String(v??"").replace(/,/g,"").replace(/[^0-9.]/g,"");
+    if(!raw) return "";
+    const parts=raw.split(".");
+    const whole=(parts.shift()||"0").replace(/^0+(?=\d)/,"");
+    const grouped=whole.replace(/\B(?=(\d{3})+(?!\d))/g,",");
+    return parts.length ? grouped+"."+parts.join("").slice(0,2) : grouped;
+  }
 
   function saveEntry(q){
     if(q.y==="investmentDetails"){
@@ -359,9 +367,9 @@ textarea{min-height:110px;resize:vertical}
       return '<div class="options">'+selectedInvestmentAccounts().map(account=>{
         const d=state.investmentDetails[account]||{balance:"",contribution:"",employerContribution:""};
         return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(account)+'</div>'+
-          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="balance" inputmode="decimal" value="'+escape(d.balance||"")+'" placeholder="0"></div>'+
-          '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="contribution" inputmode="decimal" value="'+escape(d.contribution||"")+'" placeholder="0"></div>'+
-          (isWorkplaceAccount(account)?'<label class="field-label" style="margin-top:14px">Employer monthly contribution / match</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="employerContribution" inputmode="decimal" value="'+escape(d.employerContribution||"")+'" placeholder="0"></div>':'')+
+          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
+          '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="contribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.contribution||""))+'" placeholder="0"></div>'+
+          (isWorkplaceAccount(account)?'<label class="field-label" style="margin-top:14px">Employer monthly contribution / match</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="employerContribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.employerContribution||""))+'" placeholder="0"></div>':'')+
           '</div>';
       }).join("")+'</div>';
     }
@@ -369,7 +377,7 @@ textarea{min-height:110px;resize:vertical}
       return '<div class="options">'+state.debtTypes.map(debt=>{
         const d=state.debtDetails[debt]||{balance:"",rate:""};
         return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(debt)+'</div>'+
-          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="balance" inputmode="decimal" value="'+escape(d.balance||"")+'" placeholder="0"></div>'+
+          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
           '<label class="field-label" style="margin-top:14px">Interest rate</label><div class="percent"><input data-debt-type="'+escape(debt)+'" data-debt-field="rate" inputmode="decimal" value="'+escape(d.rate||"")+'" placeholder="0.00"><span>%</span></div></div>';
       }).join("")+'</div>';
     }
@@ -382,7 +390,7 @@ textarea{min-height:110px;resize:vertical}
       }).join("")+'</div>'+(state.rankedAreas.length?'<button type="button" class="rank-reset" id="rankReset">Reset ranking</button>':'');
     }
     if(q.y==="text"||q.y==="number") return `<label class="field-label" for="entry">Your answer</label><input id="entry" type="${q.y}" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}">`;
-    if(q.y==="money") return `<label class="field-label" for="entry">Amount (CAD)</label><div class="money"><span>$</span><input id="entry" inputmode="decimal" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}"></div>`;
+    if(q.y==="money") return `<label class="field-label" for="entry">Amount (CAD)</label><div class="money"><span>$</span><input id="entry" data-money-input inputmode="decimal" value="${escape(formatNumberInput(state[q.k]))}" placeholder="${escape(q.p||"")}"></div>`;
     if(q.y==="percent") return `<label class="field-label" for="entry">Interest rate</label><div class="percent"><input id="entry" inputmode="decimal" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}"><span>%</span></div>`;
     if(q.y==="date") return `<label class="field-label" for="entry">Date</label><input id="entry" type="date" value="${escape(state[q.k])}">`;
     if(q.y==="textarea") return `<label class="field-label" for="entry">Optional details</label><textarea id="entry" placeholder="${escape(q.p||"")}">${escape(state[q.k])}</textarea>`;
@@ -404,6 +412,11 @@ textarea{min-height:110px;resize:vertical}
     $("continueBtn").style.display="block";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
+    document.querySelectorAll("[data-money-input]").forEach(input=>{
+      input.addEventListener("input",()=>{
+        input.value=formatNumberInput(input.value);
+      });
+    });
     document.querySelectorAll("[data-rank]").forEach(btn=>{
       btn.onclick=()=>{
         const val=btn.dataset.rank;

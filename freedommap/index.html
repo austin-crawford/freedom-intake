@@ -111,7 +111,9 @@ textarea{min-height:110px;resize:vertical}
     rankedAreas:[],
 
     clientLife:"",
+    clientLifeAmount:"",
     partnerLife:"",
+    partnerLifeAmount:"",
     clientDisability:"",
     partnerDisability:"",
     clientCI:"",
@@ -126,6 +128,8 @@ textarea{min-height:110px;resize:vertical}
     investmentAccounts:[],
     investmentDetails:{},
     investmentGoals:[],
+    clientRetirementAge:"",
+    partnerRetirementAge:"",
     retirementTargetKnowledge:"",
     taxOptimizationKnowledge:"",
     retirementDurationKnowledge:"",
@@ -138,7 +142,7 @@ textarea{min-height:110px;resize:vertical}
     mortgageRenewalDate:"",
     hasNonMortgageDebt:"",
     debtTypes:[],
-    debtRange:"",
+    debtDetails:{},
     mortgageOpen:"",
 
     generalInsuranceNeeds:[],
@@ -224,6 +228,7 @@ textarea{min-height:110px;resize:vertical}
   function selectedInvestmentAccounts(){
     return state.investmentAccounts.filter(x=>!["None","Not sure"].includes(x));
   }
+  function isWorkplaceAccount(account){ return account.includes("Workplace pension / group plan"); }
 
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
@@ -237,6 +242,8 @@ textarea{min-height:110px;resize:vertical}
     {k:"dependantAges", section:"Household Basics", t:"What are the ages of your children or other dependants?", s:"Separate multiple ages with commas.", y:"text", p:"Example: 8, 5", r:true, v:()=>state.hasDependants==="Yes"},
     {k:"monthlyAvailable", section:"Household Basics", t:"About how much is available each month after regular expenses and debt payments?", s:"Enter the amount currently available for saving, investing or debt reduction.", y:"money", p:"0", r:true},
     {k:"emergencyFund", section:"Household Basics", t:"How much do you currently have set aside for emergencies?", s:"Enter your current emergency savings.", y:"money", p:"0", r:true},
+    {k:"clientRetirementAge", section:"Investments", t:()=>isCouple()?("At what age would "+(state.clientName || "the first person")+" like to retire?"):"At what age would you like to retire?", s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true},
+    {k:"partnerRetirementAge", section:"Investments", t:()=>("At what age would "+(state.partnerName || "your partner")+" like to retire?"), s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true, v:()=>isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
     {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
@@ -247,7 +254,9 @@ textarea{min-height:110px;resize:vertical}
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"clientLifeAmount", section:"Personal Insurance", t:()=>isCouple()?("How much total life insurance coverage does "+(state.clientName || "the first person")+" have?"):"How much total life insurance coverage do you have?", s:"Enter the total coverage amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>!["None","Not sure",""].includes(state.clientLife)},
     {k:"partnerLife", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your life insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"partnerLifeAmount", section:"Personal Insurance", t:()=>("How much total life insurance coverage does "+(state.partnerName || "your partner")+" have?"), s:"Enter the total coverage amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>isCouple() && !["None","Not sure",""].includes(state.partnerLife)},
     {k:"clientDisability", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your disability coverage come from?`:"Where does your disability coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"partnerDisability", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your disability coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
     {k:"clientCI", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your critical illness coverage come from?`:"Where does your critical illness coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
@@ -266,7 +275,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"mortgageRenewalDate", section:"Mortgage & Debt Elimination", t:"When is your mortgage renewal date?", s:"Enter the exact renewal date.", y:"date", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have any non-mortgage debt?", s:"This can include credit cards, lines of credit, vehicle loans, personal loans, student loans or tax debt.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
     {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of non-mortgage debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
-    {k:"debtRange", section:"Mortgage & Debt Elimination", t:"What is the total balance of your non-mortgage debt?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
+    {k:"debtDetails", section:"Mortgage & Debt Elimination", t:"Enter the details for your non-mortgage debts", s:"For each debt type, enter the current balance and interest rate.", y:"debtDetails", r:true, v:()=>state.hasNonMortgageDebt==="Yes" && state.debtTypes.length>0},
     {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:()=>["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Would you be open to reviewing mortgage and debt elimination options?":"Would you be open to reviewing debt elimination options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
 
     {k:"generalInsuranceNeeds", section:"General Insurance", t:"Which areas of general insurance would you like us to review?", s:"Select any policies you currently have or may need.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance")},
@@ -310,29 +319,21 @@ textarea{min-height:110px;resize:vertical}
 
   function saveEntry(q){
     if(q.y==="investmentDetails"){
-      document.querySelectorAll("[data-invest-account]").forEach(el=>{
-        const account=el.dataset.investAccount;
-        const type=el.dataset.investField;
-        const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
-        if(!state.investmentDetails[account]) state.investmentDetails[account]={balance:"",contribution:""};
-        state.investmentDetails[account][type]=raw;
-      });
-      return;
-    }
-    const e=$("entry");
-    if(!e) return;
-    let v=e.value.trim();
-    if(["money","percent"].includes(q.y)) v=v.replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
-    state[q.k]=q.save?q.save(v):v;
-  }
-
-  function field(q){
-    if(q.y==="investmentDetails"){
       return '<div class="options">'+selectedInvestmentAccounts().map(account=>{
-        const d=state.investmentDetails[account]||{balance:"",contribution:""};
+        const d=state.investmentDetails[account]||{balance:"",contribution:"",employerContribution:""};
         return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(account)+'</div>'+
-          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="balance" inputmode="decimal" value="'+escape(d.balance)+'" placeholder="0"></div>'+
-          '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="contribution" inputmode="decimal" value="'+escape(d.contribution)+'" placeholder="0"></div></div>';
+          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="balance" inputmode="decimal" value="'+escape(d.balance||"")+'" placeholder="0"></div>'+
+          '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="contribution" inputmode="decimal" value="'+escape(d.contribution||"")+'" placeholder="0"></div>'+
+          (isWorkplaceAccount(account)?'<label class="field-label" style="margin-top:14px">Employer monthly contribution / match</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-field="employerContribution" inputmode="decimal" value="'+escape(d.employerContribution||"")+'" placeholder="0"></div>':'')+
+          '</div>';
+      }).join("")+'</div>';
+    }
+    if(q.y==="debtDetails"){
+      return '<div class="options">'+state.debtTypes.map(debt=>{
+        const d=state.debtDetails[debt]||{balance:"",rate:""};
+        return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(debt)+'</div>'+
+          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="balance" inputmode="decimal" value="'+escape(d.balance||"")+'" placeholder="0"></div>'+
+          '<label class="field-label" style="margin-top:14px">Interest rate</label><div class="percent"><input data-debt-type="'+escape(debt)+'" data-debt-field="rate" inputmode="decimal" value="'+escape(d.rate||"")+'" placeholder="0.00"><span>%</span></div></div>';
       }).join("")+'</div>';
     }
     if(q.y==="rank"){
@@ -410,9 +411,16 @@ textarea{min-height:110px;resize:vertical}
     if(q.y==="investmentDetails"){
       const missing=selectedInvestmentAccounts().some(account=>{
         const d=state.investmentDetails[account]||{};
-        return d.balance==="" || d.contribution==="";
+        return d.balance==="" || d.contribution==="" || (isWorkplaceAccount(account) && d.employerContribution==="");
       });
-      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter both the current balance and monthly contribution for each account.</div>'; return false; }
+      if(missing){ $("errorBox").innerHTML='<div class="error">Please complete the balance and contribution fields for each account.</div>'; return false; }
+    }
+    if(q.y==="debtDetails"){
+      const missing=state.debtTypes.some(debt=>{
+        const d=state.debtDetails[debt]||{};
+        return d.balance==="" || d.rate==="";
+      });
+      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter both the balance and interest rate for each debt type.</div>'; return false; }
     }
     if(q.r && (Array.isArray(v)?v.length===0:!v)){
       $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
@@ -443,19 +451,21 @@ textarea{min-height:110px;resize:vertical}
   function peopleSummary(section){
     if(section==="Personal Insurance"){
       let rows=[
-        [state.clientName||"Client",`Life: ${D("clientLife")} | Disability: ${D("clientDisability")} | Critical Illness: ${D("clientCI")} | Health & Dental: ${D("clientHealthDental")} | Travel: ${D("clientTravel")}`]
+        [state.clientName||"Client",`Life: ${D("clientLife")} (${moneyD("clientLifeAmount")}) | Disability: ${D("clientDisability")} | Critical Illness: ${D("clientCI")} | Health & Dental: ${D("clientHealthDental")} | Travel: ${D("clientTravel")}`]
       ];
-      if(isCouple()) rows.push([state.partnerName||"Partner",`Life: ${D("partnerLife")} | Disability: ${D("partnerDisability")} | Critical Illness: ${D("partnerCI")} | Health & Dental: ${D("partnerHealthDental")} | Travel: ${D("partnerTravel")}`]);
+      if(isCouple()) rows.push([state.partnerName||"Partner",`Life: ${D("partnerLife")} (${moneyD("partnerLifeAmount")}) | Disability: ${D("partnerDisability")} | Critical Illness: ${D("partnerCI")} | Health & Dental: ${D("partnerHealthDental")} | Travel: ${D("partnerTravel")}`]);
       rows.push(["Does current coverage meet needs?",D("insuranceFit")],["Open to reviewing options",D("insuranceOpen")]);
       return rows;
     }
     if(section==="Investments"){
-      const rows=[["Current accounts",D("investmentAccounts")]];
+      const rows=[["Current accounts",D("investmentAccounts")],["Target retirement age",D("clientRetirementAge")]];
+      if(isCouple()) rows.push([(state.partnerName||"Partner")+" target retirement age",D("partnerRetirementAge")]);
       selectedInvestmentAccounts().forEach(account=>{
         const d=state.investmentDetails[account]||{};
         const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
         const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
-        rows.push([account, "Balance: "+balance+" | Contribution: "+contribution]);
+        const employer=isWorkplaceAccount(account) && d.employerContribution!==undefined && d.employerContribution!=="" ? Number(d.employerContribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "";
+        rows.push([account, "Balance: "+balance+" | Contribution: "+contribution+(employer?" | Employer: "+employer:"")]);
       });
       rows.push(
         ["Saving / investing for",D("investmentGoals")],
@@ -478,7 +488,13 @@ textarea{min-height:110px;resize:vertical}
       }
       rows.push(["Non-mortgage debt",D("hasNonMortgageDebt")]);
       if(state.hasNonMortgageDebt==="Yes"){
-        rows.push(["Debt types",D("debtTypes")],["Total non-mortgage debt",moneyD("debtRange")]);
+        rows.push(["Debt types",D("debtTypes")]);
+        state.debtTypes.forEach(debt=>{
+          const d=state.debtDetails[debt]||{};
+          const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
+          const rate=d.rate!==undefined && d.rate!=="" ? d.rate+"%" : "Not provided";
+          rows.push([debt,"Balance: "+balance+" | Rate: "+rate]);
+        });
       }
       rows.push([["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Open to reviewing mortgage & debt elimination options":"Open to reviewing debt elimination options",D("mortgageOpen")]);
       return rows;
@@ -514,7 +530,9 @@ textarea{min-height:110px;resize:vertical}
     const personBlock=(name,isPartner)=>'<div class="summary-group"><div class="summary-subhead">'+escape(name)+'</div><div class="summary-grid">'+
       types.map(([label,clientKey,partnerKey])=>{
         const value=D(isPartner?partnerKey:clientKey);
-        return '<div class="summary-line"><div class="summary-key">'+escape(label)+'</div><div class="summary-val'+attentionClass(value)+'">'+escape(value)+'</div></div>';
+        const amountKey=isPartner?"partnerLifeAmount":"clientLifeAmount";
+        const display=label==="Life Insurance" && !["None","Not sure","Not provided"].includes(value) ? value+" — "+moneyD(amountKey) : value;
+        return '<div class="summary-line"><div class="summary-key">'+escape(label)+'</div><div class="summary-val'+attentionClass(value)+'">'+escape(display)+'</div></div>';
       }).join("")+'</div></div>';
 
     let html=personBlock(state.clientName||"Client",false);
@@ -527,15 +545,21 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function renderInvestmentSummary(){
-    let html='<div class="summary-group"><div class="summary-subhead">Current Accounts</div>';
+    let html='<div class="summary-group"><div class="summary-subhead">Retirement Timing</div><div class="summary-grid">'+
+      '<div class="summary-line"><div class="summary-key">Target retirement age</div><div class="summary-val">'+escape(D("clientRetirementAge"))+'</div></div>'+
+      (isCouple()?'<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" target retirement age")+'</div><div class="summary-val">'+escape(D("partnerRetirementAge"))+'</div></div>':'')+
+      '</div></div>';
+    html+='<div class="summary-group"><div class="summary-subhead">Current Accounts</div>';
     if(selectedInvestmentAccounts().length){
       html+=selectedInvestmentAccounts().map(account=>{
         const d=state.investmentDetails[account]||{};
         const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
         const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
+        const employer=isWorkplaceAccount(account) && d.employerContribution!==undefined && d.employerContribution!=="" ? Number(d.employerContribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "";
         return '<div class="account-card"><div class="account-name">'+escape(account)+'</div><div class="account-stats">'+
           '<div class="account-stat"><div class="account-stat-label">Current balance</div><div class="account-stat-value">'+escape(balance)+'</div></div>'+
           '<div class="account-stat"><div class="account-stat-label">Monthly contribution</div><div class="account-stat-value">'+escape(contribution)+'</div></div>'+
+          (employer?'<div class="account-stat"><div class="account-stat-label">Employer contribution / match</div><div class="account-stat-value">'+escape(employer)+'</div></div>':'')+
           '</div></div>';
       }).join("");
     } else {
@@ -572,6 +596,17 @@ textarea{min-height:110px;resize:vertical}
     $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
+    const householdRows=[
+      ["Age",D("clientAge")],
+      ...(isCouple()?[[ (state.partnerName||"Partner")+" age",D("partnerAge") ]]:[]),
+      ["Annual gross income",moneyD("clientIncome")],
+      ...(isCouple()?[[ (state.partnerName||"Partner")+" annual income",moneyD("partnerIncome") ]]:[]),
+      ["Children / dependants",D("hasDependants")],
+      ...(state.hasDependants==="Yes"?[["Dependant ages",D("dependantAges")]]:[]),
+      ["Monthly amount available",moneyD("monthlyAvailable")],
+      ["Emergency savings",moneyD("emergencyFund")]
+    ];
+    const householdCard='<div class="section-card"><div class="section-head"><div class="section-title">Household Snapshot</div><div class="badge">Completed</div></div>'+householdRows.map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("")+'</div>';
     const cards=sectionOptions.map(sec=>{
       return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">Completed</div></div>`+
         renderSectionSummary(sec) +
@@ -582,6 +617,7 @@ textarea{min-height:110px;resize:vertical}
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
       <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
+      ${householdCard}
       <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>

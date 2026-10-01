@@ -421,8 +421,8 @@ textarea{min-height:110px;resize:vertical}
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
       <p class="sub">Review your answers before opening your email app. Nothing is sent automatically.</p>
+      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Focus first</div></div><div class="review-row"><div class="review-label">What is most important right now?</div><div class="review-value">${escape(D("priorities"))}</div></div></div>
       ${cards}
-      <div class="action-box"><h3>Potential items to review</h3><ul>${actionItems().map(x=>`<li>${escape(x)}</li>`).join("")}</ul></div>
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
       <div class="note">FreedomMap organizes client-provided information to identify existing arrangements, possible gaps and areas for review. It does not make financial, insurance, mortgage, legal or investment recommendations.</div>
     `;
@@ -430,24 +430,20 @@ textarea{min-height:110px;resize:vertical}
 
   function emailBody(){
     const lines=[
-      "FREEDOMMAP — CLIENT INTAKE",
-      "",
-      `Household: ${isCouple()?state.clientName+" & "+state.partnerName:state.clientName}`,
-      `Household type: ${state.householdType}`,
-      `Primerica Rep ID: ${state.repId}`,
-      `Areas selected: ${state.sections.includes("Review Everything") ? "Review Everything" : state.sections.join(", ")}`,
+      "Household: "+(isCouple()?state.clientName+" & "+state.partnerName:state.clientName),
+      "Household type: "+state.householdType,
+      "Areas selected: "+(state.sections.includes("Review Everything") ? "Review Everything" : state.sections.join(", ")),
+      "Top priorities: "+D("priorities"),
       ""
     ];
     sectionOptions.filter(sec=>sec!=="Review Everything").forEach(sec=>{
       lines.push(sec.toUpperCase());
       if(!wants(sec)){ lines.push("• Not selected",""); return; }
-      peopleSummary(sec).forEach(([l,v])=>lines.push(`• ${l}: ${v}`));
+      peopleSummary(sec).forEach(([l,v])=>lines.push("• "+l+": "+v));
       lines.push("");
     });
-    lines.push("POTENTIAL ITEMS TO REVIEW");
-    actionItems().forEach(x=>lines.push(`• ${x}`));
-    lines.push("","ADDITIONAL NOTES",state.otherNotes||"None provided");
-    lines.push("","FreedomMap organizes client-provided information for review with a licensed representative or referral partner. It does not provide automatic recommendations.");
+    lines.push("ADDITIONAL NOTES");
+    lines.push(state.otherNotes||"None provided");
     return lines.join("\n");
   }
 

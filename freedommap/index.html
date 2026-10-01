@@ -16,7 +16,6 @@ body{min-height:100vh}
 .app{max-width:760px;margin:0 auto;min-height:100vh;padding:18px 16px 40px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .brand{font-weight:900;color:var(--navy);font-size:19px;letter-spacing:-.02em}
-.rep-pill{font-size:12px;color:var(--muted);text-align:right}
 .progress-copy{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);margin-bottom:8px}
 .progress{height:8px;border-radius:999px;background:#e5ebf3;overflow:hidden;margin-bottom:18px}
 .progress>div{height:100%;width:0;background:var(--blue);transition:width .2s ease}
@@ -57,7 +56,6 @@ textarea{min-height:110px;resize:vertical}
 <main class="app">
   <div class="topbar">
     <div class="brand">FreedomMap</div>
-    <div class="rep-pill" id="repPill">Rep not set</div>
   </div>
 
   <div class="progress-copy"><span id="progressText">Question 1</span><span id="progressPercent">0%</span></div>
@@ -76,7 +74,6 @@ textarea{min-height:110px;resize:vertical}
 (() => {
   const $ = id => document.getElementById(id);
   const state = {
-    repId:"",
     householdType:"",
     clientName:"",
     partnerName:"",
@@ -125,12 +122,6 @@ textarea{min-height:110px;resize:vertical}
 
     otherNotes:""
   };
-
-  const params = new URLSearchParams(window.location.search);
-  const repFromUrl = (params.get("rep") || "").trim().toUpperCase();
-  if(repFromUrl && /^[A-Z0-9._-]+$/.test(repFromUrl)){
-    state.repId = repFromUrl;
-  }
 
   const sectionOptions = [
     "Personal Insurance",
@@ -215,7 +206,6 @@ textarea{min-height:110px;resize:vertical}
   function questionSectionForArea(area){ return area; }
 
   const Q = [
-    {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This identifies the representative completing the FreedomMap.", y:"text", p:"Example: ABC123", r:true},
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
@@ -266,7 +256,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
   ];
 
-  let index=state.repId?1:0, review=false, exploreReturnArea="";
+  let index=0, review=false, exploreReturnArea="";
 
   function visible(){ return Q.filter(q=>!q.v || q.v()); }
   function current(){ const list=visible(); if(index>=list.length) index=Math.max(0,list.length-1); return list[index]; }
@@ -314,7 +304,6 @@ textarea{min-height:110px;resize:vertical}
   function render(){
     review=false;
     const list=visible(), q=current(), pct=Math.round(index/list.length*100);
-    $("repPill").textContent=state.repId?"Rep ID: "+state.repId:"Rep not set";
     $("progressText").textContent=`Question ${index+1} of ${list.length}`;
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
@@ -364,10 +353,6 @@ textarea{min-height:110px;resize:vertical}
     if(q.y==="rank" && v.length!==rankableAreas().length){ $("errorBox").innerHTML='<div class="error">Please rank all selected areas to continue.</div>'; return false; }
     if(q.r && (Array.isArray(v)?v.length===0:!v)){
       $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
-      return false;
-    }
-    if(q.k==="repId" && v && !/^[A-Z0-9._-]+$/.test(v)){
-      $("errorBox").innerHTML='<div class="error">Please enter a valid Rep ID using letters and numbers.</div>';
       return false;
     }
     return true;
@@ -455,7 +440,6 @@ textarea{min-height:110px;resize:vertical}
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
       <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
-      <div class="review-row"><div class="review-label">Primerica Rep ID</div><div class="review-value">${escape(state.repId)}</div></div>
       <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Selected areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
@@ -468,7 +452,6 @@ textarea{min-height:110px;resize:vertical}
     if(review){ savePdf(); return; }
     const q=current();
     saveEntry(q);
-    if(q.k==="repId") state.repId=state.repId.toUpperCase();
     if(!validate()) return;
 
     if(q.k==="exploreMore"){

@@ -45,6 +45,25 @@ textarea{min-height:110px;resize:vertical}
 .badge{font-size:12px;font-weight:800;border-radius:999px;padding:6px 9px;background:#eef5ff;color:var(--blue2)}
 .review-row{padding:12px 0;border-top:1px solid var(--border)}.review-row:first-child{border-top:0}
 .review-label{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:3px}.review-value{font-size:15px;color:var(--navy);white-space:pre-wrap}
+.summary-group{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
+.summary-group:first-of-type{margin-top:0;border-top:0;padding-top:0}
+.summary-subhead{font-size:13px;font-weight:900;color:var(--navy);margin-bottom:9px}
+.summary-grid{display:grid;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.summary-line{display:grid;grid-template-columns:minmax(125px,1fr) minmax(150px,1.35fr);gap:12px;padding:10px 12px;border-top:1px solid var(--border);align-items:start}
+.summary-line:first-child{border-top:0}
+.summary-key{font-size:12px;font-weight:850;color:var(--muted)}
+.summary-val{font-size:14px;font-weight:700;color:var(--navy)}
+.summary-val.attention{font-weight:900;color:#9a3412}
+.account-card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:9px}
+.account-card:first-child{margin-top:0}
+.account-name{font-size:14px;font-weight:900;color:var(--navy);margin-bottom:9px}
+.account-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.account-stat{background:#f8fbff;border-radius:10px;padding:10px}
+.account-stat-label{font-size:11px;font-weight:850;color:var(--muted);margin-bottom:3px}
+.account-stat-value{font-size:14px;font-weight:850;color:var(--navy)}
+.summary-tags{display:flex;flex-wrap:wrap;gap:7px}
+.summary-tag{border:1px solid var(--border);background:#f8fbff;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:750;color:var(--navy)}
+@media(max-width:520px){.summary-line{grid-template-columns:1fr}.account-stats{grid-template-columns:1fr}}
 .action-box{background:#f8fbff;border:1px solid #d8e5ff;border-radius:16px;padding:16px;margin-top:18px}
 .action-box h3{margin:0 0 10px;color:var(--navy);font-size:17px}.action-box ul{padding-left:20px;margin:0}.action-box li{margin:7px 0}
 .note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:12px}.error{font-size:13px;color:#b42318;font-weight:700;margin-top:8px}
@@ -482,6 +501,67 @@ textarea{min-height:110px;resize:vertical}
     return [];
   }
 
+  function attentionClass(v){
+    return ["None","Not sure","No","Not provided"].includes(v) ? " attention" : "";
+  }
+
+  function renderInsuranceSummary(){
+    const types=[
+      ["Life Insurance","clientLife","partnerLife"],
+      ["Disability Insurance","clientDisability","partnerDisability"],
+      ["Critical Illness Insurance","clientCI","partnerCI"],
+      ["Health & Dental","clientHealthDental","partnerHealthDental"],
+      ["Travel Insurance","clientTravel","partnerTravel"]
+    ];
+    const personBlock=(name,isPartner)=>'<div class="summary-group"><div class="summary-subhead">'+escape(name)+'</div><div class="summary-grid">'+
+      types.map(([label,clientKey,partnerKey])=>{
+        const value=D(isPartner?partnerKey:clientKey);
+        return '<div class="summary-line"><div class="summary-key">'+escape(label)+'</div><div class="summary-val'+attentionClass(value)+'">'+escape(value)+'</div></div>';
+      }).join("")+'</div></div>';
+
+    let html=personBlock(state.clientName||"Client",false);
+    if(isCouple()) html+=personBlock(state.partnerName||"Partner",true);
+    html+='<div class="summary-group"><div class="summary-grid">'+
+      '<div class="summary-line"><div class="summary-key">Current coverage meets needs?</div><div class="summary-val'+attentionClass(D("insuranceFit"))+'">'+escape(D("insuranceFit"))+'</div></div>'+
+      '<div class="summary-line"><div class="summary-key">Open to reviewing options?</div><div class="summary-val'+attentionClass(D("insuranceOpen"))+'">'+escape(D("insuranceOpen"))+'</div></div>'+
+      '</div></div>';
+    return html;
+  }
+
+  function renderInvestmentSummary(){
+    let html='<div class="summary-group"><div class="summary-subhead">Current Accounts</div>';
+    if(selectedInvestmentAccounts().length){
+      html+=selectedInvestmentAccounts().map(account=>{
+        const d=state.investmentDetails[account]||{};
+        const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
+        const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
+        return '<div class="account-card"><div class="account-name">'+escape(account)+'</div><div class="account-stats">'+
+          '<div class="account-stat"><div class="account-stat-label">Current balance</div><div class="account-stat-value">'+escape(balance)+'</div></div>'+
+          '<div class="account-stat"><div class="account-stat-label">Monthly contribution</div><div class="account-stat-value">'+escape(contribution)+'</div></div>'+
+          '</div></div>';
+      }).join("");
+    } else {
+      html+='<div class="summary-val'+attentionClass(D("investmentAccounts"))+'">'+escape(D("investmentAccounts"))+'</div>';
+    }
+    html+='</div>';
+
+    html+='<div class="summary-group"><div class="summary-subhead">Saving / Investing For</div><div class="summary-tags">'+
+      (state.investmentGoals.length?state.investmentGoals.map(x=>'<span class="summary-tag">'+escape(x)+'</span>').join(""):'<span class="summary-val attention">Not provided</span>')+
+      '</div></div>';
+
+    html+='<div class="summary-group"><div class="summary-grid">'+
+      '<div class="summary-line"><div class="summary-key">Strategy on track?</div><div class="summary-val'+attentionClass(D("investmentFit"))+'">'+escape(D("investmentFit"))+'</div></div>'+
+      '<div class="summary-line"><div class="summary-key">Open to reviewing other options?</div><div class="summary-val'+attentionClass(D("investmentOpen"))+'">'+escape(D("investmentOpen"))+'</div></div>'+
+      '</div></div>';
+    return html;
+  }
+
+  function renderSectionSummary(section){
+    if(section==="Personal Insurance") return renderInsuranceSummary();
+    if(section==="Investments") return renderInvestmentSummary();
+    return peopleSummary(section).map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("");
+  }
+
   function renderReview(){
     review=true;
     $("progressText").textContent="Review";
@@ -495,7 +575,7 @@ textarea{min-height:110px;resize:vertical}
     const cards=sectionOptions.filter(sec=>sec!=="Review Everything").map(sec=>{
       const selected=wants(sec);
       return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">${selected?"Selected":"Not selected"}</div></div>`+
-        (selected?peopleSummary(sec).map(([l,v])=>`<div class="review-row"><div class="review-label">${escape(l)}</div><div class="review-value">${escape(v)}</div></div>`).join(""):`<div class="note">No review requested in this section.</div>`) +
+        (selected?renderSectionSummary(sec):`<div class="note">No review requested in this section.</div>`) +
       `</div>`;
     }).join("");
 

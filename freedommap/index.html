@@ -204,6 +204,10 @@ textarea{min-height:110px;resize:vertical}
 
   function isCouple(){ return state.householdType === "Couple"; }
   function wants(section){ return state.sections.includes(section) || state.sections.includes("Review Everything"); }
+  function rankableAreas(){
+    const all=["Personal Insurance","Investments","Mortgage","General Insurance","Legal Services"];
+    return state.sections.includes("Review Everything") ? all : all.filter(x=>state.sections.includes(x));
+  }
 
   const Q = [
     {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This determines where your completed FreedomMap will be emailed.", y:"text", p:"Example: ABC123", r:true},
@@ -253,7 +257,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"If we can help you get missing documents in place or provide access to legal support, would you be open to learning more?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
 
-    {k:"rankedAreas", section:"Finish", t:"Rank these five areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:["Personal Insurance","Investments","Mortgage","General Insurance","Legal Services"], r:true},
+    {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true},
     {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."}
   ];
 
@@ -281,7 +285,9 @@ textarea{min-height:110px;resize:vertical}
       }).join("")+'</div>';
     }
     if(q.y==="rank"){
-      return '<div class="options">'+q.o.map(o=>{
+      const options=typeof q.o==="function" ? q.o() : q.o;
+      state.rankedAreas=state.rankedAreas.filter(x=>options.includes(x));
+      return '<div class="options">'+options.map(o=>{
         const pos=state.rankedAreas.indexOf(o);
         return '<button type="button" class="option rank-option '+(pos>=0?"selected":"")+'" data-rank="'+escape(o)+'"><span class="rank-num">'+(pos>=0?(pos+1):"")+'</span><span>'+escape(o)+'</span></button>';
       }).join("")+'</div>'+(state.rankedAreas.length?'<button type="button" class="rank-reset" id="rankReset">Reset ranking</button>':'');
@@ -314,7 +320,7 @@ textarea{min-height:110px;resize:vertical}
         const val=btn.dataset.rank;
         if(state.rankedAreas.includes(val)){
           state.rankedAreas=state.rankedAreas.filter(x=>x!==val);
-        } else if(state.rankedAreas.length<5){
+        } else if(state.rankedAreas.length<rankableAreas().length){
           state.rankedAreas=state.rankedAreas.concat(val);
         }
         render();
@@ -337,6 +343,7 @@ textarea{min-height:110px;resize:vertical}
         } else {
           state[q.k]=q.save?q.save(val):val;
         }
+        if(q.k==="sections") state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
         render();
       };
     });
@@ -344,7 +351,7 @@ textarea{min-height:110px;resize:vertical}
 
   function validate(){
     const q=current(), v=state[q.k];
-    if(q.y==="rank" && v.length!==5){ $("errorBox").innerHTML='<div class="error">Please rank all five areas to continue.</div>'; return false; }
+    if(q.y==="rank" && v.length!==rankableAreas().length){ $("errorBox").innerHTML='<div class="error">Please rank all selected areas to continue.</div>'; return false; }
     if(q.r && (Array.isArray(v)?v.length===0:!v)){
       $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
       return false;
@@ -436,7 +443,7 @@ textarea{min-height:110px;resize:vertical}
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
       <p class="sub">Review your answers before opening your email app. Nothing is sent automatically.</p>
-      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Five areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
+      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Selected areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
     `;

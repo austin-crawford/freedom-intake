@@ -79,6 +79,7 @@ textarea{min-height:110px;resize:vertical}
     clientName:"",
     partnerName:"",
     sections:[],
+    priorities:[],
     insuranceTypes:[],
     clientLife:"",
     partnerLife:"",
@@ -170,6 +171,8 @@ textarea{min-height:110px;resize:vertical}
     }
   };
 
+  const priorityOptions = ["Protecting my family and income","Retirement planning","Saving for a home / downpayment","Reducing debt or mortgage costs","Growing my savings and investments","Saving for children education","Improving auto, home or business insurance","Getting legal documents and advice in place","Not sure — help me prioritize"];
+
   const investmentAccounts = ["RRSP","TFSA","FHSA","RESP","Workplace pension / group plan","Non-registered investments","None / Not sure"];
   const mortgageGoals = ["New purchase","Mortgage renewal","Refinance","Debt consolidation","Lower monthly payments","Access home equity","Buy another property","Not sure"];
   const autoHomeTypes = ["Auto","Home","Tenant","Landlord","Business / liability","Other","None / Not sure"];
@@ -187,6 +190,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
     {k:"sections", section:"Start", t:"What would you like to review?", s:"Select any areas you have questions or concerns about.", y:"multi", o:sectionOptions, r:true},
+    {k:"priorities", section:"Start", t:"What is most important to you right now?", s:"Choose the priorities you want your representative to focus on first.", y:"multi", o:priorityOptions, r:true},
 
     {k:"insuranceTypes", section:"Personal Insurance", t:"Which types of personal insurance do you currently have?", s:"Choose all that apply. We’ll use the next questions to identify whether coverage is individual, through work, both, or not currently in place.", y:"multi", o:insuranceTypes, r:true, v:()=>wants("Personal Insurance")},
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && state.insuranceTypes.includes("Life")},

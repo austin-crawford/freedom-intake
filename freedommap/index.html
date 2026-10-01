@@ -276,10 +276,30 @@ textarea{min-height:110px;resize:vertical}
     {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true, v:()=>rankableAreas().length>0}
   ];
 
-  let index=0, review=false, exploreReturnArea="";
+  let index=0, review=false, exploreReturnArea="", navHistory=[];
 
   function visible(){ return Q.filter(q=>!q.v || q.v()); }
   function current(){ const list=visible(); if(index>=list.length) index=Math.max(0,list.length-1); return list[index]; }
+  function rememberCurrent(){
+    if(review) return;
+    const q=current();
+    if(!q) return;
+    if(navHistory[navHistory.length-1]!==q) navHistory.push(q);
+  }
+  function returnToHistory(){
+    const list=visible();
+    const here=current();
+    while(navHistory.length){
+      const target=navHistory.pop();
+      const targetIndex=list.indexOf(target);
+      if(targetIndex>=0 && target!==here){
+        index=targetIndex;
+        render();
+        return true;
+      }
+    }
+    return false;
+  }
   function title(q){ return typeof q.t==="function" ? q.t() : q.t; }
   function escape(v){ return String(v??"").replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
 
@@ -370,14 +390,16 @@ textarea{min-height:110px;resize:vertical}
         const val=btn.dataset.option;
 
         if(q.k==="sections"){
+          rememberCurrent();
           if(!state.sections.includes(val)) state.sections.push(val);
           state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
           const list=visible();
           const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
-          if(targetIndex>=0){ index=targetIndex; render(); return; }
+          if(targetIndex>=0){ rememberCurrent(); index=targetIndex; render(); return; }
         }
 
         if(q.k==="exploreMore"){
+          rememberCurrent();
           if(val==="No, I'm done"){
             state.exploreMore=val;
             const list=visible();
@@ -627,16 +649,24 @@ textarea{min-height:110px;resize:vertical}
         state.exploreMore="";
         const refreshed=visible();
         const exploreIndex=refreshed.findIndex(item=>item.k==="exploreMore");
-        if(exploreIndex>=0){ index=exploreIndex; render(); return; }
+        if(exploreIndex>=0){ rememberCurrent(); index=exploreIndex; render(); return; }
       }
     }
 
     const list=visible();
-    if(index<list.length-1){ index++; render(); } else renderReview();
+    if(index<list.length-1){
+      rememberCurrent();
+      index++;
+      render();
+    } else {
+      rememberCurrent();
+      renderReview();
+    }
   };
 
   $("finishBtn").onclick=()=>{
     if(!review) saveEntry(current());
+    rememberCurrent();
     review=false;
     exploreReturnArea="";
     state.exploreMore="";
@@ -647,6 +677,7 @@ textarea{min-height:110px;resize:vertical}
 
   $("productsBtn").onclick=()=>{
     if(!review) saveEntry(current());
+    rememberCurrent();
     review=false;
     exploreReturnArea="";
     const list=visible();
@@ -655,9 +686,17 @@ textarea{min-height:110px;resize:vertical}
   };
 
   $("backBtn").onclick=()=>{
-    if(review){ review=false; index=visible().length-1; render(); return; }
+    if(review){
+      review=false;
+      exploreReturnArea="";
+      if(returnToHistory()) return;
+      index=Math.max(0,visible().length-1);
+      render();
+      return;
+    }
     saveEntry(current());
     exploreReturnArea="";
+    if(returnToHistory()) return;
     if(index>0){ index--; render(); }
   };
 

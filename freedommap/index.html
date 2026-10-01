@@ -361,51 +361,6 @@ textarea{min-height:110px;resize:vertical}
     return issues;
   }
 
-  function actionItems(){
-    const a=[];
-    if(wants("Personal Insurance")){
-      const missing=insuranceMissingTypes();
-      if(missing.length) a.push("Personal Insurance — not currently identified: "+missing.join(", "));
-      lifeGroupOnlyIssues().forEach(x=>a.push("Personal Insurance — "+x));
-      if(state.insuranceFit!=="Yes — it meets my needs") a.push("Personal Insurance — current coverage may need review ("+D("insuranceFit")+")");
-      a.push("Personal Insurance — open to reviewing improvements: "+D("insuranceOpen"));
-    }
-    if(wants("Investments")){
-      if(state.investmentAccounts.includes("None / Not sure")) a.push("Investments — no current accounts clearly identified");
-      if(state.contributingRegularly!=="Yes") a.push("Investments — regular contributions are not currently confirmed");
-      if(state.investmentFit!=="Yes — it meets my needs") a.push("Investments — current strategy may need review ("+D("investmentFit")+")");
-      a.push("Investments — open to reviewing improvements: "+D("investmentOpen"));
-    }
-    if(wants("Mortgage")){
-      a.push("Mortgage referral — review interests: "+D("mortgageGoals"));
-      if(state.mortgageFit!=="Yes — it meets my needs") a.push("Mortgage — current financing may need review ("+D("mortgageFit")+")");
-      a.push("Mortgage — open to referral if an improvement is identified: "+D("mortgageOpen"));
-    }
-    if(wants("General Insurance")){
-      const current=state.autoHomeTypes.filter(x=>x!=="None / Not sure");
-      const needed=state.generalInsuranceNeeds.filter(x=>x!=="None / Not sure");
-      const missingNeeded=needed.filter(x=>!current.includes(x));
-      if(missingNeeded.length) a.push("General Insurance — needed but not currently identified: "+missingNeeded.join(", "));
-      if(state.generalInsuranceFit!=="Yes — it meets my needs") a.push("General Insurance — current coverage/pricing may need review ("+D("generalInsuranceFit")+")");
-      a.push("General Insurance — open to comparison: "+D("openToComparison"));
-    }
-    if(wants("Legal Services")){
-      const missing=[];
-      if(state.clientWill!=="Yes") missing.push((state.clientName||"Client")+" Will");
-      if(state.clientPOA!=="Yes") missing.push((state.clientName||"Client")+" Power of Attorney");
-      if(state.clientDirective!=="Yes") missing.push((state.clientName||"Client")+" Personal Directive");
-      if(isCouple()){
-        if(state.partnerWill!=="Yes") missing.push((state.partnerName||"Partner")+" Will");
-        if(state.partnerPOA!=="Yes") missing.push((state.partnerName||"Partner")+" Power of Attorney");
-        if(state.partnerDirective!=="Yes") missing.push((state.partnerName||"Partner")+" Personal Directive");
-      }
-      if(missing.length) a.push("Legal Services — not currently confirmed: "+missing.join(", "));
-      if(state.legalFit!=="Yes — it meets my needs") a.push("Legal Services — current documents/access may need review ("+D("legalFit")+")");
-      a.push("Legal Services — open to learning about membership: "+D("legalInterest"));
-    }
-    if(state.otherNotes) a.push("Review additional client notes");
-    return a;
-  }
 
   function peopleSummary(section){
     if(section==="Personal Insurance"){

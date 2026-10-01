@@ -87,7 +87,6 @@ textarea{min-height:110px;resize:vertical}
     <div id="screen"></div>
     <div class="actions">
       <button class="btn secondary" id="backBtn" type="button">Back</button>
-      <button class="btn secondary" id="productsBtn" type="button">Products</button>
       <button class="btn primary" id="continueBtn" type="button">Continue</button>
     </div>
   </section>
@@ -100,9 +99,8 @@ textarea{min-height:110px;resize:vertical}
     householdType:"",
     clientName:"",
     partnerName:"",
-    sections:[],
+    sections:["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"],
     rankedAreas:[],
-    exploreMore:"",
 
     clientLife:"",
     partnerLife:"",
@@ -210,15 +208,10 @@ textarea{min-height:110px;resize:vertical}
   const opennessOptions = ["Yes","Maybe","No"];
 
   function isCouple(){ return state.householdType === "Couple"; }
-  function wants(section){ return state.sections.includes(section); }
+  function wants(){ return true; }
   function rankableAreas(){
-    const all=["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
-    return all.filter(x=>state.sections.includes(x));
+    return ["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
   }
-  function remainingAreas(){
-    return ["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services","No, I'm done"];
-  }
-  function questionSectionForArea(area){ return area; }
   function selectedInvestmentAccounts(){
     return state.investmentAccounts.filter(x=>!["None","Not sure"].includes(x));
   }
@@ -227,8 +220,6 @@ textarea{min-height:110px;resize:vertical}
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
-    {k:"sections", section:"Start", t:"Where would you like to start?", s:"Choose an area below.", y:"multi", o:sectionOptions, r:true},
-
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
     {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"For each account, enter the current balance and current monthly contribution.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
@@ -269,12 +260,11 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"If we can help you get missing documents in place or provide access to legal support, would you be open to learning more?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
 
-    {k:"exploreMore", section:"Finish", t:"Would you like to explore another area?", s:"You can add another area before finishing your FreedomMap.", y:"single", o:remainingAreas, r:true, v:()=>rankableAreas().length>0},
-    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes...", v:()=>rankableAreas().length>0},
-    {k:"rankedAreas", section:"Finish", t:"Rank your selected areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true, v:()=>rankableAreas().length>0}
+    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."},
+    {k:"rankedAreas", section:"Finish", t:"Rank these areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
   ];
 
-  let index=0, review=false, exploreReturnArea="", navHistory=[];
+  let index=0, review=false, navHistory=[];
 
   function visible(){ return Q.filter(q=>!q.v || q.v()); }
   function current(){ const list=visible(); if(index>=list.length) index=Math.max(0,list.length-1); return list[index]; }
@@ -320,14 +310,6 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function field(q){
-    if(q.k==="sections" || q.k==="exploreMore"){
-      const options=typeof q.o==="function" ? q.o() : q.o;
-      return '<div class="options">'+options.map(o=>{
-        const sel=state[q.k].includes(o);
-        const m=sectionMeta[o]||{title:o,desc:o==="No, I'm done"?"Continue to finish your FreedomMap":""};
-        return '<button type="button" class="option '+(sel?"selected":"")+'" data-option="'+escape(o)+'"><span class="option-title">'+escape(m.title)+'</span>'+(m.desc?'<span class="option-desc">'+escape(m.desc)+'</span>':'')+(m.note?'<span class="option-note">'+escape(m.note)+'</span>':'')+'</button>';
-      }).join("")+'</div>';
-    }
     if(q.y==="investmentDetails"){
       return '<div class="options">'+selectedInvestmentAccounts().map(account=>{
         const d=state.investmentDetails[account]||{balance:"",contribution:""};
@@ -364,8 +346,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
-    $("productsBtn").style.display=q.section==="Start"?"none":"block";
-    $("continueBtn").style.display=(q.k==="sections" || q.k==="exploreMore")?"none":"block";
+    $("continueBtn").style.display="block";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
     document.querySelectorAll("[data-rank]").forEach(btn=>{
@@ -385,33 +366,6 @@ textarea{min-height:110px;resize:vertical}
     document.querySelectorAll("[data-option]").forEach(btn=>{
       btn.onclick=()=>{
         const val=btn.dataset.option;
-
-        if(q.k==="sections"){
-          rememberCurrent();
-          if(!state.sections.includes(val)) state.sections.push(val);
-          state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
-          const list=visible();
-          const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
-          if(targetIndex>=0){ rememberCurrent(); index=targetIndex; render(); return; }
-        }
-
-        if(q.k==="exploreMore"){
-          rememberCurrent();
-          if(val==="No, I'm done"){
-            state.exploreMore=val;
-            const list=visible();
-            const targetIndex=list.findIndex(item=>item.k==="otherNotes");
-            if(targetIndex>=0){ index=targetIndex; render(); return; }
-          } else {
-            if(!state.sections.includes(val)) state.sections.push(val);
-            state.exploreMore="";
-            state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
-            exploreReturnArea=val;
-            const list=visible();
-            const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
-            if(targetIndex>=0){ index=targetIndex; render(); return; }
-          }
-        }
 
         if(q.y==="multi"){
           const exclusive=["None / Not sure","None","Not sure","I’m not sure — review my needs"];
@@ -591,15 +545,13 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent="100%";
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
-    $("productsBtn").style.display="block";
     $("continueBtn").style.display="block";
     $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
     const cards=sectionOptions.map(sec=>{
-      const selected=wants(sec);
-      return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">${selected?"Selected":"Not selected"}</div></div>`+
-        (selected?renderSectionSummary(sec):`<div class="note">No review requested in this section.</div>`) +
+      return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">Completed</div></div>`+
+        renderSectionSummary(sec) +
       `</div>`;
     }).join("");
 
@@ -607,7 +559,7 @@ textarea{min-height:110px;resize:vertical}
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
       <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
-      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Selected areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
+      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
     `;
@@ -621,34 +573,6 @@ textarea{min-height:110px;resize:vertical}
     saveEntry(q);
     if(!validate()) return;
 
-    if(q.k==="exploreMore"){
-      if(state.exploreMore!=="No, I'm done"){
-        const area=state.exploreMore;
-        if(!state.sections.includes(area)) state.sections.push(area);
-        state.exploreMore="";
-        state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
-        exploreReturnArea=area;
-        const list=visible();
-        const targetSection=questionSectionForArea(area);
-        const targetIndex=list.findIndex(item=>item.section===targetSection);
-        if(targetIndex>=0){ index=targetIndex; render(); return; }
-      }
-    }
-
-    if(exploreReturnArea){
-      const list=visible();
-      const targetSection=questionSectionForArea(exploreReturnArea);
-      const sectionIndexes=list.map((item,i)=>item.section===targetSection?i:-1).filter(i=>i>=0);
-      const lastSectionIndex=sectionIndexes.length?Math.max(...sectionIndexes):-1;
-      if(index===lastSectionIndex){
-        exploreReturnArea="";
-        state.exploreMore="";
-        const refreshed=visible();
-        const exploreIndex=refreshed.findIndex(item=>item.k==="exploreMore");
-        if(exploreIndex>=0){ rememberCurrent(); index=exploreIndex; render(); return; }
-      }
-    }
-
     const list=visible();
     if(index<list.length-1){
       rememberCurrent();
@@ -660,28 +584,15 @@ textarea{min-height:110px;resize:vertical}
     }
   };
 
-  $("productsBtn").onclick=()=>{
-    if(!review) saveEntry(current());
-    rememberCurrent();
-    review=false;
-    exploreReturnArea="";
-    state.exploreMore="";
-    const list=visible();
-    const menuIndex=list.findIndex(item=>item.k==="exploreMore");
-    if(menuIndex>=0){ index=menuIndex; render(); }
-  };
-
   $("backBtn").onclick=()=>{
     if(review){
       review=false;
-      exploreReturnArea="";
       if(returnToHistory()) return;
       index=Math.max(0,visible().length-1);
       render();
       return;
     }
     saveEntry(current());
-    exploreReturnArea="";
     if(returnToHistory()) return;
     if(index>0){ index--; render(); }
   };

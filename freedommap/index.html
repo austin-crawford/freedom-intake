@@ -32,6 +32,7 @@ textarea{min-height:110px;resize:vertical}
 .option{width:100%;border:1px solid var(--border);background:#fff;color:var(--navy);border-radius:14px;padding:15px 16px;text-align:left;font-weight:750;cursor:pointer;transition:.15s ease}
 .option:hover{border-color:#adc5ff;background:#f8fbff}
 .option.selected{border-color:var(--blue);background:var(--soft);color:var(--blue2);box-shadow:0 0 0 2px rgba(20,99,255,.08)}
+.option-title{display:block;font-weight:850;color:inherit}.option-desc{display:block;margin-top:4px;font-size:13px;line-height:1.35;font-weight:600;color:var(--muted)}.option-note{display:block;margin-top:5px;font-size:12px;line-height:1.3;font-weight:750;color:var(--blue2)}
 .money,.percent{position:relative}.money span,.percent span{position:absolute;top:50%;transform:translateY(-50%);font-weight:800;color:var(--muted)}
 .money span{left:16px}.money input{padding-left:34px}.percent span{right:16px}.percent input{padding-right:42px}
 .actions{display:flex;gap:10px;margin-top:26px}
@@ -121,8 +122,39 @@ textarea{min-height:110px;resize:vertical}
     "Investments",
     "Mortgage",
     "General Insurance",
-    "Legal Services"
+    "Legal Services",
+    "Review Everything"
   ];
+
+  const sectionMeta = {
+    "Personal Insurance": {
+      title: "Personal Insurance",
+      desc: "Life, Disability, Critical Illness, Health & Dental, Travel",
+      note: "Access to multiple insurance carriers"
+    },
+    "Investments": {
+      title: "Investments",
+      desc: "RRSPs, TFSAs, FHSAs, RESPs & other investments"
+    },
+    "Mortgage": {
+      title: "Mortgage",
+      desc: "Purchase, Renewal, Refinance & Debt Consolidation",
+      note: "Access to 65+ lenders"
+    },
+    "General Insurance": {
+      title: "General Insurance",
+      desc: "Auto, Home, Tenant, Landlord & Business Insurance",
+      note: "Access to 10+ insurance companies"
+    },
+    "Legal Services": {
+      title: "Legal Services",
+      desc: "Wills, Powers of Attorney, Personal Directives & Legal Support"
+    },
+    "Review Everything": {
+      title: "Not Sure — Review Everything",
+      desc: "Help me identify which areas may be worth discussing"
+    }
+  };
 
   const investmentAccounts = ["RRSP","TFSA","FHSA","RESP","Workplace pension / group plan","Non-registered investments","None / Not sure"];
   const mortgageGoals = ["New purchase","Mortgage renewal","Refinance","Debt consolidation","Lower monthly payments","Access home equity","Buy another property","Not sure"];
@@ -130,14 +162,14 @@ textarea{min-height:110px;resize:vertical}
   const insuranceTypes = ["Life","Disability","Critical Illness","Health & Dental","Travel","None / Not sure"];
 
   function isCouple(){ return state.householdType === "Couple"; }
-  function wants(section){ return state.sections.includes(section); }
+  function wants(section){ return state.sections.includes(section) || state.sections.includes("Review Everything"); }
 
   const Q = [
     {k:"repId", section:"Start", t:"What is your Primerica Rep ID?", s:"This determines where your completed FreedomMap will be emailed.", y:"text", p:"Example: ABC123", r:true},
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true, save:v=>v==="Just me"?"Single":"Couple"},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
-    {k:"sections", section:"Start", t:"What would you like help with?", s:"Choose one or more areas. You can select all five.", y:"multi", o:sectionOptions, r:true},
+    {k:"sections", section:"Start", t:"What would you like to review?", s:"Select any areas you have questions or concerns about.", y:"multi", o:sectionOptions, r:true},
 
     {k:"insuranceTypes", section:"Personal Insurance", t:"Which types of personal insurance do you currently have?", s:"Choose all that apply.", y:"multi", o:insuranceTypes, r:true, v:()=>wants("Personal Insurance")},
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — do you have life insurance?`:"Do you currently have life insurance?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Personal Insurance") && !state.insuranceTypes.includes("None / Not sure")},
@@ -198,6 +230,13 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function field(q){
+    if(q.k==="sections"){
+      return '<div class="options">'+q.o.map(o=>{
+        const sel=state[q.k].includes(o);
+        const m=sectionMeta[o]||{title:o,desc:""};
+        return '<button type="button" class="option '+(sel?"selected":"")+'" data-option="'+escape(o)+'"><span class="option-title">'+escape(m.title)+'</span><span class="option-desc">'+escape(m.desc||"")+'</span>'+(m.note?'<span class="option-note">'+escape(m.note)+'</span>':'')+'</button>';
+      }).join("")+'</div>';
+    }
     if(q.y==="text"||q.y==="number") return `<label class="field-label" for="entry">Your answer</label><input id="entry" type="${q.y}" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}">`;
     if(q.y==="money") return `<label class="field-label" for="entry">Amount (CAD)</label><div class="money"><span>$</span><input id="entry" inputmode="decimal" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}"></div>`;
     if(q.y==="percent") return `<label class="field-label" for="entry">Interest rate</label><div class="percent"><input id="entry" inputmode="decimal" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}"><span>%</span></div>`;
@@ -336,7 +375,7 @@ textarea{min-height:110px;resize:vertical}
     $("continueBtn").textContent="Email My FreedomMap to My Rep";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
-    const cards=sectionOptions.map(sec=>{
+    const cards=sectionOptions.filter(sec=>sec!=="Review Everything").map(sec=>{
       const selected=wants(sec);
       return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">${selected?"Selected":"Not selected"}</div></div>`+
         (selected?peopleSummary(sec).map(([l,v])=>`<div class="review-row"><div class="review-label">${escape(l)}</div><div class="review-value">${escape(v)}</div></div>`).join(""):`<div class="note">No review requested in this section.</div>`) +
@@ -361,10 +400,10 @@ textarea{min-height:110px;resize:vertical}
       `Household: ${isCouple()?state.clientName+" & "+state.partnerName:state.clientName}`,
       `Household type: ${state.householdType}`,
       `Primerica Rep ID: ${state.repId}`,
-      `Areas selected: ${state.sections.join(", ")}`,
+      `Areas selected: ${state.sections.includes("Review Everything") ? "Review Everything" : state.sections.join(", ")}`,
       ""
     ];
-    sectionOptions.forEach(sec=>{
+    sectionOptions.filter(sec=>sec!=="Review Everything").forEach(sec=>{
       lines.push(sec.toUpperCase());
       if(!wants(sec)){ lines.push("• Not selected",""); return; }
       peopleSummary(sec).forEach(([l,v])=>lines.push(`• ${l}: ${v}`));

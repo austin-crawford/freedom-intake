@@ -303,7 +303,7 @@ textarea{min-height:110px;resize:vertical}
     const multi=q.y==="multi";
     const options=typeof q.o==="function" ? q.o() : q.o;
     return `<div class="options">${options.map(o=>{
-      const sel=multi?state[q.k].includes(o):state[q.k]===o;
+      const sel=multi?state[q.k].includes(o):(q.k==="householdType" ? (o==="Just me" ? (state[q.k]==="Just me" || state[q.k]==="Single") : state[q.k]===o) : state[q.k]===o);
       return `<button type="button" class="option ${sel?"selected":""}" data-option="${escape(o)}">${escape(o)}</button>`;
     }).join("")}</div>`;
   }
@@ -344,7 +344,11 @@ textarea{min-height:110px;resize:vertical}
             state[q.k]=state[q.k].includes(val)?state[q.k].filter(x=>x!==val):state[q.k].concat(val);
           }
         } else {
-          state[q.k]=q.save?q.save(val):val;
+          if(q.k==="householdType"){
+            state[q.k]=val;
+          } else {
+            state[q.k]=q.save?q.save(val):val;
+          }
         }
         if(q.k==="sections") state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
         render();

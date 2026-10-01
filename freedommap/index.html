@@ -654,9 +654,9 @@ textarea{min-height:110px;resize:vertical}
     if(!review) saveEntry(current());
     review=false;
     exploreReturnArea="";
-    state.exploreMore="No, I'm done";
+    state.exploreMore="";
     const list=visible();
-    const finishIndex=list.findIndex(item=>item.k==="otherNotes");
+    const finishIndex=list.findIndex(item=>item.k==="exploreMore");
     if(finishIndex>=0){ index=finishIndex; render(); }
   };
 

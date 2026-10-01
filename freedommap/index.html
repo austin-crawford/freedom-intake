@@ -88,6 +88,7 @@ textarea{min-height:110px;resize:vertical}
     <div class="actions">
       <button class="btn secondary" id="backBtn" type="button">Back</button>
       <button class="btn secondary" id="productsBtn" type="button">Products</button>
+      <button class="btn secondary" id="finishBtn" type="button">Finish</button>
       <button class="btn primary" id="continueBtn" type="button">Continue</button>
     </div>
   </section>
@@ -352,6 +353,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
     $("productsBtn").style.display=q.k==="sections"?"none":"block";
+    $("finishBtn").style.display=(rankableAreas().length>0 && q.section!=="Finish")?"block":"none";
     $("continueBtn").style.display=(q.k==="sections" || q.k==="exploreMore")?"none":"block";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
@@ -586,6 +588,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
     $("productsBtn").style.display="block";
+    $("finishBtn").style.display="none";
     $("continueBtn").style.display="block";
     $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
@@ -645,6 +648,16 @@ textarea{min-height:110px;resize:vertical}
 
     const list=visible();
     if(index<list.length-1){ index++; render(); } else renderReview();
+  };
+
+  $("finishBtn").onclick=()=>{
+    if(!review) saveEntry(current());
+    review=false;
+    exploreReturnArea="";
+    state.exploreMore="No, I'm done";
+    const list=visible();
+    const finishIndex=list.findIndex(item=>item.k==="otherNotes");
+    if(finishIndex>=0){ index=finishIndex; render(); }
   };
 
   $("productsBtn").onclick=()=>{

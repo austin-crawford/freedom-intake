@@ -127,7 +127,7 @@ textarea{min-height:110px;resize:vertical}
     homeValueRange:"",
     mortgageBalanceRange:"",
     mortgageRateRange:"",
-    mortgageRenewalRange:"",
+    mortgageRenewalDate:"",
     hasNonMortgageDebt:"",
     debtTypes:[],
     debtRange:"",
@@ -197,7 +197,6 @@ textarea{min-height:110px;resize:vertical}
   const investmentGoals = ["Retirement","Home downpayment","Children's education","Building wealth","Emergency / short-term savings","Other","Not sure"];
 
   const housingSituations = ["Own with a mortgage","Own mortgage-free","Renting","Living with family / other","Planning to buy","Not sure"];
-  const mortgageRenewalRanges = ["Within 6 months","6–12 months","1–2 years","More than 2 years","Not sure"];
   const debtTypes = ["Credit cards","Line of credit","Vehicle loan","Personal loan","Student loan","CRA / tax debt","Other"];
 
   const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","I’m not sure — review my needs"];
@@ -246,7 +245,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && ["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)},
     {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRateRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage interest rate?", s:"Enter the current rate.", y:"percent", p:"0.00", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
-    {k:"mortgageRenewalRange", section:"Mortgage & Debt Elimination", t:"When is your mortgage coming up for renewal?", s:"Choose the closest answer.", y:"single", o:mortgageRenewalRanges, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"mortgageRenewalDate", section:"Mortgage & Debt Elimination", t:"When is your mortgage renewal date?", s:"Enter the exact renewal date.", y:"date", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have any non-mortgage debt?", s:"This can include credit cards, lines of credit, vehicle loans, personal loans, student loans or tax debt.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
     {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of non-mortgage debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
     {k:"debtRange", section:"Mortgage & Debt Elimination", t:"What is the total balance of your non-mortgage debt?", s:"Enter the current total in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
@@ -412,6 +411,12 @@ textarea{min-height:110px;resize:vertical}
 
   function moneyD(k){ const v=Number(state[k]); return state[k]!=="" && Number.isFinite(v) ? v.toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided"; }
   function percentD(k){ return state[k]!=="" ? state[k]+"%" : "Not provided"; }
+  function dateD(k){
+    const v=state[k];
+    if(!v) return "Not provided";
+    const d=new Date(v+"T00:00:00Z");
+    return Number.isNaN(d.getTime()) ? v : d.toLocaleDateString("en-CA",{year:"numeric",month:"long",day:"numeric",timeZone:"UTC"});
+  }
 
   function sectionStatus(name){
     return wants(name) ? "Selected" : "Not selected";
@@ -451,7 +456,7 @@ textarea{min-height:110px;resize:vertical}
         rows.push(["Home value",moneyD("homeValueRange")]);
       }
       if(state.housingSituation==="Own with a mortgage"){
-        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Renewal timing",D("mortgageRenewalRange")]);
+        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Mortgage renewal date",dateD("mortgageRenewalDate")]);
       }
       rows.push(["Non-mortgage debt",D("hasNonMortgageDebt")]);
       if(state.hasNonMortgageDebt==="Yes"){

@@ -152,8 +152,7 @@ textarea{min-height:110px;resize:vertical}
     "Personal Insurance",
     "Mortgage & Debt Elimination",
     "General Insurance",
-    "Legal Services",
-    "Review Everything"
+    "Legal Services"
   ];
 
   const sectionMeta = {
@@ -181,11 +180,6 @@ textarea{min-height:110px;resize:vertical}
       title: "Legal Services",
       desc: "Wills, Powers of Attorney, Personal Directives & Ongoing Legal Advice",
       note: "Membership access to lawyers for legal guidance"
-    },
-    "Review Everything": {
-      title: "Not Sure — Review Everything",
-      desc: "Help me identify which areas may be worth discussing",
-      note: "Review all five areas"
     }
   };
 
@@ -217,10 +211,10 @@ textarea{min-height:110px;resize:vertical}
   const opennessOptions = ["Yes","Maybe","No"];
 
   function isCouple(){ return state.householdType === "Couple"; }
-  function wants(section){ return state.sections.includes(section) || state.sections.includes("Review Everything"); }
+  function wants(section){ return state.sections.includes(section); }
   function rankableAreas(){
     const all=["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
-    return state.sections.includes("Review Everything") ? all : all.filter(x=>state.sections.includes(x));
+    return all.filter(x=>state.sections.includes(x));
   }
   function remainingAreas(){
     const all=["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance","Legal Services"];
@@ -376,20 +370,11 @@ textarea{min-height:110px;resize:vertical}
         const val=btn.dataset.option;
 
         if(q.k==="sections"){
-          if(val==="Review Everything"){
-            state.sections=["Review Everything"];
-            state.rankedAreas=[];
-            const list=visible();
-            const targetIndex=list.findIndex(item=>item.section==="Investments");
-            if(targetIndex>=0){ index=targetIndex; render(); return; }
-          } else {
-            state.sections=state.sections.filter(x=>x!=="Review Everything");
-            if(!state.sections.includes(val)) state.sections.push(val);
-            state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
-            const list=visible();
-            const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
-            if(targetIndex>=0){ index=targetIndex; render(); return; }
-          }
+          if(!state.sections.includes(val)) state.sections.push(val);
+          state.rankedAreas=state.rankedAreas.filter(x=>rankableAreas().includes(x));
+          const list=visible();
+          const targetIndex=list.findIndex(item=>item.section===questionSectionForArea(val));
+          if(targetIndex>=0){ index=targetIndex; render(); return; }
         }
 
         if(q.k==="exploreMore"){
@@ -593,7 +578,7 @@ textarea{min-height:110px;resize:vertical}
     $("continueBtn").textContent="Save / Print FreedomMap PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
-    const cards=sectionOptions.filter(sec=>sec!=="Review Everything").map(sec=>{
+    const cards=sectionOptions.map(sec=>{
       const selected=wants(sec);
       return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">${selected?"Selected":"Not selected"}</div></div>`+
         (selected?renderSectionSummary(sec):`<div class="note">No review requested in this section.</div>`) +

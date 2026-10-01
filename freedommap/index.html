@@ -33,6 +33,7 @@ textarea{min-height:110px;resize:vertical}
 .option:hover{border-color:#adc5ff;background:#f8fbff}
 .option.selected{border-color:var(--blue);background:var(--soft);color:var(--blue2);box-shadow:0 0 0 2px rgba(20,99,255,.08)}
 .option-title{display:block;font-weight:850;color:inherit}.option-desc{display:block;margin-top:4px;font-size:13px;line-height:1.35;font-weight:600;color:var(--muted)}.option-note{display:block;margin-top:5px;font-size:12px;line-height:1.3;font-weight:750;color:var(--blue2)}
+.rank-option{display:flex;align-items:center;gap:12px}.rank-num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e8eef8;color:var(--navy);font-weight:900;flex:0 0 auto}.rank-option.selected .rank-num{background:var(--blue);color:#fff}.rank-reset{margin-top:12px;font-size:13px;color:var(--blue2);background:none;border:0;padding:0;font-weight:800;cursor:pointer}
 .money,.percent{position:relative}.money span,.percent span{position:absolute;top:50%;transform:translateY(-50%);font-weight:800;color:var(--muted)}
 .money span{left:16px}.money input{padding-left:34px}.percent span{right:16px}.percent input{padding-right:42px}
 .actions{display:flex;gap:10px;margin-top:26px}
@@ -80,6 +81,7 @@ textarea{min-height:110px;resize:vertical}
     partnerName:"",
     sections:[],
     priorities:[],
+    rankedAreas:[],
     insuranceTypes:[],
     clientLife:"",
     partnerLife:"",
@@ -269,6 +271,12 @@ textarea{min-height:110px;resize:vertical}
         return '<button type="button" class="option '+(sel?"selected":"")+'" data-option="'+escape(o)+'"><span class="option-title">'+escape(m.title)+'</span><span class="option-desc">'+escape(m.desc||"")+'</span>'+(m.note?'<span class="option-note">'+escape(m.note)+'</span>':'')+'</button>';
       }).join("")+'</div>';
     }
+    if(q.y==="rank"){
+      return '<div class="options">'+q.o.map(o=>{
+        const pos=state.rankedAreas.indexOf(o);
+        return '<button type="button" class="option rank-option '+(pos>=0?"selected":"")+'" data-rank="'+escape(o)+'"><span class="rank-num">'+(pos>=0?(pos+1):"")+'</span><span>'+escape(o)+'</span></button>';
+      }).join("")+'</div>'+(state.rankedAreas.length?'<button type="button" class="rank-reset" id="rankReset">Reset ranking</button>':'');
+    }
     if(q.y==="text"||q.y==="number") return `<label class="field-label" for="entry">Your answer</label><input id="entry" type="${q.y}" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}">`;
     if(q.y==="money") return `<label class="field-label" for="entry">Amount (CAD)</label><div class="money"><span>$</span><input id="entry" inputmode="decimal" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}"></div>`;
     if(q.y==="percent") return `<label class="field-label" for="entry">Interest rate</label><div class="percent"><input id="entry" inputmode="decimal" value="${escape(state[q.k])}" placeholder="${escape(q.p||"")}"><span>%</span></div>`;
@@ -291,6 +299,20 @@ textarea{min-height:110px;resize:vertical}
     $("backBtn").style.visibility=index===0?"hidden":"visible";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
+    document.querySelectorAll("[data-rank]").forEach(btn=>{
+      btn.onclick=()=>{
+        const val=btn.dataset.rank;
+        if(state.rankedAreas.includes(val)){
+          state.rankedAreas=state.rankedAreas.filter(x=>x!==val);
+        } else if(state.rankedAreas.length<5){
+          state.rankedAreas=state.rankedAreas.concat(val);
+        }
+        render();
+      };
+    });
+    const rankReset=$("rankReset");
+    if(rankReset) rankReset.onclick=()=>{ state.rankedAreas=[]; render(); };
+
     document.querySelectorAll("[data-option]").forEach(btn=>{
       btn.onclick=()=>{
         const val=btn.dataset.option;
@@ -311,6 +333,7 @@ textarea{min-height:110px;resize:vertical}
 
   function validate(){
     const q=current(), v=state[q.k];
+    if(q.y==="rank" && v.length!==5){ $("errorBox").innerHTML='<div class="error">Please rank all five areas to continue.</div>'; return false; }
     if(q.r && (Array.isArray(v)?v.length===0:!v)){
       $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
       return false;
@@ -421,10 +444,9 @@ textarea{min-height:110px;resize:vertical}
       <div class="eyebrow">Your FreedomMap</div>
       <h1>${escape(household)}</h1>
       <p class="sub">Review your answers before opening your email app. Nothing is sent automatically.</p>
-      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Focus first</div></div><div class="review-row"><div class="review-label">What is most important right now?</div><div class="review-value">${escape(D("priorities"))}</div></div></div>
+      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Focus first</div></div><div class="review-row"><div class="review-label">What is most important right now?</div><div class="review-value">${escape(D("priorities"))}</div></div><div class="review-row"><div class="review-label">Five areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
-      <div class="note">FreedomMap organizes client-provided information to identify existing arrangements, possible gaps and areas for review. It does not make financial, insurance, mortgage, legal or investment recommendations.</div>
     `;
   }
 
@@ -434,6 +456,9 @@ textarea{min-height:110px;resize:vertical}
       "Household type: "+state.householdType,
       "Areas selected: "+(state.sections.includes("Review Everything") ? "Review Everything" : state.sections.join(", ")),
       "Top priorities: "+D("priorities"),
+      "",
+      "AREAS RANKED BY IMPORTANCE",
+      ...state.rankedAreas.map((x,i)=>(i+1)+". "+x),
       ""
     ];
     sectionOptions.filter(sec=>sec!=="Review Everything").forEach(sec=>{

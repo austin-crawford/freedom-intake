@@ -346,7 +346,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
-    $("productsBtn").style.display=q.k==="sections"?"none":"block";
+    $("productsBtn").style.display=q.section==="Start"?"none":"block";
     $("finishBtn").style.display=(rankableAreas().length>0 && q.section!=="Finish")?"block":"none";
     $("continueBtn").style.display=(q.k==="sections" || q.k==="exploreMore")?"none":"block";
     $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";

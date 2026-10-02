@@ -392,8 +392,8 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"Would you be open to reviewing options for any missing or outdated legal documents?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
 
-    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."},
-    {k:"rankedAreas", section:"Finish", t:"Rank these areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
+    {k:"rankedAreas", section:"Finish", t:"Rank these areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true},
+    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."}
   ];
 
   let index=0, review=false, navHistory=[];

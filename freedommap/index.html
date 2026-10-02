@@ -99,8 +99,8 @@ textarea{min-height:110px;resize:vertical}
     householdType:"",
     clientName:"",
     partnerName:"",
-    clientAge:"",
-    partnerAge:"",
+    clientDOB:"",
+    partnerDOB:"",
     clientIncome:"",
     partnerIncome:"",
     hasDependants:"",
@@ -244,8 +244,8 @@ textarea{min-height:110px;resize:vertical}
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
-    {k:"clientAge", section:"Household Basics", t:()=>isCouple()?("How old is "+(state.clientName || "the first person")+"?"):"How old are you?", s:"Enter current age.", y:"number", p:"Age", r:true},
-    {k:"partnerAge", section:"Household Basics", t:()=>("How old is "+(state.partnerName || "your partner")+"?"), s:"Enter current age.", y:"number", p:"Age", r:true, v:()=>isCouple()},
+    {k:"clientDOB", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+"'s date of birth?"):"What is your date of birth?", s:"Enter the full date of birth.", y:"date", r:true},
+    {k:"partnerDOB", section:"Household Basics", t:()=>("What is "+(state.partnerName || "your partner")+"'s date of birth?"), s:"Enter the full date of birth.", y:"date", r:true, v:()=>isCouple()},
     {k:"clientIncome", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+" annual gross income?"):"What is your annual gross income?", s:"Enter annual income before tax.", y:"money", p:"0", r:true},
     {k:"partnerIncome", section:"Household Basics", t:()=>("What is "+(state.partnerName || "your partner")+" annual gross income?"), s:"Enter annual income before tax.", y:"money", p:"0", r:true, v:()=>isCouple()},
     {k:"hasDependants", section:"Household Basics", t:"Do you have children or other dependants?", s:"Choose the closest answer.", y:"single", o:["Yes","No"], r:true},
@@ -704,8 +704,8 @@ textarea{min-height:110px;resize:vertical}
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
     const householdRows=[
-      ["Age",D("clientAge")],
-      ...(isCouple()?[[ (state.partnerName||"Partner")+" age",D("partnerAge") ]]:[]),
+      ["Date of birth",dateD("clientDOB")],
+      ...(isCouple()?[[ (state.partnerName||"Partner")+" date of birth",dateD("partnerDOB") ]]:[]),
       ["Annual gross income",moneyD("clientIncome")],
       ...(isCouple()?[[ (state.partnerName||"Partner")+" annual income",moneyD("partnerIncome") ]]:[]),
       ["Children / dependants",D("hasDependants")],

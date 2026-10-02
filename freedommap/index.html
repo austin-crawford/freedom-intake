@@ -253,7 +253,14 @@ textarea{min-height:110px;resize:vertical}
   function isCouple(){ return state.householdType === "Couple"; }
   function wants(){ return true; }
   function rankableAreas(){
-    return ["Investments","Personal Insurance","Mortgage & Debt Elimination","General Insurance (Home & Auto)","Legal Services"];
+    const open=["Yes","Maybe"];
+    const areas=[];
+    if(open.includes(state.investmentOpen)) areas.push("Investments");
+    if(open.includes(state.insuranceOpen)) areas.push("Personal Insurance");
+    if(shouldAskMortgageOpen() && open.includes(state.mortgageOpen)) areas.push("Mortgage & Debt Elimination");
+    if(open.includes(state.openToComparison)) areas.push("General Insurance (Home & Auto)");
+    if(open.includes(state.legalInterest)) areas.push("Legal Services");
+    return areas;
   }
   function selectedInvestmentAccounts(){
     return state.investmentAccounts.filter(x=>!["None","Not sure"].includes(x));
@@ -419,7 +426,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"legalInterest", section:"Legal Services", t:"Would you be open to reviewing options for any missing or outdated legal documents?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
     {k:"legalServicesNotes", section:"Legal Services", t:"Any notes or context for Legal Services?", s:"Optional. Add anything that would help provide context for this section.", y:"textarea", p:"Optional notes..."},
 
-    {k:"rankedAreas", section:"Finish", t:"Rank these areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
+    {k:"rankedAreas", section:"Finish", t:"Rank the areas you are open to reviewing", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
   ];
 
   let index=0, review=false, navHistory=[], editReturnKey="", editSection="";

@@ -279,11 +279,12 @@ textarea{min-height:110px;resize:vertical}
     return isNonHomeowner() && state.homeBuyTimeframe && state.homeBuyTimeframe!=="I don’t plan to buy a house";
   }
   function shouldAskMortgageOpen(){
+    const hasDebt=state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
     if(isNonHomeowner()){
       if(nonHomeownerPlansToBuy()) return true;
-      return state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
+      return hasDebt;
     }
-    return true;
+    return hasDebt;
   }
   function mortgageOpenQuestion(){
     const hasDebt=state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
@@ -292,9 +293,7 @@ textarea{min-height:110px;resize:vertical}
       if(nonHomeownerPlansToBuy()) return "Would you be open to reviewing mortgage options?";
       return "Would you be open to reviewing debt elimination options?";
     }
-    return state.housingSituation==="Own with a mortgage"
-      ? "Would you be open to reviewing mortgage and debt elimination options?"
-      : "Would you be open to reviewing debt elimination options?";
+    return "Would you be open to reviewing debt elimination options?";
   }
   function debtEntries(debt){
     const current=state.debtDetails[debt];
@@ -725,8 +724,6 @@ textarea{min-height:110px;resize:vertical}
         const hasDebt=state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
         if(isNonHomeowner() && nonHomeownerPlansToBuy()){
           openLabel=hasDebt ? "Open to reviewing mortgage & debt elimination options" : "Open to reviewing mortgage options";
-        } else if(state.housingSituation==="Own with a mortgage"){
-          openLabel="Open to reviewing mortgage & debt elimination options";
         }
         rows.push([openLabel,D("mortgageOpen")]);
       }

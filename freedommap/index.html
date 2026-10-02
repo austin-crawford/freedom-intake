@@ -93,6 +93,7 @@ textarea{min-height:110px;resize:vertical}
     <div id="screen"></div>
     <div class="actions">
       <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="emailBtn" type="button" style="display:none">Email</button>
       <button class="btn primary" id="continueBtn" type="button">Continue</button>
     </div>
   </section>
@@ -360,8 +361,8 @@ textarea{min-height:110px;resize:vertical}
 
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this Financial GPS?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
-    {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
-    {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
+    {k:"clientName", section:"Start", t:()=>isCouple()?"What are the first person's initials?":"What are your initials?", s:"Enter the first letter of the first name and the first letter of the last name.", y:"initials", p:"AB", r:true},
+    {k:"partnerName", section:"Start", t:"What are your spouse or partner's initials?", s:"Enter the first letter of the first name and the first letter of the last name.", y:"initials", p:"AB", r:true, v:()=>isCouple()},
     {k:"clientAge", section:"Household Basics", t:()=>isCouple()?("How old is "+(state.clientName || "the first person")+"?"):"How old are you?", s:"Enter current age.", y:"number", p:"Age", r:true},
     {k:"clientOccupationStatus", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+"\'s current work status?"):"What is your current work status?", s:"Choose the closest answer.", y:"single", o:["Employed","Self-employed","Corporate owner","Retired","Homemaker","Not currently working","Other"], r:true},
     {k:"partnerAge", section:"Household Basics", t:()=>("How old is "+(state.partnerName || "your partner")+"?"), s:"Enter current age.", y:"number", p:"Age", r:true, v:()=>isCouple()},
@@ -532,6 +533,7 @@ textarea{min-height:110px;resize:vertical}
     let v=e.value.trim();
     if(q.y==="dateOrNotSure" && state[q.k]==="Not sure" && !v) return;
     if(["money","percent"].includes(q.y)) v=v.replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
+    if(q.y==="initials") v=v.replace(/[^A-Za-z]/g,"").slice(0,2).toUpperCase();
     state[q.k]=q.save?q.save(v):v;
   }
 
@@ -597,6 +599,7 @@ textarea{min-height:110px;resize:vertical}
         '<div class="options" style="margin-top:12px"><button type="button" class="option '+(isUnknown?'selected':'')+'" data-date-unknown="1">Not sure</button></div>';
     }
     if(q.y==="date") return `<label class="field-label" for="entry">Date</label><input id="entry" type="date" value="${escape(state[q.k])}">`;
+    if(q.y==="initials") return `<label class="field-label" for="entry">Initials</label><input id="entry" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${escape(state[q.k])}" placeholder="${escape(q.p||"AB")}">`;
     if(q.y==="textarea") return `<label class="field-label" for="entry">Optional details</label><textarea id="entry" placeholder="${escape(q.p||"")}">${escape(state[q.k])}</textarea>`;
     const multi=q.y==="multi";
     const options=typeof q.o==="function" ? q.o() : q.o;
@@ -620,14 +623,23 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
+    $("emailBtn").style.display="none";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent=(q.y==="rank" ? "Save / Print Financial GPS PDF" : "Continue");
+    $("continueBtn").textContent=(q.y==="rank" ? "View Final Summary" : "Continue");
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
     document.querySelectorAll("[data-money-input]").forEach(input=>{
       input.addEventListener("input",()=>{
         input.value=formatNumberInput(input.value);
       });
     });
+    if(q.y==="initials"){
+      const initialsInput=$("entry");
+      if(initialsInput){
+        initialsInput.addEventListener("input",()=>{
+          initialsInput.value=initialsInput.value.replace(/[^A-Za-z]/g,"").slice(0,2).toUpperCase();
+        });
+      }
+    }
     document.querySelectorAll("[data-add-invest]").forEach(btn=>{
       btn.onclick=()=>{
         saveEntry(q);
@@ -980,6 +992,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility="visible";
+    $("emailBtn").style.display="none";
     $("continueBtn").style.display="block";
     $("continueBtn").textContent=finalBeforePriorities?"Continue to Priorities":"Continue";
 
@@ -1000,8 +1013,10 @@ textarea{min-height:110px;resize:vertical}
     $("progressPercent").textContent="100%";
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
+    $("emailBtn").style.display="block";
+    $("emailBtn").textContent="Email";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent="Save / Print Financial GPS PDF";
+    $("continueBtn").textContent="Save PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
     const cards=reviewSections.map(sec=>summaryCard(sec,true)).join("");
@@ -1012,7 +1027,11 @@ textarea{min-height:110px;resize:vertical}
     $("screen").innerHTML=`
       <div class="eyebrow">Your Financial GPS</div>
       <h1>${escape(household||"Financial GPS Review")}</h1>
-      <p class="sub">Review the completed Financial GPS, then save or print it as a PDF for your records.</p>
+      <p class="sub">Review the completed Financial GPS, then choose how you want to save it.</p>
+      <div class="action-box">
+        <h3>Save this information before closing</h3>
+        <div class="note" style="margin-top:0">Financial GPS does not store or automatically submit this information. Choose <strong>Save PDF</strong> or <strong>Email</strong> below. The saved information must then be submitted manually through your approved process. Email opens your email app; you choose the recipient and send it yourself.</div>
+      </div>
       <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(ranking)}</div></div></div>
       ${cards}
     `;
@@ -1021,6 +1040,15 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function savePdf(){ window.print(); }
+
+  function emailFinancialGps(){
+    const clone=$("screen").cloneNode(true);
+    clone.querySelectorAll(".edit-section,.action-box").forEach(el=>el.remove());
+    const body=clone.innerText.replace(/\n{3,}/g,"\n\n").trim();
+    const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
+    const subject="Financial GPS - "+(household||"Client");
+    window.location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+  }
 
   $("continueBtn").onclick=()=>{
     if(review){ savePdf(); return; }
@@ -1062,8 +1090,11 @@ textarea{min-height:110px;resize:vertical}
     } else {
       rememberCurrent();
       renderReview();
-      setTimeout(savePdf,0);
     }
+  };
+
+  $("emailBtn").onclick=()=>{
+    if(review) emailFinancialGps();
   };
 
   $("backBtn").onclick=()=>{

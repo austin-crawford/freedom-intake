@@ -323,12 +323,8 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
     {k:"clientDOB", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+"'s date of birth?"):"What is your date of birth?", s:"Enter the full date of birth.", y:"date", r:true},
     {k:"clientOccupationStatus", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+"\'s current work status?"):"What is your current work status?", s:"Choose the closest answer.", y:"single", o:["Employed","Self-employed","Corporate owner","Retired","Homemaker","Not currently working","Other"], r:true},
-    {k:"clientCorporateRetained", section:"Household Basics", t:()=>isCouple()?("Does "+(state.clientName || "the first person")+"\'s corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?"):"Does your corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>state.clientOccupationStatus==="Corporate owner"},
-    {k:"clientCorporateRetainedAmount", section:"Household Basics", t:()=>isCouple()?("Approximately how much is currently retained or invested in "+(state.clientName || "the first person")+"\'s corporation?"):"Approximately how much is currently retained or invested in your corporation?", s:"Enter an approximate amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>state.clientOccupationStatus==="Corporate owner" && state.clientCorporateRetained==="Yes"},
     {k:"partnerDOB", section:"Household Basics", t:()=>("What is "+(state.partnerName || "your partner")+"'s date of birth?"), s:"Enter the full date of birth.", y:"date", r:true, v:()=>isCouple()},
     {k:"partnerOccupationStatus", section:"Household Basics", t:()=>("What is "+(state.partnerName || "your partner")+"\'s current work status?"), s:"Choose the closest answer.", y:"single", o:["Employed","Self-employed","Corporate owner","Retired","Homemaker","Not currently working","Other"], r:true, v:()=>isCouple()},
-    {k:"partnerCorporateRetained", section:"Household Basics", t:()=>("Does "+(state.partnerName || "your partner")+"\'s corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?"), s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>isCouple() && state.partnerOccupationStatus==="Corporate owner"},
-    {k:"partnerCorporateRetainedAmount", section:"Household Basics", t:()=>("Approximately how much is currently retained or invested in "+(state.partnerName || "your partner")+"\'s corporation?"), s:"Enter an approximate amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>isCouple() && state.partnerOccupationStatus==="Corporate owner" && state.partnerCorporateRetained==="Yes"},
     {k:"clientIncome", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+" annual gross income?"):"What is your annual gross income?", s:"Enter annual income before tax.", y:"money", p:"0", r:true},
     {k:"partnerIncome", section:"Household Basics", t:()=>("What is "+(state.partnerName || "your partner")+" annual gross income?"), s:"Enter annual income before tax.", y:"money", p:"0", r:true, v:()=>isCouple()},
     {k:"hasDependants", section:"Household Basics", t:"Do you have children or other dependants?", s:"Choose the closest answer.", y:"single", o:["Yes","No"], r:true},
@@ -337,6 +333,10 @@ textarea{min-height:110px;resize:vertical}
     {k:"emergencyFund", section:"Household Basics", t:"How much do you currently have set aside for emergencies?", s:"Enter your current emergency savings.", y:"money", p:"0", r:true},
     {k:"dtcApproved", section:"Household Basics", t:"Does anyone in your household already qualify for the Disability Tax Credit (DTC)?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true},
     {k:"dtcApprovedWho", section:"Household Basics", t:"Who has been approved for the DTC?", s:"Enter the person or people who have DTC approval.", y:"text", p:"Example: Me, spouse, child", r:true, v:()=>state.dtcApproved==="Yes"},
+    {k:"clientCorporateRetained", section:"Investments", t:()=>isCouple()?("Does "+(state.clientName || "the first person")+"\'s corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?"):"Does your corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>state.clientOccupationStatus==="Corporate owner"},
+    {k:"clientCorporateRetainedAmount", section:"Investments", t:()=>isCouple()?("Approximately how much is currently retained or invested in "+(state.clientName || "the first person")+"\'s corporation?"):"Approximately how much is currently retained or invested in your corporation?", s:"Enter an approximate amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>state.clientOccupationStatus==="Corporate owner" && state.clientCorporateRetained==="Yes"},
+    {k:"partnerCorporateRetained", section:"Investments", t:()=>("Does "+(state.partnerName || "your partner")+"\'s corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?"), s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>isCouple() && state.partnerOccupationStatus==="Corporate owner"},
+    {k:"partnerCorporateRetainedAmount", section:"Investments", t:()=>("Approximately how much is currently retained or invested in "+(state.partnerName || "your partner")+"\'s corporation?"), s:"Enter an approximate amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>isCouple() && state.partnerOccupationStatus==="Corporate owner" && state.partnerCorporateRetained==="Yes"},
     {k:"clientRetirementAge", section:"Investments", t:()=>isCouple()?("At what age would "+(state.clientName || "the first person")+" like to retire?"):"At what age would you like to retire?", s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true},
     {k:"partnerRetirementAge", section:"Investments", t:()=>("At what age would "+(state.partnerName || "your partner")+" like to retire?"), s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true, v:()=>isCouple()},
     {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
@@ -808,7 +808,20 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function renderInvestmentSummary(){
-    let html='<div class="summary-group"><div class="summary-subhead">Retirement Timing</div><div class="summary-grid">'+
+    let html='';
+    if(state.clientOccupationStatus==="Corporate owner" || (isCouple() && state.partnerOccupationStatus==="Corporate owner")){
+      html+='<div class="summary-group"><div class="summary-subhead">Corporate Investments</div><div class="summary-grid">';
+      if(state.clientOccupationStatus==="Corporate owner"){
+        html+='<div class="summary-line"><div class="summary-key">'+escape(isCouple()?(state.clientName||"Person 1")+" retained earnings / corporate investments":"Retained earnings / corporate investments")+'</div><div class="summary-val'+attentionClass(D("clientCorporateRetained"))+'">'+escape(D("clientCorporateRetained"))+'</div></div>';
+        if(state.clientCorporateRetained==="Yes") html+='<div class="summary-line"><div class="summary-key">'+escape(isCouple()?(state.clientName||"Person 1")+" approx. retained / invested amount":"Approx. retained / invested amount")+'</div><div class="summary-val">'+escape(moneyD("clientCorporateRetainedAmount"))+'</div></div>';
+      }
+      if(isCouple() && state.partnerOccupationStatus==="Corporate owner"){
+        html+='<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" retained earnings / corporate investments")+'</div><div class="summary-val'+attentionClass(D("partnerCorporateRetained"))+'">'+escape(D("partnerCorporateRetained"))+'</div></div>';
+        if(state.partnerCorporateRetained==="Yes") html+='<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" approx. retained / invested amount")+'</div><div class="summary-val">'+escape(moneyD("partnerCorporateRetainedAmount"))+'</div></div>';
+      }
+      html+='</div></div>';
+    }
+    html+='<div class="summary-group"><div class="summary-subhead">Retirement Timing</div><div class="summary-grid">'+
       '<div class="summary-line"><div class="summary-key">Target retirement age</div><div class="summary-val">'+escape(D("clientRetirementAge"))+'</div></div>'+
       (isCouple()?'<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" target retirement age")+'</div><div class="summary-val">'+escape(D("partnerRetirementAge"))+'</div></div>':'')+
       '</div></div>';
@@ -867,12 +880,8 @@ textarea{min-height:110px;resize:vertical}
     const householdRows=[
       ["Date of birth",dateD("clientDOB")],
       ["Work status",D("clientOccupationStatus")],
-      ...(state.clientOccupationStatus==="Corporate owner"?[["Corporate retained earnings / investments",D("clientCorporateRetained")]]:[]),
-      ...(state.clientOccupationStatus==="Corporate owner" && state.clientCorporateRetained==="Yes"?[["Approx. corporate retained / invested amount",moneyD("clientCorporateRetainedAmount")]]:[]),
       ...(isCouple()?[[ (state.partnerName||"Partner")+" date of birth",dateD("partnerDOB") ]]:[]),
       ...(isCouple()?[[ (state.partnerName||"Partner")+" work status",D("partnerOccupationStatus") ]]:[]),
-      ...(isCouple() && state.partnerOccupationStatus==="Corporate owner"?[[ (state.partnerName||"Partner")+" corporate retained earnings / investments",D("partnerCorporateRetained") ]]:[]),
-      ...(isCouple() && state.partnerOccupationStatus==="Corporate owner" && state.partnerCorporateRetained==="Yes"?[[ (state.partnerName||"Partner")+" approx. corporate retained / invested amount",moneyD("partnerCorporateRetainedAmount") ]]:[]),
       ["Annual gross income",moneyD("clientIncome")],
       ...(isCouple()?[[ (state.partnerName||"Partner")+" annual income",moneyD("partnerIncome") ]]:[]),
       ["Children / dependants",D("hasDependants")],

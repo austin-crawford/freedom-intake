@@ -251,17 +251,18 @@ textarea{min-height:110px;resize:vertical}
   function investmentEntries(account){
     const current=state.investmentDetails[account];
     if(Array.isArray(current)){
-      if(!current.length) current.push({balance:"",contribution:"",employerContribution:""});
+      if(!current.length) current.push({balance:"",contribution:"",employerContribution:"",fullMatch:""});
       return current;
     }
     if(current && typeof current==="object"){
       state.investmentDetails[account]=[{
         balance:current.balance||"",
         contribution:current.contribution||"",
-        employerContribution:current.employerContribution||""
+        employerContribution:current.employerContribution||"",
+        fullMatch:current.fullMatch||""
       }];
     } else {
-      state.investmentDetails[account]=[{balance:"",contribution:"",employerContribution:""}];
+      state.investmentDetails[account]=[{balance:"",contribution:"",employerContribution:"",fullMatch:""}];
     }
     return state.investmentDetails[account];
   }
@@ -421,9 +422,9 @@ textarea{min-height:110px;resize:vertical}
         const account=el.dataset.investAccount;
         const idx=Number(el.dataset.investIndex);
         const type=el.dataset.investField;
-        const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
+        const raw=type==="fullMatch" ? el.value : el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
         const entries=investmentEntries(account);
-        if(!entries[idx]) entries[idx]={balance:"",contribution:"",employerContribution:""};
+        if(!entries[idx]) entries[idx]={balance:"",contribution:"",employerContribution:"",fullMatch:""};
         entries[idx][type]=raw;
       });
       return;
@@ -465,7 +466,8 @@ textarea{min-height:110px;resize:vertical}
             (entries.length>1?'<div class="debt-entry-head"><div class="debt-entry-title">'+escape(account)+' '+(idx+1)+'</div><button type="button" class="debt-remove" data-remove-invest="'+escape(account)+'" data-remove-invest-index="'+idx+'">Remove</button></div>':'')+
             '<label class="field-label"'+(entries.length>1?' style="margin-top:12px"':'')+'>Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
             '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="contribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.contribution||""))+'" placeholder="0"></div>'+
-            (isWorkplaceAccount(account)?'<label class="field-label" style="margin-top:14px">Employer monthly contribution / match</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="employerContribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.employerContribution||""))+'" placeholder="0"></div>':'')+
+            (isWorkplaceAccount(account)?'<label class="field-label" style="margin-top:14px">Employer monthly contribution / match</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="employerContribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.employerContribution||""))+'" placeholder="0"></div>'+
+            '<label class="field-label" style="margin-top:14px">Are you contributing enough to receive the full employer match?</label><select data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="fullMatch" style="width:100%;border:1px solid var(--border);border-radius:14px;background:#fff;padding:16px;font-size:17px"><option value="">Choose one</option><option value="Yes" '+(d.fullMatch==="Yes"?'selected':'')+'>Yes</option><option value="Not sure" '+(d.fullMatch==="Not sure"?'selected':'')+'>Not sure</option></select>':'')+
           '</div>').join("")+
         '</div>';
       }).join("")+'</div>';
@@ -538,7 +540,7 @@ textarea{min-height:110px;resize:vertical}
     document.querySelectorAll("[data-add-invest]").forEach(btn=>{
       btn.onclick=()=>{
         saveEntry(q);
-        investmentEntries(btn.dataset.addInvest).push({balance:"",contribution:"",employerContribution:""});
+        investmentEntries(btn.dataset.addInvest).push({balance:"",contribution:"",employerContribution:"",fullMatch:""});
         render();
       };
     });
@@ -610,7 +612,7 @@ textarea{min-height:110px;resize:vertical}
     if(q.y==="rank" && v.length!==rankableAreas().length){ $("errorBox").innerHTML='<div class="error">Please rank all selected areas to continue.</div>'; return false; }
     if(q.y==="investmentDetails"){
       const missing=selectedInvestmentAccounts().some(account=>investmentEntries(account).some(d=>
-        d.balance==="" || d.contribution==="" || (isWorkplaceAccount(account) && d.employerContribution==="")
+        d.balance==="" || d.contribution==="" || (isWorkplaceAccount(account) && (d.employerContribution==="" || d.fullMatch===""))
       ));
       if(missing){ $("errorBox").innerHTML='<div class="error">Please complete the balance and contribution fields for every investment account.</div>'; return false; }
     }
@@ -670,8 +672,9 @@ textarea{min-height:110px;resize:vertical}
           const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
           const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
           const employer=isWorkplaceAccount(account) && d.employerContribution!==undefined && d.employerContribution!=="" ? Number(d.employerContribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "";
+          const fullMatch=isWorkplaceAccount(account) ? (d.fullMatch||"Not provided") : "";
           const label=entries.length>1 ? account+" "+(idx+1) : account;
-          rows.push([label, "Balance: "+balance+" | Contribution: "+contribution+(employer?" | Employer: "+employer:"")]);
+          rows.push([label, "Balance: "+balance+" | Contribution: "+contribution+(employer?" | Employer: "+employer:"")+(fullMatch?" | Full employer match: "+fullMatch:"")]);
         });
       });
       rows.push(
@@ -788,11 +791,13 @@ textarea{min-height:110px;resize:vertical}
           const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
           const contribution=d.contribution!==undefined && d.contribution!=="" ? Number(d.contribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
           const employer=isWorkplaceAccount(account) && d.employerContribution!==undefined && d.employerContribution!=="" ? Number(d.employerContribution).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "";
+          const fullMatch=isWorkplaceAccount(account) ? (d.fullMatch||"Not provided") : "";
           const label=entries.length>1 ? account+" "+(idx+1) : account;
           return '<div class="account-card"><div class="account-name">'+escape(label)+'</div><div class="account-stats">'+
             '<div class="account-stat"><div class="account-stat-label">Current balance</div><div class="account-stat-value">'+escape(balance)+'</div></div>'+
             '<div class="account-stat"><div class="account-stat-label">Monthly contribution</div><div class="account-stat-value">'+escape(contribution)+'</div></div>'+
             (employer?'<div class="account-stat"><div class="account-stat-label">Employer contribution / match</div><div class="account-stat-value">'+escape(employer)+'</div></div>':'')+
+            (fullMatch?'<div class="account-stat"><div class="account-stat-label">Receiving full employer match?</div><div class="account-stat-value">'+escape(fullMatch)+'</div></div>':'')+
             '</div></div>';
         }).join("");
       }).join("");

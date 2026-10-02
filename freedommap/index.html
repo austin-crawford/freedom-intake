@@ -45,6 +45,11 @@ textarea{min-height:110px;resize:vertical}
 .section-card{border:1px solid var(--border);border-radius:16px;padding:16px;margin:14px 0}
 .section-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
 .section-title{font-weight:900;color:var(--navy)}
+.debt-group-head,.debt-entry-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.debt-add{width:38px;height:38px;border-radius:50%;border:0;background:var(--blue);color:#fff;font-size:24px;font-weight:800;line-height:1;cursor:pointer;flex:0 0 auto}
+.debt-entry{border-top:1px solid var(--border);margin-top:16px;padding-top:16px}.debt-entry.first{border-top:0;margin-top:0;padding-top:4px}
+.debt-entry-title{font-size:13px;font-weight:900;color:var(--muted)}
+.debt-remove{border:0;background:none;color:#b42318;font-size:12px;font-weight:850;cursor:pointer;padding:4px}
 .badge{font-size:12px;font-weight:800;border-radius:999px;padding:6px 9px;background:#eef5ff;color:var(--blue2)}
 .review-row{padding:12px 0;border-top:1px solid var(--border)}.review-row:first-child{border-top:0}
 .review-label{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:3px}.review-value{font-size:15px;color:var(--navy);white-space:pre-wrap}
@@ -239,6 +244,19 @@ textarea{min-height:110px;resize:vertical}
   }
   function isWorkplaceAccount(account){ return account.includes("Workplace pension / group plan"); }
   function hasIndividualPolicy(source){ return ["Individual policy","Both individual and group coverage"].includes(source); }
+  function debtEntries(debt){
+    const current=state.debtDetails[debt];
+    if(Array.isArray(current)){
+      if(!current.length) current.push({balance:"",rate:"",payment:""});
+      return current;
+    }
+    if(current && typeof current==="object"){
+      state.debtDetails[debt]=[{balance:current.balance||"",rate:current.rate||"",payment:current.payment||""}];
+    } else {
+      state.debtDetails[debt]=[{balance:"",rate:"",payment:""}];
+    }
+    return state.debtDetails[debt];
+  }
 
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
@@ -297,7 +315,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"mortgageSource", section:"Mortgage & Debt Elimination", t:"How did you arrange your current mortgage?", s:"Choose the closest answer.", y:"single", o:["Directly with a bank or credit union","Through a mortgage broker","Other","Not sure"], r:true, v:()=>state.housingSituation==="Own with a mortgage"},
     {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have any non-mortgage debt?", s:"This can include credit cards, lines of credit, vehicle loans, personal loans, student loans or tax debt.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
     {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of non-mortgage debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
-    {k:"debtDetails", section:"Mortgage & Debt Elimination", t:"Enter the details for your non-mortgage debts", s:"For each debt type, enter the current balance and interest rate.", y:"debtDetails", r:true, v:()=>state.hasNonMortgageDebt==="Yes" && state.debtTypes.length>0},
+    {k:"debtDetails", section:"Mortgage & Debt Elimination", t:"Enter the details for your non-mortgage debts", s:"For each debt, enter the current balance, interest rate and monthly payment. Use + to add another debt of the same type.", y:"debtDetails", r:true, v:()=>state.hasNonMortgageDebt==="Yes" && state.debtTypes.length>0},
     {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:()=>["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Would you be open to reviewing mortgage and debt elimination options?":"Would you be open to reviewing debt elimination options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination")},
 
     {k:"generalInsuranceNeeds", section:"General Insurance", t:"Which areas of general insurance would you like us to review?", s:"Select any policies you currently have or may need.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance")},
@@ -359,12 +377,14 @@ textarea{min-height:110px;resize:vertical}
       return;
     }
     if(q.y==="debtDetails"){
-      document.querySelectorAll("[data-debt-type]").forEach(el=>{
+      document.querySelectorAll("[data-debt-type][data-debt-index][data-debt-field]").forEach(el=>{
         const debt=el.dataset.debtType;
+        const idx=Number(el.dataset.debtIndex);
         const type=el.dataset.debtField;
         const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
-        if(!state.debtDetails[debt]) state.debtDetails[debt]={balance:"",rate:"",payment:""};
-        state.debtDetails[debt][type]=raw;
+        const entries=debtEntries(debt);
+        if(!entries[idx]) entries[idx]={balance:"",rate:"",payment:""};
+        entries[idx][type]=raw;
       });
       return;
     }
@@ -396,11 +416,16 @@ textarea{min-height:110px;resize:vertical}
     }
     if(q.y==="debtDetails"){
       return '<div class="options">'+state.debtTypes.map(debt=>{
-        const d=state.debtDetails[debt]||{balance:"",rate:"",payment:""};
-        return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(debt)+'</div>'+
-          '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
-          '<label class="field-label" style="margin-top:14px">Interest rate</label><div class="percent"><input data-debt-type="'+escape(debt)+'" data-debt-field="rate" inputmode="decimal" value="'+escape(d.rate||"")+'" placeholder="0.00"><span>%</span></div>'+
-          '<label class="field-label" style="margin-top:14px">Monthly payment</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="payment" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.payment||""))+'" placeholder="0"></div></div>';
+        const entries=debtEntries(debt);
+        return '<div class="section-card" style="margin:0">'+
+          '<div class="debt-group-head"><div class="section-title">'+escape(debt)+'</div><button type="button" class="debt-add" data-add-debt="'+escape(debt)+'" aria-label="Add another '+escape(debt)+'">+</button></div>'+
+          entries.map((d,idx)=>'<div class="debt-entry '+(idx===0?'first':'')+'">'+
+            (entries.length>1?'<div class="debt-entry-head"><div class="debt-entry-title">'+escape(debt)+' '+(idx+1)+'</div><button type="button" class="debt-remove" data-remove-debt="'+escape(debt)+'" data-remove-index="'+idx+'">Remove</button></div>':'')+
+            '<label class="field-label"'+(entries.length>1?' style="margin-top:12px"':'')+'>Current balance</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-index="'+idx+'" data-debt-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
+            '<label class="field-label" style="margin-top:14px">Interest rate</label><div class="percent"><input data-debt-type="'+escape(debt)+'" data-debt-index="'+idx+'" data-debt-field="rate" inputmode="decimal" value="'+escape(d.rate||"")+'" placeholder="0.00"><span>%</span></div>'+
+            '<label class="field-label" style="margin-top:14px">Monthly payment</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-index="'+idx+'" data-debt-field="payment" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.payment||""))+'" placeholder="0"></div>'+
+          '</div>').join("")+
+        '</div>';
       }).join("")+'</div>';
     }
     if(q.y==="lifeDetails"){
@@ -454,6 +479,22 @@ textarea{min-height:110px;resize:vertical}
         input.value=formatNumberInput(input.value);
       });
     });
+    document.querySelectorAll("[data-add-debt]").forEach(btn=>{
+      btn.onclick=()=>{
+        saveEntry(q);
+        debtEntries(btn.dataset.addDebt).push({balance:"",rate:"",payment:""});
+        render();
+      };
+    });
+    document.querySelectorAll("[data-remove-debt]").forEach(btn=>{
+      btn.onclick=()=>{
+        saveEntry(q);
+        const entries=debtEntries(btn.dataset.removeDebt);
+        const idx=Number(btn.dataset.removeIndex);
+        if(entries.length>1) entries.splice(idx,1);
+        render();
+      };
+    });
     document.querySelectorAll("[data-rank]").forEach(btn=>{
       btn.onclick=()=>{
         const val=btn.dataset.rank;
@@ -503,11 +544,8 @@ textarea{min-height:110px;resize:vertical}
       if(missing){ $("errorBox").innerHTML='<div class="error">Please complete the balance and contribution fields for each account.</div>'; return false; }
     }
     if(q.y==="debtDetails"){
-      const missing=state.debtTypes.some(debt=>{
-        const d=state.debtDetails[debt]||{};
-        return d.balance==="" || d.rate==="" || d.payment==="";
-      });
-      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter the balance, interest rate and monthly payment for each debt type.</div>'; return false; }
+      const missing=state.debtTypes.some(debt=>debtEntries(debt).some(d=>d.balance==="" || d.rate==="" || d.payment===""));
+      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter the balance, interest rate and monthly payment for every debt.</div>'; return false; }
     }
     if(q.y==="lifeDetails"){
       const d=state[q.k]||{};
@@ -588,11 +626,14 @@ textarea{min-height:110px;resize:vertical}
       if(state.hasNonMortgageDebt==="Yes"){
         rows.push(["Debt types",D("debtTypes")]);
         state.debtTypes.forEach(debt=>{
-          const d=state.debtDetails[debt]||{};
-          const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
-          const rate=d.rate!==undefined && d.rate!=="" ? d.rate+"%" : "Not provided";
-          const payment=d.payment!==undefined && d.payment!=="" ? Number(d.payment).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
-          rows.push([debt,"Balance: "+balance+" | Rate: "+rate+" | Payment: "+payment]);
+          const entries=debtEntries(debt);
+          entries.forEach((d,idx)=>{
+            const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
+            const rate=d.rate!==undefined && d.rate!=="" ? d.rate+"%" : "Not provided";
+            const payment=d.payment!==undefined && d.payment!=="" ? Number(d.payment).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
+            const label=entries.length>1 ? debt+" "+(idx+1) : debt;
+            rows.push([label,"Balance: "+balance+" | Rate: "+rate+" | Payment: "+payment]);
+          });
         });
       }
       rows.push([["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Open to reviewing mortgage & debt elimination options":"Open to reviewing debt elimination options",D("mortgageOpen")]);

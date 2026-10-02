@@ -17,18 +17,7 @@ html,body{margin:0;background:var(--bg);font-family:Inter,ui-sans-serif,system-u
 button,input,textarea{font:inherit}
 body{min-height:100vh}
 .app{max-width:760px;margin:0 auto;min-height:100vh;padding:18px 16px 40px}
-.topbar{
-  position:sticky;
-  top:0;
-  z-index:60;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:14px;
-  padding:10px 0;
-  background:var(--bg);
-}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
 .brand{font-weight:900;color:var(--navy);font-size:19px;letter-spacing:-.02em}
 .progress-copy{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--muted);margin-bottom:8px}
 .progress{height:8px;border-radius:999px;background:#e5ebf3;overflow:hidden;margin-bottom:18px}
@@ -49,14 +38,27 @@ textarea{min-height:110px;resize:vertical}
 .rank-option{display:flex;align-items:center;gap:12px}.rank-num{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#e8eef8;color:var(--navy);font-weight:900;flex:0 0 auto}.rank-option.selected .rank-num{background:var(--blue);color:#fff}.rank-reset{margin-top:12px;font-size:13px;color:var(--blue2);background:none;border:0;padding:0;font-weight:800;cursor:pointer}
 .money,.percent{position:relative}.money span,.percent span{position:absolute;top:50%;transform:translateY(-50%);font-weight:800;color:var(--muted)}
 .money span{left:16px}.money input{padding-left:34px}.percent span{right:16px}.percent input{padding-right:42px}
-.actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin:0}
+.actions{
+  position:sticky;
+  top:10px;
+  z-index:45;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  justify-content:flex-end;
+  width:max-content;
+  max-width:100%;
+  margin:-10px -10px 14px auto;
+  padding:10px;
+  border-radius:14px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(8px);
+}
 .btn{border:0;border-radius:10px;padding:9px 12px;font-weight:850;cursor:pointer;min-height:38px;white-space:nowrap}
 .btn.secondary{background:#fff;border:1px solid var(--border);color:var(--navy);flex:0 0 auto}
 .btn.primary{background:var(--blue);color:#fff;flex:0 0 auto}.btn.primary:hover{background:var(--blue2)}
 @media(max-width:560px){
-  .topbar{align-items:flex-start}
-  .brand{padding-top:8px}
-  .actions{gap:6px;flex-wrap:wrap}
+  .actions{gap:6px;flex-wrap:wrap;margin:-8px -8px 12px auto;padding:8px}
   .btn{padding:8px 10px;font-size:13px;min-height:36px}
 }
 .section-card{border:1px solid var(--border);border-radius:16px;padding:16px;margin:14px 0}
@@ -101,17 +103,17 @@ textarea{min-height:110px;resize:vertical}
 <main class="app">
   <div class="topbar">
     <div class="brand">Financial GPS</div>
-    <div class="actions" aria-label="Financial GPS navigation">
-      <button class="btn secondary" id="backBtn" type="button">Back</button>
-      <button class="btn secondary" id="emailBtn" type="button" style="display:none">Email</button>
-      <button class="btn primary" id="continueBtn" type="button">Continue</button>
-    </div>
   </div>
 
   <div class="progress-copy"><span id="progressText">Question 1</span><span id="progressPercent">0%</span></div>
   <div class="progress"><div id="progressBar"></div></div>
 
   <section class="card">
+    <div class="actions" aria-label="Financial GPS navigation">
+      <button class="btn secondary" id="backBtn" type="button">Back</button>
+      <button class="btn secondary" id="emailBtn" type="button" style="display:none">Email</button>
+      <button class="btn primary" id="continueBtn" type="button">Continue</button>
+    </div>
     <div id="screen"></div>
   </section>
 </main>

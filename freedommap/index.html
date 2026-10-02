@@ -1059,11 +1059,70 @@ textarea{min-height:110px;resize:vertical}
 
   function savePdf(){ window.print(); }
 
+  function emailCardText(card){
+    const lines=[];
+    const heading=card.querySelector(".section-title");
+    if(heading) lines.push(heading.textContent.trim().toUpperCase());
+
+    card.querySelectorAll(".summary-subhead,.account-card,.summary-line,.review-row").forEach(el=>{
+      if(el.closest(".account-card") && !el.classList.contains("account-card")) return;
+
+      if(el.classList.contains("summary-subhead")){
+        const text=el.textContent.trim();
+        if(text) lines.push("",text);
+        return;
+      }
+
+      if(el.classList.contains("account-card")){
+        const name=el.querySelector(".account-name");
+        if(name) lines.push("",name.textContent.trim());
+        el.querySelectorAll(".account-stat").forEach(stat=>{
+          const label=stat.querySelector(".account-stat-label");
+          const value=stat.querySelector(".account-stat-value");
+          if(label && value) lines.push("  "+label.textContent.trim()+": "+value.textContent.trim());
+        });
+        return;
+      }
+
+      if(el.classList.contains("summary-line")){
+        const label=el.querySelector(".summary-key");
+        const value=el.querySelector(".summary-val");
+        if(label && value) lines.push(label.textContent.trim()+": "+value.textContent.trim());
+        return;
+      }
+
+      if(el.classList.contains("review-row")){
+        const label=el.querySelector(".review-label");
+        const value=el.querySelector(".review-value");
+        if(label && value){
+          const v=value.textContent.trim().replace(/\n+/g,"\n  ");
+          lines.push(label.textContent.trim()+": "+v);
+        }
+      }
+    });
+
+    return lines.join("\n").replace(/\n{3,}/g,"\n\n").trim();
+  }
+
   function emailFinancialGps(){
-    const clone=$("screen").cloneNode(true);
-    clone.querySelectorAll(".edit-section,.action-box").forEach(el=>el.remove());
-    const body=clone.innerText.replace(/\n{3,}/g,"\n\n").trim();
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
+    const parts=[
+      "FINANCIAL GPS",
+      household||"Client",
+      ""
+    ];
+
+    $("screen").querySelectorAll(".section-card").forEach(card=>{
+      const text=emailCardText(card);
+      if(text) parts.push(text,"");
+    });
+
+    parts.push(
+      "This Financial GPS was prepared in the website and was not automatically stored or submitted.",
+      "Please send or save this information manually through your approved process."
+    );
+
+    const body=parts.join("\n").replace(/\n{3,}/g,"\n\n").trim();
     const subject="Financial GPS - "+(household||"Client");
     window.location.href="mailto:?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
   }

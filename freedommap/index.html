@@ -109,10 +109,6 @@ textarea{min-height:110px;resize:vertical}
     partnerDOB:"",
     clientOccupationStatus:"",
     partnerOccupationStatus:"",
-    clientCorporateRetained:"",
-    clientCorporateRetainedAmount:"",
-    partnerCorporateRetained:"",
-    partnerCorporateRetainedAmount:"",
     clientIncome:"",
     partnerIncome:"",
     hasDependants:"",
@@ -218,7 +214,20 @@ textarea{min-height:110px;resize:vertical}
     }
   };
 
-  const investmentAccountsSingle = ["RRSP","Spousal RRSP","TFSA","FHSA","Family RESP","Individual RESP","RDSP","Workplace pension / group plan","Non-registered investments","None","Not sure"];
+  const investmentAccountsSingle = () => [
+    "RRSP",
+    "Spousal RRSP",
+    "TFSA",
+    "FHSA",
+    "Family RESP",
+    "Individual RESP",
+    "RDSP",
+    "Workplace pension / group plan",
+    "Non-registered investments",
+    ...(state.clientOccupationStatus==="Corporate owner" ? ["Corporate investments / retained earnings"] : []),
+    "None",
+    "Not sure"
+  ];
   const investmentAccountsCouple = () => [
     (state.clientName || "Person 1") + " RRSP",
     (state.partnerName || "Person 2") + " RRSP",
@@ -235,6 +244,8 @@ textarea{min-height:110px;resize:vertical}
     (state.clientName || "Person 1") + " Workplace pension / group plan",
     (state.partnerName || "Person 2") + " Workplace pension / group plan",
     "Non-registered investments",
+    ...(state.clientOccupationStatus==="Corporate owner" ? [(state.clientName || "Person 1") + " Corporate investments / retained earnings"] : []),
+    ...(state.partnerOccupationStatus==="Corporate owner" ? [(state.partnerName || "Person 2") + " Corporate investments / retained earnings"] : []),
     "None",
     "Not sure"
   ];
@@ -284,6 +295,7 @@ textarea{min-height:110px;resize:vertical}
     return state.investmentDetails[account];
   }
   function isWorkplaceAccount(account){ return account.includes("Workplace pension / group plan"); }
+  function isCorporateInvestmentAccount(account){ return account.includes("Corporate investments / retained earnings"); }
   function hasIndividualPolicy(source){ return ["Individual policy","Both individual and group coverage"].includes(source); }
   function isNonHomeowner(){
     return !!state.housingSituation && !["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation);
@@ -362,14 +374,10 @@ textarea{min-height:110px;resize:vertical}
     {k:"emergencyFund", section:"Household Basics", t:"How much do you currently have set aside for emergencies?", s:"Enter your current emergency savings.", y:"money", p:"0", r:true},
     {k:"dtcApproved", section:"Household Basics", t:"Does anyone in your household already qualify for the Disability Tax Credit (DTC)?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true},
     {k:"dtcApprovedWho", section:"Household Basics", t:"Who has been approved for the DTC?", s:"Enter the person or people who have DTC approval.", y:"text", p:"Example: Me, spouse, child", r:true, v:()=>state.dtcApproved==="Yes"},
-    {k:"clientCorporateRetained", section:"Investments", t:()=>isCouple()?("Does "+(state.clientName || "the first person")+"\'s corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?"):"Does your corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?", s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>state.clientOccupationStatus==="Corporate owner"},
-    {k:"clientCorporateRetainedAmount", section:"Investments", t:()=>isCouple()?("Approximately how much is currently retained or invested in "+(state.clientName || "the first person")+"\'s corporation?"):"Approximately how much is currently retained or invested in your corporation?", s:"Enter an approximate amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>state.clientOccupationStatus==="Corporate owner" && state.clientCorporateRetained==="Yes"},
-    {k:"partnerCorporateRetained", section:"Investments", t:()=>("Does "+(state.partnerName || "your partner")+"\'s corporation currently have retained earnings or corporate investments beyond what is needed for day-to-day operations?"), s:"Choose the closest answer.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>isCouple() && state.partnerOccupationStatus==="Corporate owner"},
-    {k:"partnerCorporateRetainedAmount", section:"Investments", t:()=>("Approximately how much is currently retained or invested in "+(state.partnerName || "your partner")+"\'s corporation?"), s:"Enter an approximate amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>isCouple() && state.partnerOccupationStatus==="Corporate owner" && state.partnerCorporateRetained==="Yes"},
     {k:"clientRetirementAge", section:"Investments", t:()=>isCouple()?("At what age would "+(state.clientName || "the first person")+" like to retire?"):"At what age would you like to retire?", s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true},
     {k:"partnerRetirementAge", section:"Investments", t:()=>("At what age would "+(state.partnerName || "your partner")+" like to retire?"), s:"Enter target retirement age.", y:"number", p:"Retirement age", r:true, v:()=>isCouple()},
-    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
-    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
+    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply. Corporate owners can also include corporate investments or retained earnings.", y:"multi", o:investmentAccountsSingle, r:true, v:()=>wants("Investments") && !isCouple()},
+    {k:"investmentAccounts", section:"Investments", t:"Which savings or investment accounts do you currently have?", s:"Choose all that apply. Corporate owners can also include corporate investments or retained earnings.", y:"multi", o:investmentAccountsCouple, r:true, v:()=>wants("Investments") && isCouple()},
     {k:"investmentDetails", section:"Investments", t:"Enter the details for your investment accounts", s:"Enter the current balance and monthly contribution for each account. Use + to add another account of the same type.", y:"investmentDetails", r:true, v:()=>wants("Investments") && selectedInvestmentAccounts().length>0},
     {k:"investmentGoals", section:"Investments", t:"What are you currently saving or investing for?", s:"Choose all that apply.", y:"multi", o:investmentGoals, r:true, v:()=>wants("Investments")},
     {k:"retirementTargetKnowledge", section:"Investments", t:"Do you know how much you need to have saved to reach your retirement goal?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","Not sure"], r:true, v:()=>wants("Investments")},
@@ -524,8 +532,8 @@ textarea{min-height:110px;resize:vertical}
           '<div class="debt-group-head"><div class="section-title">'+escape(account)+'</div><button type="button" class="debt-add" data-add-invest="'+escape(account)+'" aria-label="Add another '+escape(account)+'">+</button></div>'+
           entries.map((d,idx)=>'<div class="debt-entry '+(idx===0?'first':'')+'">'+
             (entries.length>1?'<div class="debt-entry-head"><div class="debt-entry-title">'+escape(account)+' '+(idx+1)+'</div><button type="button" class="debt-remove" data-remove-invest="'+escape(account)+'" data-remove-invest-index="'+idx+'">Remove</button></div>':'')+
-            '<label class="field-label"'+(entries.length>1?' style="margin-top:12px"':'')+'>Current balance</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
-            '<label class="field-label" style="margin-top:14px">Current monthly contribution</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="contribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.contribution||""))+'" placeholder="0"></div>'+
+            '<label class="field-label"'+(entries.length>1?' style="margin-top:12px"':'')+'>'+(isCorporateInvestmentAccount(account)?'Current retained / invested amount':'Current balance')+'</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
+            '<label class="field-label" style="margin-top:14px">'+(isCorporateInvestmentAccount(account)?'Monthly amount added / invested':'Current monthly contribution')+'</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="contribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.contribution||""))+'" placeholder="0"></div>'+
             (isWorkplaceAccount(account)?'<label class="field-label" style="margin-top:14px">Employer monthly contribution / match</label><div class="money"><span>$</span><input data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="employerContribution" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.employerContribution||""))+'" placeholder="0"></div>'+
             '<label class="field-label" style="margin-top:14px">Are you contributing enough to receive the full employer match?</label><select data-invest-account="'+escape(account)+'" data-invest-index="'+idx+'" data-invest-field="fullMatch" style="width:100%;border:1px solid var(--border);border-radius:14px;background:#fff;padding:16px;font-size:17px"><option value="">Choose one</option><option value="Yes" '+(d.fullMatch==="Yes"?'selected':'')+'>Yes</option><option value="Not sure" '+(d.fullMatch==="Not sure"?'selected':'')+'>Not sure</option></select>':'')+
           '</div>').join("")+
@@ -836,18 +844,6 @@ textarea{min-height:110px;resize:vertical}
 
   function renderInvestmentSummary(){
     let html='';
-    if(state.clientOccupationStatus==="Corporate owner" || (isCouple() && state.partnerOccupationStatus==="Corporate owner")){
-      html+='<div class="summary-group"><div class="summary-subhead">Corporate Investments</div><div class="summary-grid">';
-      if(state.clientOccupationStatus==="Corporate owner"){
-        html+='<div class="summary-line"><div class="summary-key">'+escape(isCouple()?(state.clientName||"Person 1")+" retained earnings / corporate investments":"Retained earnings / corporate investments")+'</div><div class="summary-val'+attentionClass(D("clientCorporateRetained"))+'">'+escape(D("clientCorporateRetained"))+'</div></div>';
-        if(state.clientCorporateRetained==="Yes") html+='<div class="summary-line"><div class="summary-key">'+escape(isCouple()?(state.clientName||"Person 1")+" approx. retained / invested amount":"Approx. retained / invested amount")+'</div><div class="summary-val">'+escape(moneyD("clientCorporateRetainedAmount"))+'</div></div>';
-      }
-      if(isCouple() && state.partnerOccupationStatus==="Corporate owner"){
-        html+='<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" retained earnings / corporate investments")+'</div><div class="summary-val'+attentionClass(D("partnerCorporateRetained"))+'">'+escape(D("partnerCorporateRetained"))+'</div></div>';
-        if(state.partnerCorporateRetained==="Yes") html+='<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" approx. retained / invested amount")+'</div><div class="summary-val">'+escape(moneyD("partnerCorporateRetainedAmount"))+'</div></div>';
-      }
-      html+='</div></div>';
-    }
     html+='<div class="summary-group"><div class="summary-subhead">Retirement Timing</div><div class="summary-grid">'+
       '<div class="summary-line"><div class="summary-key">Target retirement age</div><div class="summary-val">'+escape(D("clientRetirementAge"))+'</div></div>'+
       (isCouple()?'<div class="summary-line"><div class="summary-key">'+escape((state.partnerName||"Partner")+" target retirement age")+'</div><div class="summary-val">'+escape(D("partnerRetirementAge"))+'</div></div>':'')+
@@ -863,8 +859,8 @@ textarea{min-height:110px;resize:vertical}
           const fullMatch=isWorkplaceAccount(account) ? (d.fullMatch||"Not provided") : "";
           const label=entries.length>1 ? account+" "+(idx+1) : account;
           return '<div class="account-card"><div class="account-name">'+escape(label)+'</div><div class="account-stats">'+
-            '<div class="account-stat"><div class="account-stat-label">Current balance</div><div class="account-stat-value">'+escape(balance)+'</div></div>'+
-            '<div class="account-stat"><div class="account-stat-label">Monthly contribution</div><div class="account-stat-value">'+escape(contribution)+'</div></div>'+
+            '<div class="account-stat"><div class="account-stat-label">'+(isCorporateInvestmentAccount(account)?'Current retained / invested amount':'Current balance')+'</div><div class="account-stat-value">'+escape(balance)+'</div></div>'+
+            '<div class="account-stat"><div class="account-stat-label">'+(isCorporateInvestmentAccount(account)?'Monthly amount added / invested':'Monthly contribution')+'</div><div class="account-stat-value">'+escape(contribution)+'</div></div>'+
             (employer?'<div class="account-stat"><div class="account-stat-label">Employer contribution / match</div><div class="account-stat-value">'+escape(employer)+'</div></div>':'')+
             (fullMatch?'<div class="account-stat"><div class="account-stat-label">Receiving full employer match?</div><div class="account-stat-value">'+escape(fullMatch)+'</div></div>':'')+
             '</div></div>';

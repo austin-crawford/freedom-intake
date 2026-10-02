@@ -104,6 +104,10 @@ textarea{min-height:110px;resize:vertical}
   const $ = id => document.getElementById(id);
   const state = {
     householdType:"",
+    clientFirstName:"",
+    clientLastInitial:"",
+    partnerFirstName:"",
+    partnerLastInitial:"",
     clientName:"",
     partnerName:"",
     clientAge:"",
@@ -263,6 +267,15 @@ textarea{min-height:110px;resize:vertical}
   const opennessOptions = ["Yes","Maybe","No"];
 
   function isCouple(){ return state.householdType === "Couple"; }
+  function personDisplayName(first,lastInitial){
+    const f=String(first||"").trim();
+    const l=String(lastInitial||"").replace(/[^A-Za-z]/g,"").slice(0,1).toUpperCase();
+    return [f,l?l+".":""].filter(Boolean).join(" ");
+  }
+  function syncDisplayNames(){
+    state.clientName=personDisplayName(state.clientFirstName,state.clientLastInitial);
+    state.partnerName=personDisplayName(state.partnerFirstName,state.partnerLastInitial);
+  }
   function wants(){ return true; }
   function rankableAreas(){
     const open=["Yes","Maybe"];
@@ -361,8 +374,10 @@ textarea{min-height:110px;resize:vertical}
 
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this Financial GPS?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
-    {k:"clientName", section:"Start", t:()=>isCouple()?"What are the first person's initials?":"What are your initials?", s:"Enter the first letter of the first name and the first letter of the last name.", y:"initials", p:"AB", r:true},
-    {k:"partnerName", section:"Start", t:"What are your spouse or partner's initials?", s:"Enter the first letter of the first name and the first letter of the last name.", y:"initials", p:"AB", r:true, v:()=>isCouple()},
+    {k:"clientFirstName", section:"Start", t:()=>isCouple()?"What is the first person's first name?":"What is your first name?", s:"Enter first name only.", y:"firstName", p:"First name", r:true},
+    {k:"clientLastInitial", section:"Start", t:()=>isCouple()?("What is "+(state.clientFirstName || "the first person")+"'s last initial?"):"What is your last initial?", s:"Enter only the first letter of the last name.", y:"lastInitial", p:"C", r:true},
+    {k:"partnerFirstName", section:"Start", t:"What is your spouse or partner's first name?", s:"Enter first name only.", y:"firstName", p:"First name", r:true, v:()=>isCouple()},
+    {k:"partnerLastInitial", section:"Start", t:()=>("What is "+(state.partnerFirstName || "your partner")+"'s last initial?"), s:"Enter only the first letter of the last name.", y:"lastInitial", p:"C", r:true, v:()=>isCouple()},
     {k:"clientAge", section:"Household Basics", t:()=>isCouple()?("How old is "+(state.clientName || "the first person")+"?"):"How old are you?", s:"Enter current age.", y:"number", p:"Age", r:true},
     {k:"clientOccupationStatus", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+"\'s current work status?"):"What is your current work status?", s:"Choose the closest answer.", y:"single", o:["Employed","Self-employed","Corporate owner","Retired","Homemaker","Not currently working","Other"], r:true},
     {k:"partnerAge", section:"Household Basics", t:()=>("How old is "+(state.partnerName || "your partner")+"?"), s:"Enter current age.", y:"number", p:"Age", r:true, v:()=>isCouple()},
@@ -533,8 +548,10 @@ textarea{min-height:110px;resize:vertical}
     let v=e.value.trim();
     if(q.y==="dateOrNotSure" && state[q.k]==="Not sure" && !v) return;
     if(["money","percent"].includes(q.y)) v=v.replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
-    if(q.y==="initials") v=v.replace(/[^A-Za-z]/g,"").slice(0,2).toUpperCase();
+    if(q.y==="firstName") v=v.replace(/\s+/g," ").trim();
+    if(q.y==="lastInitial") v=v.replace(/[^A-Za-z]/g,"").slice(0,1).toUpperCase();
     state[q.k]=q.save?q.save(v):v;
+    if(["clientFirstName","clientLastInitial","partnerFirstName","partnerLastInitial"].includes(q.k)) syncDisplayNames();
   }
 
   function field(q){
@@ -599,7 +616,8 @@ textarea{min-height:110px;resize:vertical}
         '<div class="options" style="margin-top:12px"><button type="button" class="option '+(isUnknown?'selected':'')+'" data-date-unknown="1">Not sure</button></div>';
     }
     if(q.y==="date") return `<label class="field-label" for="entry">Date</label><input id="entry" type="date" value="${escape(state[q.k])}">`;
-    if(q.y==="initials") return `<label class="field-label" for="entry">Initials</label><input id="entry" type="text" maxlength="2" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${escape(state[q.k])}" placeholder="${escape(q.p||"AB")}">`;
+    if(q.y==="firstName") return `<label class="field-label" for="entry">First name</label><input id="entry" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" value="${escape(state[q.k])}" placeholder="${escape(q.p||"First name")}">`;
+    if(q.y==="lastInitial") return `<label class="field-label" for="entry">Last initial</label><input id="entry" type="text" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${escape(state[q.k])}" placeholder="${escape(q.p||"C")}">`;
     if(q.y==="textarea") return `<label class="field-label" for="entry">Optional details</label><textarea id="entry" placeholder="${escape(q.p||"")}">${escape(state[q.k])}</textarea>`;
     const multi=q.y==="multi";
     const options=typeof q.o==="function" ? q.o() : q.o;
@@ -632,11 +650,11 @@ textarea{min-height:110px;resize:vertical}
         input.value=formatNumberInput(input.value);
       });
     });
-    if(q.y==="initials"){
-      const initialsInput=$("entry");
-      if(initialsInput){
-        initialsInput.addEventListener("input",()=>{
-          initialsInput.value=initialsInput.value.replace(/[^A-Za-z]/g,"").slice(0,2).toUpperCase();
+    if(q.y==="lastInitial"){
+      const lastInitialInput=$("entry");
+      if(lastInitialInput){
+        lastInitialInput.addEventListener("input",()=>{
+          lastInitialInput.value=lastInitialInput.value.replace(/[^A-Za-z]/g,"").slice(0,1).toUpperCase();
         });
       }
     }

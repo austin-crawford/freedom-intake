@@ -51,6 +51,7 @@ textarea{min-height:110px;resize:vertical}
 .debt-entry-title{font-size:13px;font-weight:900;color:var(--muted)}
 .debt-remove{border:0;background:none;color:#b42318;font-size:12px;font-weight:850;cursor:pointer;padding:4px}
 .badge{font-size:12px;font-weight:800;border-radius:999px;padding:6px 9px;background:#eef5ff;color:var(--blue2)}
+.edit-section{border:1px solid var(--border);background:#fff;color:var(--blue2);border-radius:10px;padding:7px 11px;font-size:12px;font-weight:850;cursor:pointer}
 .review-row{padding:12px 0;border-top:1px solid var(--border)}.review-row:first-child{border-top:0}
 .review-label{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:3px}.review-value{font-size:15px;color:var(--navy);white-space:pre-wrap}
 .summary-group{margin-top:14px;border-top:1px solid var(--border);padding-top:14px}
@@ -76,7 +77,7 @@ textarea{min-height:110px;resize:vertical}
 .action-box h3{margin:0 0 10px;color:var(--navy);font-size:17px}.action-box ul{padding-left:20px;margin:0}.action-box li{margin:7px 0}
 .note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:12px}.error{font-size:13px;color:#b42318;font-weight:700;margin-top:8px}
 @media(min-width:700px){.app{padding-top:30px}.card{padding:34px}h1{font-size:36px}}
-@media print{body{background:#fff}.app{max-width:none;padding:0}.topbar,.progress-copy,.progress,.actions{display:none!important}.card{border:0;box-shadow:none;padding:0}.section-card{break-inside:avoid}h1{font-size:28px}}
+@media print{body{background:#fff}.app{max-width:none;padding:0}.topbar,.progress-copy,.progress,.actions,.edit-section{display:none!important}.card{border:0;box-shadow:none;padding:0}.section-card{break-inside:avoid}h1{font-size:28px}}
 </style>
 </head>
 <body>
@@ -317,6 +318,23 @@ textarea{min-height:110px;resize:vertical}
     return state.debtDetails[debt];
   }
 
+  const reviewSections = [
+    "Household Basics",
+    "Investments",
+    "Personal Insurance",
+    "Mortgage & Debt Elimination",
+    "General Insurance (Home & Auto)",
+    "Legal Services"
+  ];
+  const sectionReviewItems = Object.fromEntries(
+    reviewSections.map(section=>[section,{
+      k:"__summary__"+section,
+      section:"Review",
+      y:"sectionSummary",
+      summaryThrough:section
+    }])
+  );
+
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
@@ -396,9 +414,20 @@ textarea{min-height:110px;resize:vertical}
     {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."}
   ];
 
-  let index=0, review=false, navHistory=[];
+  let index=0, review=false, navHistory=[], editReturnKey="", editSection="";
 
-  function visible(){ return Q.filter(q=>!q.v || q.v()); }
+  function visible(){
+    const questions=Q.filter(q=>!q.v || q.v());
+    const out=[];
+    questions.forEach((q,i)=>{
+      out.push(q);
+      const next=questions[i+1];
+      if(reviewSections.includes(q.section) && (!next || next.section!==q.section)){
+        out.push(sectionReviewItems[q.section]);
+      }
+    });
+    return out;
+  }
   function current(){ const list=visible(); if(index>=list.length) index=Math.max(0,list.length-1); return list[index]; }
   function rememberCurrent(){
     if(review) return;
@@ -545,13 +574,20 @@ textarea{min-height:110px;resize:vertical}
 
   function render(){
     review=false;
-    const list=visible(), q=current(), pct=Math.round(index/list.length*100);
-    $("progressText").textContent=`Question ${index+1} of ${list.length}`;
+    const list=visible(), q=current();
+    if(q.y==="sectionSummary"){
+      renderProgressiveSummary(q);
+      return;
+    }
+    const questions=list.filter(x=>x.y!=="sectionSummary");
+    const qPos=questions.indexOf(q);
+    const pct=Math.round(Math.max(0,qPos)/Math.max(1,questions.length)*100);
+    $("progressText").textContent=`Question ${qPos+1} of ${questions.length}`;
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent=index===list.length-1?"Review My FreedomMap":"Continue";
+    $("continueBtn").textContent="Continue";
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
     document.querySelectorAll("[data-money-input]").forEach(input=>{
       input.addEventListener("input",()=>{
@@ -636,30 +672,6 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function validate(){
-    const q=current(), v=state[q.k];
-    if(q.y==="rank" && v.length!==rankableAreas().length){ $("errorBox").innerHTML='<div class="error">Please rank all selected areas to continue.</div>'; return false; }
-    if(q.y==="investmentDetails"){
-      const missing=selectedInvestmentAccounts().some(account=>investmentEntries(account).some(d=>
-        d.balance==="" || d.contribution==="" || (isWorkplaceAccount(account) && (d.employerContribution==="" || d.fullMatch===""))
-      ));
-      if(missing){ $("errorBox").innerHTML='<div class="error">Please complete the balance and contribution fields for every investment account.</div>'; return false; }
-    }
-    if(q.y==="debtDetails"){
-      const missing=state.debtTypes.some(debt=>debtEntries(debt).some(d=>d.balance==="" || d.rate==="" || d.payment===""));
-      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter the balance, interest rate and monthly payment for every debt.</div>'; return false; }
-    }
-    if(q.y==="lifeDetails"){
-      const d=state[q.k]||{};
-      if(!d.coverage || !d.premium || !d.type){ $("errorBox").innerHTML='<div class="error">Please enter coverage, monthly premium and policy type.</div>'; return false; }
-    }
-    if(q.y==="coveragePremiumDetails"){
-      const d=state[q.k]||{};
-      if(!d.coverage || !d.premium){ $("errorBox").innerHTML='<div class="error">Please enter coverage and monthly premium.</div>'; return false; }
-    }
-    if(q.r && (Array.isArray(v)?v.length===0:!v)){
-      $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
-      return false;
-    }
     return true;
   }
 
@@ -867,17 +879,8 @@ textarea{min-height:110px;resize:vertical}
     return peopleSummary(section).map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("");
   }
 
-  function renderReview(){
-    review=true;
-    $("progressText").textContent="Review";
-    $("progressPercent").textContent="100%";
-    $("progressBar").style.width="100%";
-    $("backBtn").style.visibility="visible";
-    $("continueBtn").style.display="block";
-    $("continueBtn").textContent="Save / Print FreedomMap PDF";
-
-    const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
-    const householdRows=[
+  function householdSummaryRows(){
+    return [
       ["Date of birth",dateD("clientDOB")],
       ["Work status",D("clientOccupationStatus")],
       ...(isCouple()?[[ (state.partnerName||"Partner")+" date of birth",dateD("partnerDOB") ]]:[]),
@@ -891,22 +894,92 @@ textarea{min-height:110px;resize:vertical}
       ["DTC qualification",D("dtcApproved")],
       ...(state.dtcApproved==="Yes"?[["DTC qualifies for",D("dtcApprovedWho")]]:[])
     ];
-    const householdCard='<div class="section-card"><div class="section-head"><div class="section-title">Household Snapshot</div><div class="badge">Completed</div></div>'+householdRows.map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("")+'</div>';
-    const cards=sectionOptions.map(sec=>{
-      return `<div class="section-card"><div class="section-head"><div class="section-title">${escape(sec)}</div><div class="badge">Completed</div></div>`+
-        renderSectionSummary(sec) +
-      `</div>`;
-    }).join("");
+  }
+
+  function renderHouseholdSummary(){
+    return householdSummaryRows().map(([l,v])=>
+      '<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>'
+    ).join("");
+  }
+
+  function summaryCard(section,editable=true){
+    const content=section==="Household Basics" ? renderHouseholdSummary() : renderSectionSummary(section);
+    return '<div class="section-card"><div class="section-head"><div class="section-title">'+escape(section)+'</div>'+
+      (editable?'<button type="button" class="edit-section" data-edit-section="'+escape(section)+'">Edit</button>':'')+
+      '</div>'+content+'</div>';
+  }
+
+  function firstQuestionIndexForSection(section){
+    const list=visible();
+    const targetSection=section==="Household Basics" ? "Start" : section;
+    return list.findIndex(x=>x.y!=="sectionSummary" && x.section===targetSection);
+  }
+
+  function wireEditButtons(returnKey){
+    document.querySelectorAll("[data-edit-section]").forEach(btn=>{
+      btn.onclick=()=>{
+        editReturnKey=returnKey;
+        editSection=btn.dataset.editSection;
+        review=false;
+        navHistory=[];
+        const target=firstQuestionIndexForSection(editSection);
+        if(target>=0){
+          index=target;
+          render();
+        }
+      };
+    });
+  }
+
+  function renderProgressiveSummary(q){
+    const list=visible();
+    const questions=list.filter(x=>x.y!=="sectionSummary");
+    const completedCount=list.slice(0,index).filter(x=>x.y!=="sectionSummary").length;
+    const pct=Math.round(completedCount/Math.max(1,questions.length)*100);
+    const throughIndex=reviewSections.indexOf(q.summaryThrough);
+    const completed=reviewSections.slice(0,throughIndex+1);
+
+    $("progressText").textContent="Review";
+    $("progressPercent").textContent=pct+"%";
+    $("progressBar").style.width=pct+"%";
+    $("backBtn").style.visibility="visible";
+    $("continueBtn").style.display="block";
+    $("continueBtn").textContent="Continue";
+
+    $("screen").innerHTML=
+      '<div class="eyebrow">Review</div>'+
+      '<h1>Your FreedomMap so far</h1>'+
+      '<p class="sub">Review what has been captured. You can edit any completed section or continue.</p>'+
+      completed.map(section=>summaryCard(section,true)).join("");
+
+    wireEditButtons(q.k);
+  }
+
+  function renderReview(){
+    review=true;
+    $("progressText").textContent="Review";
+    $("progressPercent").textContent="100%";
+    $("progressBar").style.width="100%";
+    $("backBtn").style.visibility="visible";
+    $("continueBtn").style.display="block";
+    $("continueBtn").textContent="Save / Print FreedomMap PDF";
+
+    const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
+    const cards=reviewSections.map(sec=>summaryCard(sec,true)).join("");
+    const ranking=state.rankedAreas.length
+      ? state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n")
+      : "Not provided";
 
     $("screen").innerHTML=`
       <div class="eyebrow">Your FreedomMap</div>
-      <h1>${escape(household)}</h1>
+      <h1>${escape(household||"FreedomMap Review")}</h1>
       <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
-      ${householdCard}
-      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div><div class="badge">Ranked</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(state.rankedAreas.map((x,i)=>(i+1)+". "+x).join("\n"))}</div></div></div>
       ${cards}
+      <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(ranking)}</div></div></div>
       <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
     `;
+
+    wireEditButtons("__final__");
   }
 
   function savePdf(){ window.print(); }
@@ -914,17 +987,39 @@ textarea{min-height:110px;resize:vertical}
   $("continueBtn").onclick=()=>{
     if(review){ savePdf(); return; }
     const q=current();
-    if(q.y==="dateOrNotSure"){
-      const e=$("entry");
-      if(e && e.value) state[q.k]=e.value;
+
+    if(q.y!=="sectionSummary"){
+      if(q.y==="dateOrNotSure"){
+        const e=$("entry");
+        if(e && e.value) state[q.k]=e.value;
+      }
+      saveEntry(q);
+      if(!validate()) return;
     }
-    saveEntry(q);
-    if(!validate()) return;
 
     const list=visible();
-    if(index<list.length-1){
+    const here=list.indexOf(q);
+    const next=here>=0 ? list[here+1] : null;
+
+    if(editReturnKey && next && next.y==="sectionSummary" && next.summaryThrough===editSection){
+      const returnKey=editReturnKey;
+      editReturnKey="";
+      editSection="";
+      if(returnKey==="__final__"){
+        renderReview();
+        return;
+      }
+      const target=visible().findIndex(x=>x.k===returnKey);
+      if(target>=0){
+        index=target;
+        render();
+        return;
+      }
+    }
+
+    if(here>=0 && here<list.length-1){
       rememberCurrent();
-      index++;
+      index=here+1;
       render();
     } else {
       rememberCurrent();
@@ -940,7 +1035,8 @@ textarea{min-height:110px;resize:vertical}
       render();
       return;
     }
-    saveEntry(current());
+    const q=current();
+    if(q && q.y!=="sectionSummary") saveEntry(q);
     if(returnToHistory()) return;
     if(index>0){ index--; render(); }
   };

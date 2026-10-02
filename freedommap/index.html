@@ -153,7 +153,7 @@ textarea{min-height:110px;resize:vertical}
     investmentOpen:"",
 
     housingSituation:"",
-    renterBuyTimeframe:"",
+    homeBuyTimeframe:"",
     homeValueRange:"",
     mortgageBalanceRange:"",
     mortgagePayment:"",
@@ -234,7 +234,7 @@ textarea{min-height:110px;resize:vertical}
   ];
   const investmentGoals = ["Retirement","Home downpayment","Children's education","Building wealth","Emergency / short-term savings","Other","Not sure"];
 
-  const housingSituations = ["Own with a mortgage","Own mortgage-free","Renting","Living with family / other","Planning to buy","Not sure"];
+  const housingSituations = ["Own with a mortgage","Own mortgage-free","Renting","Living with family / other","Not sure"];
   const debtTypes = ["Credit cards","Line of credit","Vehicle loan","Personal loan","Student loan","CRA / tax debt","Other"];
 
   const generalInsuranceOptions = ["Auto","Home","Tenant","Landlord","Business / liability","Other","I’m not sure — review my needs"];
@@ -272,24 +272,27 @@ textarea{min-height:110px;resize:vertical}
   }
   function isWorkplaceAccount(account){ return account.includes("Workplace pension / group plan"); }
   function hasIndividualPolicy(source){ return ["Individual policy","Both individual and group coverage"].includes(source); }
-  function renterPlansToBuy(){
-    return state.housingSituation==="Renting" && state.renterBuyTimeframe && state.renterBuyTimeframe!=="I don’t plan to buy a house";
+  function isNonHomeowner(){
+    return !!state.housingSituation && !["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation);
+  }
+  function nonHomeownerPlansToBuy(){
+    return isNonHomeowner() && state.homeBuyTimeframe && state.homeBuyTimeframe!=="I don’t plan to buy a house";
   }
   function shouldAskMortgageOpen(){
-    if(state.housingSituation==="Renting"){
-      if(renterPlansToBuy()) return true;
+    if(isNonHomeowner()){
+      if(nonHomeownerPlansToBuy()) return true;
       return state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
     }
     return true;
   }
   function mortgageOpenQuestion(){
     const hasDebt=state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
-    if(state.housingSituation==="Renting"){
-      if(renterPlansToBuy() && hasDebt) return "Would you be open to reviewing mortgage and debt elimination options?";
-      if(renterPlansToBuy()) return "Would you be open to reviewing mortgage options?";
+    if(isNonHomeowner()){
+      if(nonHomeownerPlansToBuy() && hasDebt) return "Would you be open to reviewing mortgage and debt elimination options?";
+      if(nonHomeownerPlansToBuy()) return "Would you be open to reviewing mortgage options?";
       return "Would you be open to reviewing debt elimination options?";
     }
-    return ["Own with a mortgage","Planning to buy"].includes(state.housingSituation)
+    return state.housingSituation==="Own with a mortgage"
       ? "Would you be open to reviewing mortgage and debt elimination options?"
       : "Would you be open to reviewing debt elimination options?";
   }
@@ -361,7 +364,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"insuranceOpen", section:"Personal Insurance", t:"If an improvement or gap is identified, would you be open to reviewing options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Personal Insurance")},
 
     {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
-    {k:"renterBuyTimeframe", section:"Mortgage & Debt Elimination", t:"When do you plan to buy a house?", s:"Choose the closest timeframe.", y:"single", o:["Within 1 year","1–2 years","3–5 years","More than 5 years","I don’t plan to buy a house","Not sure"], r:true, v:()=>state.housingSituation==="Renting"},
+    {k:"homeBuyTimeframe", section:"Mortgage & Debt Elimination", t:"When would you like to buy a house?", s:"Choose the closest timeframe.", y:"single", o:["Within 1 year","1–2 years","3–5 years","More than 5 years","I don’t plan to buy a house","Not sure"], r:true, v:()=>isNonHomeowner()},
     {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && ["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)},
     {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgagePayment", section:"Mortgage & Debt Elimination", t:"What is your current monthly mortgage payment?", s:"Enter the monthly payment in Canadian dollars.", y:"money", p:"0", r:true, v:()=>state.housingSituation==="Own with a mortgage"},
@@ -694,8 +697,8 @@ textarea{min-height:110px;resize:vertical}
       const rows=[
         ["Housing situation",D("housingSituation")]
       ];
-      if(state.housingSituation==="Renting"){
-        rows.push(["Home purchase timeframe",D("renterBuyTimeframe")]);
+      if(isNonHomeowner()){
+        rows.push(["Home purchase timeframe",D("homeBuyTimeframe")]);
       }
       if(["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)){
         rows.push(["Home value",moneyD("homeValueRange")]);
@@ -720,9 +723,9 @@ textarea{min-height:110px;resize:vertical}
       if(shouldAskMortgageOpen()){
         let openLabel="Open to reviewing debt elimination options";
         const hasDebt=state.hasNonMortgageDebt==="Yes" || state.hasNonMortgageDebt==="Not sure";
-        if(state.housingSituation==="Renting" && renterPlansToBuy()){
+        if(isNonHomeowner() && nonHomeownerPlansToBuy()){
           openLabel=hasDebt ? "Open to reviewing mortgage & debt elimination options" : "Open to reviewing mortgage options";
-        } else if(["Own with a mortgage","Planning to buy"].includes(state.housingSituation)){
+        } else if(state.housingSituation==="Own with a mortgage"){
           openLabel="Open to reviewing mortgage & debt elimination options";
         }
         rows.push([openLabel,D("mortgageOpen")]);

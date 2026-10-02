@@ -1060,26 +1060,29 @@ textarea{min-height:110px;resize:vertical}
   function savePdf(){ window.print(); }
 
   function emailCardText(card){
-    const lines=[];
     const heading=card.querySelector(".section-title");
-    if(heading) lines.push(heading.textContent.trim().toUpperCase());
+    const title=heading ? heading.textContent.trim().toUpperCase() : "SECTION";
+    const lines=[
+      title,
+      "----------------------------------------"
+    ];
 
     card.querySelectorAll(".summary-subhead,.account-card,.summary-line,.review-row").forEach(el=>{
       if(el.closest(".account-card") && !el.classList.contains("account-card")) return;
 
       if(el.classList.contains("summary-subhead")){
         const text=el.textContent.trim();
-        if(text) lines.push("",text);
+        if(text) lines.push("",text.toUpperCase());
         return;
       }
 
       if(el.classList.contains("account-card")){
         const name=el.querySelector(".account-name");
-        if(name) lines.push("",name.textContent.trim());
+        if(name) lines.push("","• "+name.textContent.trim());
         el.querySelectorAll(".account-stat").forEach(stat=>{
           const label=stat.querySelector(".account-stat-label");
           const value=stat.querySelector(".account-stat-value");
-          if(label && value) lines.push("  "+label.textContent.trim()+": "+value.textContent.trim());
+          if(label && value) lines.push("   "+label.textContent.trim()+": "+value.textContent.trim());
         });
         return;
       }
@@ -1087,7 +1090,7 @@ textarea{min-height:110px;resize:vertical}
       if(el.classList.contains("summary-line")){
         const label=el.querySelector(".summary-key");
         const value=el.querySelector(".summary-val");
-        if(label && value) lines.push(label.textContent.trim()+": "+value.textContent.trim());
+        if(label && value) lines.push("• "+label.textContent.trim()+": "+value.textContent.trim());
         return;
       }
 
@@ -1095,8 +1098,16 @@ textarea{min-height:110px;resize:vertical}
         const label=el.querySelector(".review-label");
         const value=el.querySelector(".review-value");
         if(label && value){
-          const v=value.textContent.trim().replace(/\n+/g,"\n  ");
-          lines.push(label.textContent.trim()+": "+v);
+          const labelText=label.textContent.trim();
+          const valueText=value.textContent.trim();
+          if(labelText==="Areas ranked by importance"){
+            const ranked=valueText.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+            if(ranked.length) lines.push(...ranked);
+            else lines.push("Not provided");
+          } else {
+            const wrapped=valueText.replace(/\n+/g,"\n   ");
+            lines.push("• "+labelText+": "+wrapped);
+          }
         }
       }
     });
@@ -1108,7 +1119,8 @@ textarea{min-height:110px;resize:vertical}
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
     const parts=[
       "FINANCIAL GPS",
-      household||"Client",
+      "Client: "+(household||"Client"),
+      "========================================",
       ""
     ];
 
@@ -1116,11 +1128,6 @@ textarea{min-height:110px;resize:vertical}
       const text=emailCardText(card);
       if(text) parts.push(text,"");
     });
-
-    parts.push(
-      "This Financial GPS was prepared in the website and was not automatically stored or submitted.",
-      "Please send or save this information manually through your approved process."
-    );
 
     const body=parts.join("\n").replace(/\n{3,}/g,"\n\n").trim();
     const subject="Financial GPS - "+(household||"Client");

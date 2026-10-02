@@ -1070,6 +1070,21 @@ textarea{min-height:110px;resize:vertical}
     if(index>0){ index--; render(); }
   };
 
+  $("progressPercent").onclick=()=>{
+    if(review) return;
+    const q=current();
+    if(q && q.y!=="sectionSummary") saveEntry(q);
+    const list=visible();
+    const target=list.findIndex(x=>x.y==="sectionSummary" && x.summaryThrough==="Legal Services");
+    if(target>=0){
+      editReturnKey="";
+      editSection="";
+      navHistory=[];
+      index=target;
+      render();
+    }
+  };
+
   render();
 })();
 </script>

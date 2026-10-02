@@ -143,6 +143,7 @@ textarea{min-height:110px;resize:vertical}
     mortgageBalanceRange:"",
     mortgageRateRange:"",
     mortgageRenewalDate:"",
+    mortgageSource:"",
     hasNonMortgageDebt:"",
     debtTypes:[],
     debtDetails:{},
@@ -279,6 +280,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRateRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage interest rate?", s:"Enter the current rate.", y:"percent", p:"0.00", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRenewalDate", section:"Mortgage & Debt Elimination", t:"When is your mortgage renewal date?", s:"Enter the exact renewal date.", y:"date", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"mortgageSource", section:"Mortgage & Debt Elimination", t:"How did you arrange your current mortgage?", s:"Choose the closest answer.", y:"single", o:["Directly with a bank or credit union","Through a mortgage broker","Other","Not sure"], r:true, v:()=>state.housingSituation==="Own with a mortgage"},
     {k:"hasNonMortgageDebt", section:"Mortgage & Debt Elimination", t:"Do you currently have any non-mortgage debt?", s:"This can include credit cards, lines of credit, vehicle loans, personal loans, student loans or tax debt.", y:"single", o:["Yes","No","Not sure"], r:true, v:()=>wants("Mortgage & Debt Elimination")},
     {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of non-mortgage debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
     {k:"debtDetails", section:"Mortgage & Debt Elimination", t:"Enter the details for your non-mortgage debts", s:"For each debt type, enter the current balance and interest rate.", y:"debtDetails", r:true, v:()=>state.hasNonMortgageDebt==="Yes" && state.debtTypes.length>0},
@@ -534,7 +536,7 @@ textarea{min-height:110px;resize:vertical}
         rows.push(["Home value",moneyD("homeValueRange")]);
       }
       if(state.housingSituation==="Own with a mortgage"){
-        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Mortgage renewal date",dateD("mortgageRenewalDate")]);
+        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Mortgage renewal date",dateD("mortgageRenewalDate")],["Mortgage arranged through",D("mortgageSource")]);
       }
       rows.push(["Non-mortgage debt",D("hasNonMortgageDebt")]);
       if(state.hasNonMortgageDebt==="Yes"){

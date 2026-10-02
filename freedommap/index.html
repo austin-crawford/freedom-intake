@@ -175,7 +175,11 @@ textarea{min-height:110px;resize:vertical}
     partnerLegalDocuments:[],
     legalInterest:"",
 
-    otherNotes:""
+    investmentNotes:"",
+    personalInsuranceNotes:"",
+    mortgageDebtNotes:"",
+    generalInsuranceNotes:"",
+    legalServicesNotes:""
   };
 
   const sectionOptions = [
@@ -365,6 +369,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"taxOptimizationKnowledge", section:"Investments", t:"Do you know whether you're using the most tax-efficient accounts and contribution strategy for your situation?", s:"Choose the closest answer.", y:"single", o:["Yes","Somewhat","Not sure"], r:true, v:()=>wants("Investments")},
     {k:"retirementDurationKnowledge", section:"Investments", t:"Do you know how long your retirement savings are expected to last?", s:"Choose the closest answer.", y:"single", o:["Yes","I have an estimate","Not sure"], r:true, v:()=>wants("Investments")},
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
+    {k:"investmentNotes", section:"Investments", t:"Any notes or context for Investments?", s:"Optional. Add anything that would help provide context for this section.", y:"textarea", p:"Optional notes..."},
 
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"clientLifeDetails", section:"Personal Insurance", t:()=>isCouple()?("Enter "+(state.clientName || "the first person")+"'s life insurance details"):"Enter your life insurance details", s:"Enter the coverage, monthly premium and policy type.", y:"lifeDetails", r:true, v:()=>hasIndividualPolicy(state.clientLife)},
@@ -387,6 +392,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"partnerTravel", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your travel insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
     {k:"insuranceFit", section:"Personal Insurance", t:"Do you feel your current personal insurance meets your needs?", s:"Choose the closest answer.", y:"single", o:fitOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"insuranceOpen", section:"Personal Insurance", t:"If an improvement or gap is identified, would you be open to reviewing options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"personalInsuranceNotes", section:"Personal Insurance", t:"Any notes or context for Personal Insurance?", s:"Optional. Add anything that would help provide context for this section.", y:"textarea", p:"Optional notes..."},
 
     {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
     {k:"homeBuyTimeframe", section:"Mortgage & Debt Elimination", t:"When would you like to buy a house?", s:"Choose the closest timeframe.", y:"single", o:["Within 1 year","1–2 years","3–5 years","More than 5 years","I don’t plan to buy a house","Not sure"], r:true, v:()=>isNonHomeowner()},
@@ -400,18 +406,20 @@ textarea{min-height:110px;resize:vertical}
     {k:"debtTypes", section:"Mortgage & Debt Elimination", t:"What types of non-mortgage debt do you currently have?", s:"Choose all that apply.", y:"multi", o:debtTypes, r:true, v:()=>wants("Mortgage & Debt Elimination") && state.hasNonMortgageDebt==="Yes"},
     {k:"debtDetails", section:"Mortgage & Debt Elimination", t:"Enter the details for your non-mortgage debts", s:"For each debt, enter the current balance, interest rate and monthly payment. Use + to add another debt of the same type.", y:"debtDetails", r:true, v:()=>state.hasNonMortgageDebt==="Yes" && state.debtTypes.length>0},
     {k:"mortgageOpen", section:"Mortgage & Debt Elimination", t:mortgageOpenQuestion, s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Mortgage & Debt Elimination") && shouldAskMortgageOpen()},
+    {k:"mortgageDebtNotes", section:"Mortgage & Debt Elimination", t:"Any notes or context for Mortgage & Debt Elimination?", s:"Optional. Add anything that would help provide context for this section.", y:"textarea", p:"Optional notes..."},
 
     {k:"lastCompared", section:"General Insurance (Home & Auto)", t:"When did you last compare your Home & Auto insurance coverage or pricing with a broker?", s:"Choose the closest answer.", y:"single", o:["Within the last year","1–3 years ago","More than 3 years ago","Never","Not sure"], r:true, v:()=>wants("General Insurance (Home & Auto)")},
     {k:"generalInsuranceNeeds", section:"General Insurance (Home & Auto)", t:"Which types of general insurance do you currently have or may need?", s:"Choose all that apply.", y:"multi", o:generalInsuranceOptions, r:true, v:()=>wants("General Insurance (Home & Auto)")},
     {k:"generalInsuranceRenewalDate", section:"General Insurance (Home & Auto)", t:"When is your next Home or Auto insurance renewal?", s:"Enter the exact date if known, or choose Not sure.", y:"dateOrNotSure", r:true, v:()=>wants("General Insurance (Home & Auto)")},
     {k:"openToComparison", section:"General Insurance (Home & Auto)", t:"If an improvement in coverage or pricing is identified, would you be open to a no-obligation comparison?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("General Insurance (Home & Auto)")},
+    {k:"generalInsuranceNotes", section:"General Insurance (Home & Auto)", t:"Any notes or context for General Insurance (Home & Auto)?", s:"Optional. Add anything that would help provide context for this section.", y:"textarea", p:"Optional notes..."},
 
     {k:"clientLegalDocuments", section:"Legal Services", t:()=>isCouple()?`Which legal documents does ${state.clientName || "the first person"} currently have in place?`:"Which legal documents do you currently have in place?", s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services")},
     {k:"partnerLegalDocuments", section:"Legal Services", t:()=>`Which legal documents does ${state.partnerName || "your partner"} currently have in place?`, s:"Choose all that apply.", y:"multi", o:legalDocumentOptions, r:true, v:()=>wants("Legal Services") && isCouple()},
     {k:"legalInterest", section:"Legal Services", t:"Would you be open to reviewing options for any missing or outdated legal documents?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Legal Services")},
+    {k:"legalServicesNotes", section:"Legal Services", t:"Any notes or context for Legal Services?", s:"Optional. Add anything that would help provide context for this section.", y:"textarea", p:"Optional notes..."},
 
-    {k:"rankedAreas", section:"Finish", t:"Rank these areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true},
-    {k:"otherNotes", section:"Finish", t:"Anything else you'd like your representative to know?", s:"Optional. Add anything else you'd like your representative to know.", y:"textarea", p:"Optional notes..."}
+    {k:"rankedAreas", section:"Finish", t:"Rank these areas in order of importance to you", s:"Tap each area from most important to least important.", y:"rank", o:rankableAreas, r:true}
   ];
 
   let index=0, review=false, navHistory=[], editReturnKey="", editSection="";
@@ -587,7 +595,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent="Continue";
+    $("continueBtn").textContent=(q.y==="rank" ? "Save / Print FreedomMap PDF" : "Continue");
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
     document.querySelectorAll("[data-money-input]").forEach(input=>{
       input.addEventListener("input",()=>{
@@ -874,9 +882,23 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function renderSectionSummary(section){
-    if(section==="Personal Insurance") return renderInsuranceSummary();
-    if(section==="Investments") return renderInvestmentSummary();
-    return peopleSummary(section).map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("");
+    let content="";
+    if(section==="Personal Insurance") content=renderInsuranceSummary();
+    else if(section==="Investments") content=renderInvestmentSummary();
+    else content=peopleSummary(section).map(([l,v])=>'<div class="review-row"><div class="review-label">'+escape(l)+'</div><div class="review-value">'+escape(v)+'</div></div>').join("");
+
+    const noteKeys={
+      "Investments":"investmentNotes",
+      "Personal Insurance":"personalInsuranceNotes",
+      "Mortgage & Debt Elimination":"mortgageDebtNotes",
+      "General Insurance (Home & Auto)":"generalInsuranceNotes",
+      "Legal Services":"legalServicesNotes"
+    };
+    const noteKey=noteKeys[section];
+    if(noteKey && state[noteKey]){
+      content+='<div class="review-row"><div class="review-label">Notes / context</div><div class="review-value">'+escape(state[noteKey])+'</div></div>';
+    }
+    return content;
   }
 
   function householdSummaryRows(){
@@ -976,7 +998,6 @@ textarea{min-height:110px;resize:vertical}
       <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
       ${cards}
       <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(ranking)}</div></div></div>
-      <div class="review-row"><div class="review-label">Additional notes</div><div class="review-value">${escape(D("otherNotes"))}</div></div>
     `;
 
     wireEditButtons("__final__");
@@ -1024,6 +1045,7 @@ textarea{min-height:110px;resize:vertical}
     } else {
       rememberCurrent();
       renderReview();
+      setTimeout(savePdf,0);
     }
   };
 

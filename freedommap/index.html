@@ -963,18 +963,21 @@ textarea{min-height:110px;resize:vertical}
     const pct=Math.round(completedCount/Math.max(1,questions.length)*100);
     const throughIndex=reviewSections.indexOf(q.summaryThrough);
     const completed=reviewSections.slice(0,throughIndex+1);
+    const finalBeforePriorities=q.summaryThrough==="Legal Services";
 
-    $("progressText").textContent="Review";
+    $("progressText").textContent=finalBeforePriorities?"Final Summary":"Review";
     $("progressPercent").textContent=pct+"%";
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility="visible";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent="Continue";
+    $("continueBtn").textContent=finalBeforePriorities?"Continue to Priorities":"Continue";
 
     $("screen").innerHTML=
-      '<div class="eyebrow">Review</div>'+
-      '<h1>Your Financial GPS so far</h1>'+
-      '<p class="sub">Review what has been captured. You can edit any completed section or continue.</p>'+
+      '<div class="eyebrow">'+(finalBeforePriorities?'Final Review':'Review')+'</div>'+
+      '<h1>'+(finalBeforePriorities?'Final Financial GPS Summary':'Your Financial GPS so far')+'</h1>'+
+      '<p class="sub">'+(finalBeforePriorities
+        ?'Review the complete Financial GPS below. Next, you will rank the areas you are open to reviewing so your representative knows what to address first.'
+        :'Review what has been captured. You can edit any completed section or continue.')+'</p>'+
       completed.map(section=>summaryCard(section,true)).join("");
 
     wireEditButtons(q.k);

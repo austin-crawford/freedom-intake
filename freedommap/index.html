@@ -113,13 +113,17 @@ textarea{min-height:110px;resize:vertical}
     rankedAreas:[],
 
     clientLife:"",
-    clientLifeAmount:"",
+    clientLifeDetails:{coverage:"",premium:"",type:""},
     partnerLife:"",
-    partnerLifeAmount:"",
+    partnerLifeDetails:{coverage:"",premium:"",type:""},
     clientDisability:"",
+    clientDisabilityDetails:{coverage:"",premium:""},
     partnerDisability:"",
+    partnerDisabilityDetails:{coverage:"",premium:""},
     clientCI:"",
+    clientCIDetails:{coverage:"",premium:""},
     partnerCI:"",
+    partnerCIDetails:{coverage:"",premium:""},
     clientHealthDental:"",
     partnerHealthDental:"",
     clientTravel:"",
@@ -141,6 +145,7 @@ textarea{min-height:110px;resize:vertical}
     renterBuyTimeframe:"",
     homeValueRange:"",
     mortgageBalanceRange:"",
+    mortgagePayment:"",
     mortgageRateRange:"",
     mortgageRenewalDate:"",
     mortgageSource:"",
@@ -233,6 +238,7 @@ textarea{min-height:110px;resize:vertical}
     return state.investmentAccounts.filter(x=>!["None","Not sure"].includes(x));
   }
   function isWorkplaceAccount(account){ return account.includes("Workplace pension / group plan"); }
+  function hasIndividualPolicy(source){ return ["Individual policy","Both individual and group coverage"].includes(source); }
 
   const Q = [
     {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
@@ -260,13 +266,20 @@ textarea{min-height:110px;resize:vertical}
     {k:"investmentOpen", section:"Investments", t:"If an improvement is identified, would you be open to reviewing other investment options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Investments")},
 
     {k:"clientLife", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your life insurance come from?`:"Where does your life insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
-    {k:"clientLifeAmount", section:"Personal Insurance", t:()=>isCouple()?("How much total life insurance coverage does "+(state.clientName || "the first person")+" have?"):"How much total life insurance coverage do you have?", s:"Enter the total coverage amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>!["None","Not sure",""].includes(state.clientLife)},
+    {k:"clientLifeDetails", section:"Personal Insurance", t:()=>isCouple()?("Enter "+(state.clientName || "the first person")+"'s life insurance details"):"Enter your life insurance details", s:"Enter the coverage, monthly premium and policy type.", y:"lifeDetails", r:true, v:()=>hasIndividualPolicy(state.clientLife)},
     {k:"partnerLife", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your life insurance come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
-    {k:"partnerLifeAmount", section:"Personal Insurance", t:()=>("How much total life insurance coverage does "+(state.partnerName || "your partner")+" have?"), s:"Enter the total coverage amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>isCouple() && !["None","Not sure",""].includes(state.partnerLife)},
+    {k:"partnerLifeDetails", section:"Personal Insurance", t:()=>("Enter "+(state.partnerName || "your partner")+"'s life insurance details"), s:"Enter the coverage, monthly premium and policy type.", y:"lifeDetails", r:true, v:()=>isCouple() && hasIndividualPolicy(state.partnerLife)},
+
     {k:"clientDisability", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your disability coverage come from?`:"Where does your disability coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"clientDisabilityDetails", section:"Personal Insurance", t:()=>isCouple()?("Enter "+(state.clientName || "the first person")+"'s individual disability policy details"):"Enter your individual disability policy details", s:"Enter the coverage and monthly premium.", y:"coveragePremiumDetails", r:true, v:()=>hasIndividualPolicy(state.clientDisability)},
     {k:"partnerDisability", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your disability coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"partnerDisabilityDetails", section:"Personal Insurance", t:()=>("Enter "+(state.partnerName || "your partner")+"'s individual disability policy details"), s:"Enter the coverage and monthly premium.", y:"coveragePremiumDetails", r:true, v:()=>isCouple() && hasIndividualPolicy(state.partnerDisability)},
+
     {k:"clientCI", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your critical illness coverage come from?`:"Where does your critical illness coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
+    {k:"clientCIDetails", section:"Personal Insurance", t:()=>isCouple()?("Enter "+(state.clientName || "the first person")+"'s individual critical illness policy details"):"Enter your individual critical illness policy details", s:"Enter the coverage and monthly premium.", y:"coveragePremiumDetails", r:true, v:()=>hasIndividualPolicy(state.clientCI)},
     {k:"partnerCI", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your critical illness coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
+    {k:"partnerCIDetails", section:"Personal Insurance", t:()=>("Enter "+(state.partnerName || "your partner")+"'s individual critical illness policy details"), s:"Enter the coverage and monthly premium.", y:"coveragePremiumDetails", r:true, v:()=>isCouple() && hasIndividualPolicy(state.partnerCI)},
+
     {k:"clientHealthDental", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your health & dental coverage come from?`:"Where does your health & dental coverage come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
     {k:"partnerHealthDental", section:"Personal Insurance", t:()=>`${state.partnerName || "Partner"} — where does your health & dental coverage come from?`, s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance") && isCouple()},
     {k:"clientTravel", section:"Personal Insurance", t:()=>isCouple()?`${state.clientName || "First person"} — where does your travel insurance come from?`:"Where does your travel insurance come from?", s:"Choose the closest answer.", y:"single", o:coverageSourceOptions, r:true, v:()=>wants("Personal Insurance")},
@@ -278,6 +291,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"renterBuyTimeframe", section:"Mortgage & Debt Elimination", t:"When do you plan to buy a house?", s:"Choose the closest timeframe.", y:"single", o:["Within 1 year","1–2 years","3–5 years","More than 5 years","I don’t plan to buy a house","Not sure"], r:true, v:()=>state.housingSituation==="Renting"},
     {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && ["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)},
     {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
+    {k:"mortgagePayment", section:"Mortgage & Debt Elimination", t:"What is your current monthly mortgage payment?", s:"Enter the monthly payment in Canadian dollars.", y:"money", p:"0", r:true, v:()=>state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRateRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage interest rate?", s:"Enter the current rate.", y:"percent", p:"0.00", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRenewalDate", section:"Mortgage & Debt Elimination", t:"When is your mortgage renewal date?", s:"Enter the exact renewal date.", y:"date", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageSource", section:"Mortgage & Debt Elimination", t:"How did you arrange your current mortgage?", s:"Choose the closest answer.", y:"single", o:["Directly with a bank or credit union","Through a mortgage broker","Other","Not sure"], r:true, v:()=>state.housingSituation==="Own with a mortgage"},
@@ -349,8 +363,16 @@ textarea{min-height:110px;resize:vertical}
         const debt=el.dataset.debtType;
         const type=el.dataset.debtField;
         const raw=el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
-        if(!state.debtDetails[debt]) state.debtDetails[debt]={balance:"",rate:""};
+        if(!state.debtDetails[debt]) state.debtDetails[debt]={balance:"",rate:"",payment:""};
         state.debtDetails[debt][type]=raw;
+      });
+      return;
+    }
+    if(["lifeDetails","coveragePremiumDetails"].includes(q.y)){
+      const details=state[q.k];
+      document.querySelectorAll("[data-ins-field]").forEach(el=>{
+        const type=el.dataset.insField;
+        details[type]=type==="type" ? el.value : el.value.trim().replace(/[$,%\s,]/g,"").replace(/[^0-9.]/g,"");
       });
       return;
     }
@@ -374,11 +396,27 @@ textarea{min-height:110px;resize:vertical}
     }
     if(q.y==="debtDetails"){
       return '<div class="options">'+state.debtTypes.map(debt=>{
-        const d=state.debtDetails[debt]||{balance:"",rate:""};
+        const d=state.debtDetails[debt]||{balance:"",rate:"",payment:""};
         return '<div class="section-card" style="margin:0"><div class="section-title" style="margin-bottom:14px">'+escape(debt)+'</div>'+
           '<label class="field-label">Current balance</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="balance" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.balance||""))+'" placeholder="0"></div>'+
-          '<label class="field-label" style="margin-top:14px">Interest rate</label><div class="percent"><input data-debt-type="'+escape(debt)+'" data-debt-field="rate" inputmode="decimal" value="'+escape(d.rate||"")+'" placeholder="0.00"><span>%</span></div></div>';
+          '<label class="field-label" style="margin-top:14px">Interest rate</label><div class="percent"><input data-debt-type="'+escape(debt)+'" data-debt-field="rate" inputmode="decimal" value="'+escape(d.rate||"")+'" placeholder="0.00"><span>%</span></div>'+
+          '<label class="field-label" style="margin-top:14px">Monthly payment</label><div class="money"><span>$</span><input data-debt-type="'+escape(debt)+'" data-debt-field="payment" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.payment||""))+'" placeholder="0"></div></div>';
       }).join("")+'</div>';
+    }
+    if(q.y==="lifeDetails"){
+      const d=state[q.k];
+      return '<div class="section-card" style="margin:0">'+
+        '<label class="field-label">Coverage amount</label><div class="money"><span>$</span><input data-ins-field="coverage" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.coverage||""))+'" placeholder="0"></div>'+
+        '<label class="field-label" style="margin-top:14px">Monthly premium</label><div class="money"><span>$</span><input data-ins-field="premium" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.premium||""))+'" placeholder="0"></div>'+
+        '<label class="field-label" style="margin-top:14px">Policy type</label><select data-ins-field="type" style="width:100%;border:1px solid var(--border);border-radius:14px;background:#fff;padding:16px;font-size:17px"><option value="">Choose one</option>'+["Term","Universal Life (UL)","Whole Life (WL)","Other","Not sure"].map(x=>'<option value="'+escape(x)+'" '+(d.type===x?'selected':'')+'>'+escape(x)+'</option>').join("")+'</select>'+
+        '</div>';
+    }
+    if(q.y==="coveragePremiumDetails"){
+      const d=state[q.k];
+      return '<div class="section-card" style="margin:0">'+
+        '<label class="field-label">Coverage amount</label><div class="money"><span>$</span><input data-ins-field="coverage" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.coverage||""))+'" placeholder="0"></div>'+
+        '<label class="field-label" style="margin-top:14px">Monthly premium</label><div class="money"><span>$</span><input data-ins-field="premium" data-money-input inputmode="decimal" value="'+escape(formatNumberInput(d.premium||""))+'" placeholder="0"></div>'+
+        '</div>';
     }
     if(q.y==="rank"){
       const options=typeof q.o==="function" ? q.o() : q.o;
@@ -467,9 +505,17 @@ textarea{min-height:110px;resize:vertical}
     if(q.y==="debtDetails"){
       const missing=state.debtTypes.some(debt=>{
         const d=state.debtDetails[debt]||{};
-        return d.balance==="" || d.rate==="";
+        return d.balance==="" || d.rate==="" || d.payment==="";
       });
-      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter both the balance and interest rate for each debt type.</div>'; return false; }
+      if(missing){ $("errorBox").innerHTML='<div class="error">Please enter the balance, interest rate and monthly payment for each debt type.</div>'; return false; }
+    }
+    if(q.y==="lifeDetails"){
+      const d=state[q.k]||{};
+      if(!d.coverage || !d.premium || !d.type){ $("errorBox").innerHTML='<div class="error">Please enter coverage, monthly premium and policy type.</div>'; return false; }
+    }
+    if(q.y==="coveragePremiumDetails"){
+      const d=state[q.k]||{};
+      if(!d.coverage || !d.premium){ $("errorBox").innerHTML='<div class="error">Please enter coverage and monthly premium.</div>'; return false; }
     }
     if(q.r && (Array.isArray(v)?v.length===0:!v)){
       $("errorBox").innerHTML='<div class="error">Please answer this question to continue.</div>';
@@ -500,9 +546,9 @@ textarea{min-height:110px;resize:vertical}
   function peopleSummary(section){
     if(section==="Personal Insurance"){
       let rows=[
-        [state.clientName||"Client",`Life: ${D("clientLife")} (${moneyD("clientLifeAmount")}) | Disability: ${D("clientDisability")} | Critical Illness: ${D("clientCI")} | Health & Dental: ${D("clientHealthDental")} | Travel: ${D("clientTravel")}`]
+        [state.clientName||"Client",`Life: ${D("clientLife")} | Disability: ${D("clientDisability")} | Critical Illness: ${D("clientCI")} | Health & Dental: ${D("clientHealthDental")} | Travel: ${D("clientTravel")}`]
       ];
-      if(isCouple()) rows.push([state.partnerName||"Partner",`Life: ${D("partnerLife")} (${moneyD("partnerLifeAmount")}) | Disability: ${D("partnerDisability")} | Critical Illness: ${D("partnerCI")} | Health & Dental: ${D("partnerHealthDental")} | Travel: ${D("partnerTravel")}`]);
+      if(isCouple()) rows.push([state.partnerName||"Partner",`Life: ${D("partnerLife")} | Disability: ${D("partnerDisability")} | Critical Illness: ${D("partnerCI")} | Health & Dental: ${D("partnerHealthDental")} | Travel: ${D("partnerTravel")}`]);
       rows.push(["Does current coverage meet needs?",D("insuranceFit")],["Open to reviewing options",D("insuranceOpen")]);
       return rows;
     }
@@ -536,7 +582,7 @@ textarea{min-height:110px;resize:vertical}
         rows.push(["Home value",moneyD("homeValueRange")]);
       }
       if(state.housingSituation==="Own with a mortgage"){
-        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Mortgage interest rate",percentD("mortgageRateRange")],["Mortgage renewal date",dateD("mortgageRenewalDate")],["Mortgage arranged through",D("mortgageSource")]);
+        rows.push(["Mortgage balance",moneyD("mortgageBalanceRange")],["Monthly mortgage payment",moneyD("mortgagePayment")],["Mortgage interest rate",percentD("mortgageRateRange")],["Mortgage renewal date",dateD("mortgageRenewalDate")],["Mortgage arranged through",D("mortgageSource")]);
       }
       rows.push(["Non-mortgage debt",D("hasNonMortgageDebt")]);
       if(state.hasNonMortgageDebt==="Yes"){
@@ -545,7 +591,8 @@ textarea{min-height:110px;resize:vertical}
           const d=state.debtDetails[debt]||{};
           const balance=d.balance!==undefined && d.balance!=="" ? Number(d.balance).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
           const rate=d.rate!==undefined && d.rate!=="" ? d.rate+"%" : "Not provided";
-          rows.push([debt,"Balance: "+balance+" | Rate: "+rate]);
+          const payment=d.payment!==undefined && d.payment!=="" ? Number(d.payment).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2})+"/month" : "Not provided";
+          rows.push([debt,"Balance: "+balance+" | Rate: "+rate+" | Payment: "+payment]);
         });
       }
       rows.push([["Own with a mortgage","Planning to buy"].includes(state.housingSituation)?"Open to reviewing mortgage & debt elimination options":"Open to reviewing debt elimination options",D("mortgageOpen")]);
@@ -572,20 +619,28 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function renderInsuranceSummary(){
-    const types=[
-      ["Life Insurance","clientLife","partnerLife"],
-      ["Disability Insurance","clientDisability","partnerDisability"],
-      ["Critical Illness Insurance","clientCI","partnerCI"],
-      ["Health & Dental","clientHealthDental","partnerHealthDental"],
-      ["Travel Insurance","clientTravel","partnerTravel"]
-    ];
-    const personBlock=(name,isPartner)=>'<div class="summary-group"><div class="summary-subhead">'+escape(name)+'</div><div class="summary-grid">'+
-      types.map(([label,clientKey,partnerKey])=>{
-        const value=D(isPartner?partnerKey:clientKey);
-        const amountKey=isPartner?"partnerLifeAmount":"clientLifeAmount";
-        const display=label==="Life Insurance" && !["None","Not sure","Not provided"].includes(value) ? value+" — "+moneyD(amountKey) : value;
-        return '<div class="summary-line"><div class="summary-key">'+escape(label)+'</div><div class="summary-val'+attentionClass(value)+'">'+escape(display)+'</div></div>';
-      }).join("")+'</div></div>';
+    const moneyFrom=(obj,key)=>obj && obj[key]!==undefined && obj[key]!=="" ? Number(obj[key]).toLocaleString("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:2}) : "Not provided";
+    const personBlock=(name,isPartner)=>{
+      const lifeSource=D(isPartner?"partnerLife":"clientLife");
+      const life=state[isPartner?"partnerLifeDetails":"clientLifeDetails"]||{};
+      const disabilitySource=D(isPartner?"partnerDisability":"clientDisability");
+      const disability=state[isPartner?"partnerDisabilityDetails":"clientDisabilityDetails"]||{};
+      const ciSource=D(isPartner?"partnerCI":"clientCI");
+      const ci=state[isPartner?"partnerCIDetails":"clientCIDetails"]||{};
+      const health=D(isPartner?"partnerHealthDental":"clientHealthDental");
+      const travel=D(isPartner?"partnerTravel":"clientTravel");
+      const lifeDisplay=hasIndividualPolicy(lifeSource) ? lifeSource+" — "+moneyFrom(life,"coverage")+" coverage | "+moneyFrom(life,"premium")+"/month | "+(life.type||"Not provided") : lifeSource;
+      const disabilityDisplay=hasIndividualPolicy(disabilitySource) ? disabilitySource+" — "+moneyFrom(disability,"coverage")+" coverage | "+moneyFrom(disability,"premium")+"/month" : disabilitySource;
+      const ciDisplay=hasIndividualPolicy(ciSource) ? ciSource+" — "+moneyFrom(ci,"coverage")+" coverage | "+moneyFrom(ci,"premium")+"/month" : ciSource;
+      const rows=[
+        ["Life Insurance",lifeDisplay],
+        ["Disability Insurance",disabilityDisplay],
+        ["Critical Illness Insurance",ciDisplay],
+        ["Health & Dental",health],
+        ["Travel Insurance",travel]
+      ];
+      return '<div class="summary-group"><div class="summary-subhead">'+escape(name)+'</div><div class="summary-grid">'+rows.map(([label,value])=>'<div class="summary-line"><div class="summary-key">'+escape(label)+'</div><div class="summary-val'+attentionClass(value)+'">'+escape(value)+'</div></div>').join("")+'</div></div>';
+    };
 
     let html=personBlock(state.clientName||"Client",false);
     if(isCouple()) html+=personBlock(state.partnerName||"Partner",true);

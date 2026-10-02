@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>FreedomMap</title>
+<title>Financial GPS</title>
 <style>
 :root{
   --navy:#0b1f3a;--blue:#1463ff;--blue2:#0d4ed8;--bg:#f5f8fc;--text:#202b3c;
@@ -83,7 +83,7 @@ textarea{min-height:110px;resize:vertical}
 <body>
 <main class="app">
   <div class="topbar">
-    <div class="brand">FreedomMap</div>
+    <div class="brand">Financial GPS</div>
   </div>
 
   <div class="progress-copy"><span id="progressText">Question 1</span><span id="progressPercent">0%</span></div>
@@ -359,7 +359,7 @@ textarea{min-height:110px;resize:vertical}
   );
 
   const Q = [
-    {k:"householdType", section:"Start", t:"Who is completing this FreedomMap?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
+    {k:"householdType", section:"Start", t:"Who is completing this Financial GPS?", s:"We'll tailor the questions for one person or a couple.", y:"single", o:["Just me","Couple"], r:true},
     {k:"clientName", section:"Start", t:()=>isCouple()?"What is the first person's name?":"What's your name?", s:"First and last name.", y:"text", p:"First and last name", r:true},
     {k:"partnerName", section:"Start", t:"What is your spouse or partner's name?", s:"First and last name.", y:"text", p:"First and last name", r:true, v:()=>isCouple()},
     {k:"clientDOB", section:"Household Basics", t:()=>isCouple()?("What is "+(state.clientName || "the first person")+"'s date of birth?"):"What is your date of birth?", s:"Enter the full date of birth.", y:"date", r:true},
@@ -610,7 +610,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width=pct+"%";
     $("backBtn").style.visibility=index===0?"hidden":"visible";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent=(q.y==="rank" ? "Save / Print FreedomMap PDF" : "Continue");
+    $("continueBtn").textContent=(q.y==="rank" ? "Save / Print Financial GPS PDF" : "Continue");
     $("screen").innerHTML=`<div class="eyebrow">${escape(q.section)}</div><h1>${escape(title(q))}</h1><p class="sub">${escape(q.s||"")}</p>${field(q)}<div id="errorBox"></div>`;
     document.querySelectorAll("[data-money-input]").forEach(input=>{
       input.addEventListener("input",()=>{
@@ -973,7 +973,7 @@ textarea{min-height:110px;resize:vertical}
 
     $("screen").innerHTML=
       '<div class="eyebrow">Review</div>'+
-      '<h1>Your FreedomMap so far</h1>'+
+      '<h1>Your Financial GPS so far</h1>'+
       '<p class="sub">Review what has been captured. You can edit any completed section or continue.</p>'+
       completed.map(section=>summaryCard(section,true)).join("");
 
@@ -987,7 +987,7 @@ textarea{min-height:110px;resize:vertical}
     $("progressBar").style.width="100%";
     $("backBtn").style.visibility="visible";
     $("continueBtn").style.display="block";
-    $("continueBtn").textContent="Save / Print FreedomMap PDF";
+    $("continueBtn").textContent="Save / Print Financial GPS PDF";
 
     const household=isCouple()?`${state.clientName} & ${state.partnerName}`:state.clientName;
     const cards=reviewSections.map(sec=>summaryCard(sec,true)).join("");
@@ -996,9 +996,9 @@ textarea{min-height:110px;resize:vertical}
       : "Not provided";
 
     $("screen").innerHTML=`
-      <div class="eyebrow">Your FreedomMap</div>
-      <h1>${escape(household||"FreedomMap Review")}</h1>
-      <p class="sub">Review the completed FreedomMap, then save or print it as a PDF for your records.</p>
+      <div class="eyebrow">Your Financial GPS</div>
+      <h1>${escape(household||"Financial GPS Review")}</h1>
+      <p class="sub">Review the completed Financial GPS, then save or print it as a PDF for your records.</p>
       <div class="section-card"><div class="section-head"><div class="section-title">Your Priorities</div></div><div class="review-row"><div class="review-label">Areas ranked by importance</div><div class="review-value">${escape(ranking)}</div></div></div>
       ${cards}
     `;

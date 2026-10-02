@@ -138,6 +138,7 @@ textarea{min-height:110px;resize:vertical}
     investmentOpen:"",
 
     housingSituation:"",
+    renterBuyTimeframe:"",
     homeValueRange:"",
     mortgageBalanceRange:"",
     mortgageRateRange:"",
@@ -273,6 +274,7 @@ textarea{min-height:110px;resize:vertical}
     {k:"insuranceOpen", section:"Personal Insurance", t:"If an improvement or gap is identified, would you be open to reviewing options?", s:"Choose the closest answer.", y:"single", o:opennessOptions, r:true, v:()=>wants("Personal Insurance")},
 
     {k:"housingSituation", section:"Mortgage & Debt Elimination", t:"What best describes your current housing situation?", s:"Choose the closest answer.", y:"single", o:housingSituations, r:true, v:()=>wants("Mortgage & Debt Elimination")},
+    {k:"renterBuyTimeframe", section:"Mortgage & Debt Elimination", t:"When do you plan to buy a house?", s:"Choose the closest timeframe.", y:"single", o:["Within 1 year","1–2 years","3–5 years","More than 5 years","I don’t plan to buy a house","Not sure"], r:true, v:()=>state.housingSituation==="Renting"},
     {k:"homeValueRange", section:"Mortgage & Debt Elimination", t:"What is the estimated current value of your home?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && ["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)},
     {k:"mortgageBalanceRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage balance?", s:"Enter the amount in Canadian dollars.", y:"money", p:"0", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
     {k:"mortgageRateRange", section:"Mortgage & Debt Elimination", t:"What is your current mortgage interest rate?", s:"Enter the current rate.", y:"percent", p:"0.00", r:true, v:()=>wants("Mortgage & Debt Elimination") && state.housingSituation==="Own with a mortgage"},
@@ -525,6 +527,9 @@ textarea{min-height:110px;resize:vertical}
       const rows=[
         ["Housing situation",D("housingSituation")]
       ];
+      if(state.housingSituation==="Renting"){
+        rows.push(["Home purchase timeframe",D("renterBuyTimeframe")]);
+      }
       if(["Own with a mortgage","Own mortgage-free"].includes(state.housingSituation)){
         rows.push(["Home value",moneyD("homeValueRange")]);
       }

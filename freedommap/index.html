@@ -39,6 +39,22 @@ textarea{min-height:110px;resize:vertical}
 .money,.percent{position:relative}.money span,.percent span{position:absolute;top:50%;transform:translateY(-50%);font-weight:800;color:var(--muted)}
 .money span{left:16px}.money input{padding-left:34px}.percent span{right:16px}.percent input{padding-right:42px}
 .actions{display:flex;gap:10px;margin-top:26px}
+.actions.floating-summary{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:max(12px, env(safe-area-inset-bottom));
+  width:min(calc(100% - 32px), 720px);
+  z-index:50;
+  margin-top:0;
+  padding:10px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 10px 30px rgba(11,31,58,.16);
+  backdrop-filter:blur(10px);
+}
+body.summary-actions-open .card{padding-bottom:110px}
 .btn{border:0;border-radius:14px;padding:15px 18px;font-weight:850;cursor:pointer;min-height:52px}
 .btn.secondary{background:#fff;border:1px solid var(--border);color:var(--navy);flex:0 0 auto}
 .btn.primary{background:var(--blue);color:#fff;flex:1}.btn.primary:hover{background:var(--blue2)}
@@ -77,7 +93,7 @@ textarea{min-height:110px;resize:vertical}
 .action-box h3{margin:0 0 10px;color:var(--navy);font-size:17px}.action-box ul{padding-left:20px;margin:0}.action-box li{margin:7px 0}
 .note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:12px}.error{font-size:13px;color:#b42318;font-weight:700;margin-top:8px}
 @media(min-width:700px){.app{padding-top:30px}.card{padding:34px}h1{font-size:36px}}
-@media print{body{background:#fff}.app{max-width:none;padding:0}.topbar,.progress-copy,.progress,.actions,.edit-section{display:none!important}.card{border:0;box-shadow:none;padding:0}.section-card{break-inside:avoid}h1{font-size:28px}}
+@media print{body{background:#fff}.app{max-width:none;padding:0}body.summary-actions-open .card{padding-bottom:0}.topbar,.progress-copy,.progress,.actions,.edit-section{display:none!important}.card{border:0;box-shadow:none;padding:0}.section-card{break-inside:avoid}h1{font-size:28px}}
 </style>
 </head>
 <body>
@@ -628,6 +644,8 @@ textarea{min-height:110px;resize:vertical}
 
   function render(){
     review=false;
+    document.body.classList.remove("summary-actions-open");
+    document.querySelector(".actions")?.classList.remove("floating-summary");
     const list=visible(), q=current();
     if(q.y==="sectionSummary"){
       renderProgressiveSummary(q);
@@ -997,6 +1015,8 @@ textarea{min-height:110px;resize:vertical}
   }
 
   function renderProgressiveSummary(q){
+    document.body.classList.add("summary-actions-open");
+    document.querySelector(".actions")?.classList.add("floating-summary");
     const list=visible();
     const questions=list.filter(x=>x.y!=="sectionSummary");
     const completedCount=list.slice(0,index).filter(x=>x.y!=="sectionSummary").length;
@@ -1026,6 +1046,8 @@ textarea{min-height:110px;resize:vertical}
 
   function renderReview(){
     review=true;
+    document.body.classList.add("summary-actions-open");
+    document.querySelector(".actions")?.classList.add("floating-summary");
     $("progressText").textContent="Review";
     $("progressPercent").textContent="100%";
     $("progressBar").style.width="100%";
